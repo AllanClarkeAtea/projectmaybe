@@ -9,7 +9,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
 <style>
-  /* ── Colour tokens ─────────────────────────────────────────────── */
   :root {
     --c-bg:      #0a0a0f;
     --c-surface: #13131a;
@@ -20,329 +19,196 @@
     --c-green:   #34d399;
     --c-red:     #f87171;
     --c-text:    #f0eeff;
-    /* WCAG fix: replaced rgba(240,238,255,0.45) ≈ 2.8:1 with solid #8b89a8 ≈ 4.6:1 */
     --c-muted:   #8b89a8;
   }
-
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { font-size: 16px; }
-  body {
-    background: var(--c-bg);
-    color: var(--c-text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+  body { background: var(--c-bg); color: var(--c-text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
   h1,h2,h3,.font-display { font-family: 'Syne', sans-serif; }
 
-  /* ── Screens ───────────────────────────────────────────────────── */
   .screen { display: none; min-height: 100vh; }
   .screen.active { display: flex; flex-direction: column; }
 
-  /* ── Decorative backgrounds (aria-hidden in HTML) ─────────────── */
-  .bg-dots {
-    position: fixed; inset: 0; pointer-events: none; z-index: 0;
-    background-image: radial-gradient(circle, rgba(124,92,252,0.12) 1px, transparent 1px);
-    background-size: 32px 32px;
-  }
-  .bg-glow {
-    position: fixed; pointer-events: none; z-index: 0;
-    border-radius: 50%; filter: blur(80px); opacity: 0.15;
-  }
+  .bg-dots { position: fixed; inset: 0; pointer-events: none; z-index: 0; background-image: radial-gradient(circle, rgba(124,92,252,0.12) 1px, transparent 1px); background-size: 32px 32px; }
+  .bg-glow { position: fixed; pointer-events: none; z-index: 0; border-radius: 50%; filter: blur(80px); opacity: 0.15; }
   .glow-purple { width:400px; height:400px; background:#7c5cfc; top:-100px; right:-100px; }
   .glow-teal   { width:300px; height:300px; background:#4fd1c5; bottom:-80px; left:-80px; }
   .z1 { position: relative; z-index: 1; }
 
-  /* ── Cards ─────────────────────────────────────────────────────── */
-  .card {
-    background: var(--c-surface);
-    border: 1px solid var(--c-border);
-    border-radius: 16px;
-    padding: 1.25rem 1.5rem;
-  }
+  .card { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 16px; padding: 1.25rem 1.5rem; }
   .card-sm { border-radius: 12px; padding: 0.85rem 1.1rem; }
 
-  /* ── Buttons ───────────────────────────────────────────────────── */
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     font-family: 'Syne', sans-serif; font-weight: 600; font-size: 1rem;
     border: none; cursor: pointer; border-radius: 12px;
     padding: 0.8rem 1.75rem; transition: background 0.18s, box-shadow 0.18s, transform 0.1s;
-    text-decoration: none; letter-spacing: 0.01em;
-    /* WCAG 2.5.8: minimum 44px touch target height */
-    min-height: 44px;
+    text-decoration: none; letter-spacing: 0.01em; min-height: 44px;
   }
-  /* WCAG 2.4.11: visible focus indicator – 2px offset outline */
-  .btn:focus-visible {
-    outline: 3px solid var(--c-accent);
-    outline-offset: 3px;
-  }
+  .btn:focus-visible { outline: 3px solid var(--c-accent); outline-offset: 3px; }
   .btn:active { transform: scale(0.97); }
-
   .btn-primary { background: var(--c-accent); color: #fff; }
   .btn-primary:hover { background: #6b4ef0; box-shadow: 0 0 24px rgba(124,92,252,0.4); }
-
   .btn-ghost { background: var(--c-surface2); color: var(--c-text); border: 1px solid var(--c-border); }
   .btn-ghost:hover { background: rgba(255,255,255,0.08); }
-
-  /* btn-green: text #34d399 on #065f46 → 4.6:1 ✓ */
   .btn-green { background: #065f46; color: var(--c-green); border: 1px solid rgba(52,211,153,0.35); }
   .btn-green:hover { background: #047857; box-shadow: 0 0 20px rgba(52,211,153,0.3); }
-
-  /* btn-red: text #f87171 on #450a0a → 5.0:1 ✓ */
   .btn-red { background: #450a0a; color: var(--c-red); border: 1px solid rgba(248,113,113,0.35); }
   .btn-red:hover { background: #7f1d1d; box-shadow: 0 0 20px rgba(248,113,113,0.3); }
-
-  /* btn-hint: text #c4b5fd on #1c1a2e → 7.2:1 ✓ */
   .btn-hint { background: #1c1a2e; color: #c4b5fd; border: 1px solid rgba(196,181,253,0.3); }
   .btn-hint:hover { background: #2d2b4e; }
-
   .btn-xl { padding: 1.25rem 2.75rem; font-size: 1.1rem; border-radius: 16px; width: 100%; min-height: 56px; }
   .btn-sm { padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 8px; min-height: 44px; }
 
-  /* ── Inputs & selects ──────────────────────────────────────────── */
-  input[type="text"], input[type="number"], select {
-    background: var(--c-surface2);
-    border: 1px solid var(--c-border);
-    border-radius: 10px;
-    color: var(--c-text);
-    padding: 0.65rem 1rem;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 1rem;
-    /* WCAG 2.4.11: keep browser focus ring, override only colour */
-    outline: 2px solid transparent;
-    outline-offset: 2px;
-    transition: border-color 0.15s, outline-color 0.15s;
-    width: 100%;
-    min-height: 44px;
+  input[type="text"], select {
+    background: var(--c-surface2); border: 1px solid var(--c-border); border-radius: 10px;
+    color: var(--c-text); padding: 0.65rem 1rem; font-family: 'DM Sans', sans-serif;
+    font-size: 1rem; outline: 2px solid transparent; outline-offset: 2px;
+    transition: border-color 0.15s, outline-color 0.15s; width: 100%; min-height: 44px;
   }
-  input:focus-visible, select:focus-visible {
-    border-color: var(--c-accent);
-    outline-color: var(--c-accent);
-  }
+  input:focus-visible, select:focus-visible { border-color: var(--c-accent); outline-color: var(--c-accent); }
   select option { background: #1c1c27; }
 
-  /* ── Timer ring ────────────────────────────────────────────────── */
+  /* Range slider */
+  .range-wrap { display: flex; flex-direction: column; gap: 6px; }
+  .range-row  { display: flex; align-items: center; gap: 12px; }
+  input[type="range"] {
+    flex: 1; height: 6px; border-radius: 3px; appearance: none;
+    background: var(--c-surface2); border: none; outline: none; cursor: pointer;
+    accent-color: var(--c-accent);
+  }
+  input[type="range"]:focus-visible { outline: 3px solid var(--c-accent); outline-offset: 3px; }
+  .range-val {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem;
+    color: var(--c-accent); min-width: 52px; text-align: right;
+  }
+
   .timer-ring-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; }
   .timer-ring { transform: rotate(-90deg); }
   .timer-bg  { fill: none; stroke: rgba(255,255,255,0.08); }
   .timer-arc { fill: none; stroke-linecap: round; transition: stroke-dashoffset 1s linear, stroke 0.5s; }
-  .timer-text {
-    position: absolute; font-family: 'Syne', sans-serif;
-    font-size: 1.8rem; font-weight: 800; color: var(--c-text);
-    /* hidden from AT – aria-live region handles announcements */
-    aria-hidden: true;
-  }
+  .timer-text { position: absolute; font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--c-text); }
 
-  /* ── Scoreboard rows ───────────────────────────────────────────── */
-  .score-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0.75rem 1rem; border-radius: 10px;
-    background: var(--c-surface2); border: 1px solid var(--c-border);
-    transition: background 0.2s, border-color 0.2s;
-  }
-  .score-row.leader     { border-color: rgba(246,201,14,0.45); background: rgba(246,201,14,0.07); }
-  .score-row.active-turn{ border-color: rgba(124,92,252,0.55); background: rgba(124,92,252,0.10); }
+  .score-row { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border-radius: 10px; background: var(--c-surface2); border: 1px solid var(--c-border); transition: background 0.2s, border-color 0.2s; }
+  .score-row.leader      { border-color: rgba(246,201,14,0.45); background: rgba(246,201,14,0.07); }
+  .score-row.active-turn { border-color: rgba(124,92,252,0.55); background: rgba(124,92,252,0.10); }
 
-  /* ── Word display ──────────────────────────────────────────────── */
-  .word-display {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(2rem, 8vw, 3.5rem);
-    font-weight: 800;
-    text-align: center;
-    line-height: 1.1;
-    color: var(--c-text);
-    letter-spacing: -0.02em;
-  }
+  .word-display { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 8vw, 3.5rem); font-weight: 800; text-align: center; line-height: 1.1; color: var(--c-text); letter-spacing: -0.02em; }
 
-  /* ── Category badges ───────────────────────────────────────────── */
-  .cat-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.07em;
-    text-transform: uppercase; padding: 5px 14px; border-radius: 999px;
-  }
-  /* All badge contrast checked against their backgrounds ≥ 4.5:1 */
+  .cat-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; padding: 5px 14px; border-radius: 999px; }
   .cat-persons { background: rgba(124,92,252,0.18); color: #d4c8ff; border: 1px solid rgba(124,92,252,0.35); }
   .cat-land    { background: rgba(79,209,197,0.14);  color: #7ffcf0; border: 1px solid rgba(79,209,197,0.35); }
   .cat-capital { background: rgba(246,201,14,0.12);  color: #f6c90e; border: 1px solid rgba(246,201,14,0.30); }
 
-  /* ── Hint box ──────────────────────────────────────────────────── */
+  /* Hint as bullet list */
   .hint-box {
     background: rgba(196,181,253,0.07); border: 1px solid rgba(196,181,253,0.2);
     border-radius: 12px; padding: 1rem 1.25rem;
-    /* #ddd6fe on #0a0a0f → 11.4:1 ✓ */
-    font-size: 0.95rem; color: #ddd6fe; font-style: italic; line-height: 1.6;
-    animation: fadeIn 0.3s ease;
+    color: #ddd6fe; line-height: 1.6; animation: fadeIn 0.3s ease;
   }
+  .hint-box ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+  .hint-box ul li { display: flex; gap: 8px; font-size: 0.9rem; font-style: italic; }
+  .hint-box ul li::before { content: "•"; color: #c4b5fd; flex-shrink: 0; font-style: normal; }
+
   @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
 
-  /* ── Overtime panel ────────────────────────────────────────────── */
-  .overtime-panel {
-    background: rgba(246,201,14,0.06); border: 1px solid rgba(246,201,14,0.3);
-    border-radius: 16px; padding: 1.5rem;
-  }
+  .overtime-panel { background: rgba(246,201,14,0.06); border: 1px solid rgba(246,201,14,0.3); border-radius: 16px; padding: 1.5rem; }
 
-  /* ── Confetti (decorative) ─────────────────────────────────────── */
-  .confetti-piece {
-    position: fixed; width: 10px; height: 10px; border-radius: 2px;
-    animation: confettiFall linear forwards;
-    pointer-events: none; z-index: 100;
-    /* Will be given aria-hidden via JS */
-  }
-  @keyframes confettiFall {
-    0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
-  }
+  .confetti-piece { position: fixed; border-radius: 2px; animation: confettiFall linear forwards; pointer-events: none; z-index: 100; }
+  @keyframes confettiFall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
 
-  /* ── Pulse on CTA ─────────────────────────────────────────────── */
-  @keyframes pulse-accent {
-    0%,100% { box-shadow: 0 0 0 0 rgba(124,92,252,0.4); }
-    50%     { box-shadow: 0 0 0 8px rgba(124,92,252,0); }
-  }
+  @keyframes pulse-accent { 0%,100% { box-shadow: 0 0 0 0 rgba(124,92,252,0.4); } 50% { box-shadow: 0 0 0 8px rgba(124,92,252,0); } }
   .pulse { animation: pulse-accent 2s infinite; }
 
-  /* ── Toggle switch ─────────────────────────────────────────────── */
+  .team-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
   .toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-  /* WCAG: checkbox is visually hidden but still in tab order and AT-accessible */
-  .toggle input[type="checkbox"] {
-    position: absolute; opacity: 0; width: 44px; height: 24px;
-    margin: 0; cursor: pointer;
-  }
-  /* Show focus ring on the visible track when keyboard-focused */
-  .toggle input[type="checkbox"]:focus-visible + .toggle-track {
-    outline: 3px solid var(--c-accent);
-    outline-offset: 3px;
-  }
-  .toggle-track {
-    width: 44px; height: 24px; border-radius: 999px;
-    background: var(--c-surface2); border: 1px solid var(--c-border);
-    position: relative; transition: background 0.2s;
-    flex-shrink: 0; pointer-events: none;
-  }
-  .toggle-thumb {
-    position: absolute; top: 3px; left: 3px;
-    width: 16px; height: 16px; border-radius: 50%;
-    background: var(--c-muted); transition: left 0.2s, background 0.2s;
-  }
+  .toggle input[type="checkbox"] { position: absolute; opacity: 0; width: 44px; height: 24px; margin: 0; cursor: pointer; }
+  .toggle input[type="checkbox"]:focus-visible + .toggle-track { outline: 3px solid var(--c-accent); outline-offset: 3px; }
+  .toggle-track { width: 44px; height: 24px; border-radius: 999px; background: var(--c-surface2); border: 1px solid var(--c-border); position: relative; transition: background 0.2s; flex-shrink: 0; pointer-events: none; }
+  .toggle-thumb { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--c-muted); transition: left 0.2s, background 0.2s; }
   .toggle input:checked + .toggle-track { background: var(--c-accent); border-color: var(--c-accent); }
   .toggle input:checked + .toggle-track .toggle-thumb { left: 23px; background: #fff; }
 
-  /* ── Team colour dot ───────────────────────────────────────────── */
-  .team-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-
-  /* ── Point flash animation ─────────────────────────────────────── */
-  .point-flash {
-    position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
-    font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800;
-    pointer-events: none; z-index: 50;
-    animation: pointFlash 0.8s ease forwards;
-  }
-  @keyframes pointFlash {
-    0%   { opacity:1; transform:translate(-50%,-50%) scale(0.8); }
-    30%  { opacity:1; transform:translate(-50%,-80%) scale(1.2); }
-    100% { opacity:0; transform:translate(-50%,-120%) scale(0.9); }
-  }
+  .point-flash { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800; pointer-events: none; z-index: 50; animation: pointFlash 0.8s ease forwards; }
+  @keyframes pointFlash { 0% { opacity:1; transform:translate(-50%,-50%) scale(0.8); } 30% { opacity:1; transform:translate(-50%,-80%) scale(1.2); } 100% { opacity:0; transform:translate(-50%,-120%) scale(0.9); } }
   .flash-pos { color: var(--c-green); }
   .flash-neg { color: var(--c-red); }
 
-  /* ── Scrollbar (cosmetic) ──────────────────────────────────────── */
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 
-  /* ── Reduced-motion: disable non-essential animations ──────────── */
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-    .pulse { animation: none; }
-    .confetti-piece { display: none !important; }
-  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } .pulse { animation: none; } .confetti-piece { display: none !important; } }
+  @media (max-width: 480px) { .btn-xl { padding: 1rem 1.5rem; font-size: 1rem; } .word-display { font-size: clamp(1.8rem, 9vw, 3rem); } }
 
-  @media (max-width: 480px) {
-    .btn-xl { padding: 1rem 1.5rem; font-size: 1rem; }
-    .word-display { font-size: clamp(1.8rem, 9vw, 3rem); }
-  }
-
-  /* ── Utility ───────────────────────────────────────────────────── */
-  .gap-3 { gap: 0.75rem; }
-  .gap-4 { gap: 1rem; }
-  /* Visually hidden but accessible to screen readers */
-  .sr-only {
-    position: absolute; width: 1px; height: 1px;
-    padding: 0; margin: -1px; overflow: hidden;
-    clip: rect(0,0,0,0); white-space: nowrap; border: 0;
-  }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 </style>
 </head>
 <body>
 
-<!-- Purely decorative backgrounds – hidden from assistive technology -->
 <div class="bg-dots" aria-hidden="true"></div>
 <div class="bg-glow glow-purple" aria-hidden="true"></div>
 <div class="bg-glow glow-teal"   aria-hidden="true"></div>
 
-<!-- Live regions for screen-reader announcements -->
-<div id="sr-live"       aria-live="polite"   aria-atomic="true" class="sr-only"></div>
+<div id="sr-live"        aria-live="polite"   aria-atomic="true" class="sr-only"></div>
 <div id="sr-live-urgent" aria-live="assertive" aria-atomic="true" class="sr-only"></div>
 
-<!-- ══════════════════════════════════════════════ SCREEN 1: OPPSETT -->
+<!-- ══════════════════════════════════════ SCREEN 1: OPPSETT -->
 <main id="screen-setup" class="screen active" aria-label="Spilloppsett">
   <div class="z1 w-full max-w-lg mx-auto px-4 py-8 flex flex-col gap-6">
 
     <div class="text-center pt-4">
-      <div class="cat-badge cat-land mx-auto mb-3" style="width:fit-content" aria-hidden="true">
-        🎮 Norsk Alias
-      </div>
+      <div class="cat-badge cat-land mx-auto mb-3" style="width:fit-content" aria-hidden="true">🎮 Norsk Alias</div>
       <h1 class="font-display text-4xl font-black" style="letter-spacing:-0.03em">ALIAS</h1>
       <p style="color:var(--c-muted);margin-top:6px;font-size:0.95rem">Forklar ordet – vinn runden!</p>
     </div>
 
-    <!-- Lag-seksjon -->
     <section class="card" aria-labelledby="teams-heading">
       <div class="flex items-center justify-between mb-4">
         <h2 id="teams-heading" class="font-display text-lg font-bold">Lag</h2>
-        <button class="btn btn-ghost btn-sm" onclick="addTeam()" aria-label="Legg til et nytt lag">
-          + Legg til lag
-        </button>
+        <button class="btn btn-ghost btn-sm" onclick="addTeam()" aria-label="Legg til et nytt lag">+ Legg til lag</button>
       </div>
       <div id="teams-list" class="flex flex-col gap-3" role="list" aria-label="Lagliste"></div>
     </section>
 
-    <!-- Innstillinger-seksjon -->
     <section class="card" aria-labelledby="settings-heading">
       <h2 id="settings-heading" class="font-display text-lg font-bold mb-4">Spillinnstillinger</h2>
-      <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-5">
 
-        <div>
-          <label for="target-score" style="font-size:0.85rem;color:var(--c-muted);display:block;margin-bottom:6px">
-            Poengmål (vinnerpoeng)
-          </label>
-          <select id="target-score">
-            <option value="20">20 poeng</option>
-            <option value="30" selected>30 poeng</option>
-            <option value="40">40 poeng</option>
-            <option value="50">50 poeng</option>
-          </select>
+        <div class="range-wrap">
+          <label for="target-score-range" style="font-size:0.85rem;color:var(--c-muted)">Poengmål</label>
+          <div class="range-row">
+            <input type="range" id="target-score-range" min="15" max="100" step="5" value="30"
+                   oninput="document.getElementById('target-score-val').textContent=this.value+' poeng'"
+                   aria-label="Poengmål for å vinne">
+            <span class="range-val" id="target-score-val">30 poeng</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--c-muted)">
+            <span>15</span><span>100</span>
+          </div>
         </div>
 
-        <div>
-          <label for="round-time" style="font-size:0.85rem;color:var(--c-muted);display:block;margin-bottom:6px">
-            Tid per runde
-          </label>
-          <select id="round-time">
-            <option value="45">45 sekunder</option>
-            <option value="60" selected>60 sekunder</option>
-            <option value="90">90 sekunder</option>
-          </select>
+        <div class="range-wrap">
+          <label for="round-time-range" style="font-size:0.85rem;color:var(--c-muted)">Tid per runde</label>
+          <div class="range-row">
+            <input type="range" id="round-time-range" min="5" max="90" step="5" value="60"
+                   oninput="document.getElementById('round-time-val').textContent=this.value+'s'"
+                   aria-label="Sekunder per runde">
+            <span class="range-val" id="round-time-val">60s</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--c-muted)">
+            <span>5s</span><span>90s</span>
+          </div>
         </div>
 
         <fieldset style="border:none;padding:0">
           <legend style="font-size:0.85rem;color:var(--c-muted);margin-bottom:8px">Kategorier</legend>
           <div class="flex flex-col gap-3">
             <label class="toggle">
-              <input type="checkbox" id="cat-persons" checked aria-describedby="cat-persons-desc">
+              <input type="checkbox" id="cat-persons" checked>
               <div class="toggle-track" aria-hidden="true"><div class="toggle-thumb"></div></div>
               <span><span aria-hidden="true">👤</span> Kjente personer</span>
-              <span id="cat-persons-desc" class="sr-only">Aktiver kategorien Kjente personer</span>
             </label>
             <label class="toggle">
               <input type="checkbox" id="cat-land" checked>
@@ -365,292 +231,302 @@
   </div>
 </main>
 
-<!-- ══════════════════════════════════════════════ SCREEN 2: DASHBOARD -->
+<!-- ══════════════════════════════════════ SCREEN 2: DASHBOARD -->
 <main id="screen-dashboard" class="screen" aria-label="Rundevisning" aria-hidden="true">
   <div class="z1 w-full max-w-lg mx-auto px-4 py-8 flex flex-col gap-5">
-
     <div class="text-center">
-      <p style="font-size:0.8rem;letter-spacing:0.12em;color:var(--c-muted);text-transform:uppercase;margin-bottom:4px" aria-hidden="true">
-        Neste runde
-      </p>
+      <p style="font-size:0.8rem;letter-spacing:0.12em;color:var(--c-muted);text-transform:uppercase;margin-bottom:4px" aria-hidden="true">Neste runde</p>
       <h2 class="font-display text-3xl font-black" id="dash-team-name">Lag 1 sin tur</h2>
       <div id="dash-team-dot" class="mx-auto mt-2 team-dot" aria-hidden="true"></div>
     </div>
-
     <section class="card" aria-labelledby="dash-score-heading">
-      <h3 id="dash-score-heading" class="font-display text-sm font-bold mb-3"
-          style="color:var(--c-muted);text-transform:uppercase;letter-spacing:0.1em">Stillingen</h3>
+      <h3 id="dash-score-heading" class="font-display text-sm font-bold mb-3" style="color:var(--c-muted);text-transform:uppercase;letter-spacing:0.1em">Stillingen</h3>
       <div id="dash-scoreboard" class="flex flex-col gap-2" role="list" aria-label="Poengstilling"></div>
     </section>
-
-    <div class="card" style="background:rgba(124,92,252,0.08);border-color:rgba(124,92,252,0.3)"
-         aria-label="Rundeinfo">
+    <div class="card" style="background:rgba(124,92,252,0.08);border-color:rgba(124,92,252,0.3)">
       <div class="flex justify-between items-center">
-        <div>
-          <p style="font-size:0.8rem;color:var(--c-muted)" id="dash-round-label">Runde</p>
-          <p class="font-display text-2xl font-bold" id="dash-round" aria-labelledby="dash-round-label">1</p>
-        </div>
-        <div style="text-align:right">
-          <p style="font-size:0.8rem;color:var(--c-muted)" id="dash-target-label">Poengmål</p>
-          <p class="font-display text-2xl font-bold" id="dash-target" aria-labelledby="dash-target-label">30</p>
-        </div>
-        <div style="text-align:right">
-          <p style="font-size:0.8rem;color:var(--c-muted)" id="dash-time-label">Tid</p>
-          <p class="font-display text-2xl font-bold" id="dash-time" aria-labelledby="dash-time-label">60s</p>
-        </div>
+        <div><p style="font-size:0.8rem;color:var(--c-muted)">Runde</p><p class="font-display text-2xl font-bold" id="dash-round">1</p></div>
+        <div style="text-align:right"><p style="font-size:0.8rem;color:var(--c-muted)">Poengmål</p><p class="font-display text-2xl font-bold" id="dash-target">30</p></div>
+        <div style="text-align:right"><p style="font-size:0.8rem;color:var(--c-muted)">Tid</p><p class="font-display text-2xl font-bold" id="dash-time">60s</p></div>
       </div>
     </div>
-
-    <div id="final-round-notice" class="card" hidden
-         style="background:rgba(246,201,14,0.06);border-color:rgba(246,201,14,0.35);text-align:center"
-         role="status">
-      <p style="color:var(--c-gold);font-weight:600">
-        <span aria-hidden="true">⚠️</span> Utjevningsrunde pågår!
-      </p>
-      <p style="font-size:0.85rem;color:var(--c-muted);margin-top:4px">
-        Alle lag spiller sin siste runde for rettferdig avslutning.
-      </p>
+    <div id="final-round-notice" class="card" hidden style="background:rgba(246,201,14,0.06);border-color:rgba(246,201,14,0.35);text-align:center" role="status">
+      <p style="color:var(--c-gold);font-weight:600"><span aria-hidden="true">⚠️</span> Utjevningsrunde pågår!</p>
+      <p style="font-size:0.85rem;color:var(--c-muted);margin-top:4px">Alle lag spiller sin siste runde for rettferdig avslutning.</p>
     </div>
-
-    <button class="btn btn-primary btn-xl pulse" onclick="startRound()">
-      Start runden <span aria-hidden="true">🎯</span>
-    </button>
+    <button class="btn btn-primary btn-xl pulse" onclick="startRound()">Start runden <span aria-hidden="true">🎯</span></button>
   </div>
 </main>
 
-<!-- ══════════════════════════════════════════════ SCREEN 3: SPILLBRETT -->
+<!-- ══════════════════════════════════════ SCREEN 3: SPILL -->
 <main id="screen-game" class="screen" aria-label="Spill pågår" aria-hidden="true">
   <div class="z1 w-full max-w-lg mx-auto px-4 py-6 flex flex-col gap-4" style="min-height:100vh">
-
-    <!-- Header -->
     <div class="flex items-center justify-between">
       <div>
-        <p style="font-size:0.75rem;color:var(--c-muted);letter-spacing:0.1em;text-transform:uppercase" aria-hidden="true">
-          Forklarer
-        </p>
-        <p class="font-display font-bold" id="game-team-name" style="font-size:1.1rem"
-           aria-label="Laget som forklarer: Lag 1">Lag 1</p>
+        <p style="font-size:0.75rem;color:var(--c-muted);letter-spacing:0.1em;text-transform:uppercase" aria-hidden="true">Forklarer</p>
+        <p class="font-display font-bold" id="game-team-name" style="font-size:1.1rem">Lag 1</p>
       </div>
       <div class="flex items-center gap-3">
-        <!-- Score card -->
         <div class="card card-sm" style="padding:6px 14px;text-align:center">
           <p style="font-size:0.7rem;color:var(--c-muted)" id="score-label">Poeng</p>
-          <p class="font-display font-bold text-lg" id="game-score"
-             aria-labelledby="score-label" aria-live="polite">0</p>
+          <p class="font-display font-bold text-lg" id="game-score" aria-labelledby="score-label" aria-live="polite">0</p>
         </div>
-        <!-- Timer -->
-        <div class="timer-ring-wrap"
-             role="timer"
-             aria-label="Nedtelling"
-             aria-describedby="timer-display">
+        <div class="timer-ring-wrap" role="timer" aria-label="Nedtelling" aria-describedby="timer-display">
           <svg class="timer-ring" width="70" height="70" viewBox="0 0 70 70" aria-hidden="true">
-            <title>Nedtellingssirkel</title>
             <circle class="timer-bg" cx="35" cy="35" r="30" stroke-width="5"/>
-            <circle id="timer-arc" class="timer-arc" cx="35" cy="35" r="30" stroke-width="5"
-              stroke-dasharray="188.5" stroke-dashoffset="0" stroke="#7c5cfc"/>
+            <circle id="timer-arc" class="timer-arc" cx="35" cy="35" r="30" stroke-width="5" stroke-dasharray="188.5" stroke-dashoffset="0" stroke="#7c5cfc"/>
           </svg>
           <span class="timer-text" id="timer-display" aria-hidden="true">60</span>
         </div>
-        <!-- Screen-reader-only live timer announcements every 10s are handled in JS -->
       </div>
     </div>
 
-    <!-- Category -->
     <div class="text-center">
       <span id="game-cat-badge" class="cat-badge cat-persons" role="status">Kjente personer</span>
     </div>
 
-    <!-- Word -->
-    <div class="card flex flex-col items-center justify-center"
-         style="min-height:160px;padding:2rem;text-align:center;"
-         aria-live="polite" aria-atomic="true" aria-label="Gjeldende ord">
+    <div class="card flex flex-col items-center justify-center" style="min-height:160px;padding:2rem;text-align:center;" aria-live="polite" aria-atomic="true" aria-label="Gjeldende ord">
       <p class="word-display" id="game-word">LASTER…</p>
     </div>
 
-    <!-- Hint -->
     <div>
-      <button class="btn btn-hint w-full" onclick="toggleHint()" id="hint-btn"
-              aria-expanded="false" aria-controls="hint-box">
+      <button class="btn btn-hint w-full" onclick="toggleHint()" id="hint-btn" aria-expanded="false" aria-controls="hint-box">
         <span aria-hidden="true">💡</span> Vis hint
       </button>
-      <div id="hint-box" class="hint-box mt-3" hidden
-           role="complementary" aria-label="Hint på engelsk"></div>
+      <div id="hint-box" class="hint-box mt-3" hidden role="complementary" aria-label="Hint"></div>
     </div>
 
-    <!-- Action buttons -->
     <div class="flex gap-3" role="group" aria-label="Spillhandlinger">
-      <button class="btn btn-red flex-1"
-              style="flex-direction:column;gap:4px;padding:1rem 0.5rem;"
-              onclick="wrongAnswer()"
-              aria-label="Hopp over eller feil svar, minus ett poeng">
+      <button class="btn btn-red flex-1" style="flex-direction:column;gap:4px;padding:1rem 0.5rem;" onclick="wrongAnswer()" aria-label="Hopp over eller feil svar, minus ett poeng">
         <span aria-hidden="true" style="font-size:1.3rem">✗</span>
         <span style="font-size:0.85rem">Hopp over / Feil</span>
         <span style="font-size:0.7rem;color:var(--c-muted)" aria-hidden="true">−1 poeng</span>
       </button>
-      <button class="btn btn-green flex-1"
-              style="flex-direction:column;gap:4px;padding:1rem 0.5rem;"
-              onclick="correctAnswer()"
-              aria-label="Riktig svar, pluss ett poeng">
+      <button class="btn btn-green flex-1" style="flex-direction:column;gap:4px;padding:1rem 0.5rem;" onclick="correctAnswer()" aria-label="Riktig svar, pluss ett poeng">
         <span aria-hidden="true" style="font-size:1.3rem">✓</span>
         <span style="font-size:0.85rem">Riktig!</span>
         <span style="font-size:0.7rem;color:var(--c-muted)" aria-hidden="true">+1 poeng</span>
       </button>
     </div>
 
-    <!-- Word counter -->
     <div style="text-align:center" aria-live="polite">
-      <p style="font-size:0.8rem;color:var(--c-muted)">
-        Ord <span id="word-counter">1</span> denne runden
-      </p>
+      <p style="font-size:0.8rem;color:var(--c-muted)">Ord <span id="word-counter">1</span> denne runden</p>
     </div>
   </div>
 </main>
 
-<!-- ══════════════════════════════════════════════ SCREEN 4: UTJEVNING -->
+<!-- ══════════════════════════════════════ SCREEN 4: UTJEVNING -->
 <main id="screen-overtime" class="screen" aria-label="Utjevningsrunde" aria-hidden="true">
   <div class="z1 w-full max-w-lg mx-auto px-4 py-8 flex flex-col gap-5">
-
     <div class="text-center">
       <span class="text-5xl mb-3" aria-hidden="true" style="display:block">⏰</span>
       <h2 class="font-display text-3xl font-black" style="color:var(--c-gold)">UTJEVNING!</h2>
       <p style="color:var(--c-muted);margin-top:6px">Hvem gjetter ordet riktig? Trykk først!</p>
     </div>
-
     <section class="overtime-panel text-center" aria-label="Overtidsordet">
-      <p style="font-size:0.75rem;color:var(--c-gold);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">
-        Overtidsordet
-      </p>
+      <p style="font-size:0.75rem;color:var(--c-gold);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">Overtidsordet</p>
       <p class="word-display" id="ot-word" style="font-size:2rem" aria-live="polite"></p>
       <span id="ot-cat-badge" class="cat-badge cat-persons mt-3" style="display:inline-flex"></span>
       <div class="mt-4">
-        <button class="btn btn-hint btn-sm" onclick="toggleOtHint()"
-                aria-expanded="false" aria-controls="ot-hint-box">
+        <button class="btn btn-hint btn-sm" onclick="toggleOtHint()" aria-expanded="false" aria-controls="ot-hint-box">
           <span aria-hidden="true">💡</span> Hint
         </button>
-        <div id="ot-hint-box" class="hint-box mt-2" hidden
-             role="complementary" aria-label="Hint på engelsk" style="text-align:left"></div>
+        <div id="ot-hint-box" class="hint-box mt-2" hidden role="complementary" aria-label="Hint" style="text-align:left"></div>
       </div>
     </section>
-
     <section aria-labelledby="ot-buzzers-heading">
-      <h3 id="ot-buzzers-heading" style="font-size:0.85rem;color:var(--c-muted);text-align:center;margin-bottom:12px">
-        Trykk for laget som svarte riktig:
-      </h3>
+      <h3 id="ot-buzzers-heading" style="font-size:0.85rem;color:var(--c-muted);text-align:center;margin-bottom:12px">Trykk for laget som svarte riktig:</h3>
       <div id="ot-team-buttons" class="flex flex-col gap-3" role="group" aria-label="Lagknapper for utjevning"></div>
     </section>
-
-    <button class="btn btn-ghost w-full" onclick="skipOvertime()">
-      Ingen gjettet riktig – gå videre
-    </button>
+    <button class="btn btn-ghost w-full" onclick="skipOvertime()">Ingen gjettet riktig – gå videre</button>
   </div>
 </main>
 
-<!-- ══════════════════════════════════════════════ SCREEN 5: VINNER -->
+<!-- ══════════════════════════════════════ SCREEN 5: VINNER -->
 <main id="screen-winner" class="screen" aria-label="Spillresultat" aria-hidden="true">
   <div class="z1 w-full max-w-lg mx-auto px-4 py-8 flex flex-col gap-5 items-center">
-
     <div class="text-center pt-4">
       <span class="text-6xl mb-4" aria-hidden="true" style="display:block">🏆</span>
       <p style="font-size:0.8rem;letter-spacing:0.15em;color:var(--c-gold);text-transform:uppercase">VINNER</p>
       <h2 class="font-display text-4xl font-black mt-2" id="winner-name">Lag 1</h2>
       <p style="color:var(--c-muted);margin-top:6px" id="winner-sub">Gratulerer med seieren!</p>
     </div>
-
     <section class="card w-full" aria-labelledby="final-score-heading">
-      <h3 id="final-score-heading" class="font-display text-sm font-bold mb-3"
-          style="color:var(--c-muted);text-transform:uppercase;letter-spacing:0.1em">Sluttresultat</h3>
+      <h3 id="final-score-heading" class="font-display text-sm font-bold mb-3" style="color:var(--c-muted);text-transform:uppercase;letter-spacing:0.1em">Sluttresultat</h3>
       <div id="winner-scoreboard" class="flex flex-col gap-2" role="list" aria-label="Endelig poengstilling"></div>
     </section>
-
-    <button class="btn btn-primary btn-xl" onclick="restartGame()">
-      Spill igjen <span aria-hidden="true">🔁</span>
-    </button>
-    <button class="btn btn-ghost w-full" onclick="goToSetup()">
-      Tilbake til innstillinger
-    </button>
+    <button class="btn btn-primary btn-xl" onclick="restartGame()">Spill igjen <span aria-hidden="true">🔁</span></button>
+    <button class="btn btn-ghost w-full" onclick="goToSetup()">Tilbake til innstillinger</button>
   </div>
 </main>
 
-
 <script>
 // ═══════════════════════════════════════════════════════════════════
-//  WORD DATABASE
+//  ORDBANK  –  ~50 per kategori, ungdomsvennlig 11–15 år
+//  Hint: 3–5 punkter per ord
 // ═══════════════════════════════════════════════════════════════════
 const WORDS = {
-  persons: [
-    { word: "Albert Einstein",    hint: "German physicist who developed the theory of relativity; famous equation E=mc²." },
-    { word: "Marilyn Monroe",     hint: "Iconic American actress and model from the 1950s, known for 'Some Like It Hot'." },
-    { word: "Napoleon Bonaparte", hint: "French military general who became Emperor of France in the early 1800s." },
-    { word: "Cleopatra",          hint: "Last active ruler of ancient Egypt, famously linked to Julius Caesar and Mark Antony." },
-    { word: "Leonardo da Vinci",  hint: "Italian Renaissance genius who painted the Mona Lisa and designed flying machines." },
-    { word: "Michael Jackson",    hint: "King of Pop; moonwalk dancer known for 'Thriller' and the glove." },
-    { word: "Nelson Mandela",     hint: "South African anti-apartheid revolutionary who became the country's first Black president." },
-    { word: "William Shakespeare",hint: "English playwright from the 1600s who wrote Romeo and Juliet and Hamlet." },
-    { word: "Elvis Presley",      hint: "King of Rock and Roll from Memphis; known for his hip shaking and blue suede shoes." },
-    { word: "Marie Curie",        hint: "First woman to win a Nobel Prize; discovered radium and polonium." },
-    { word: "Charles Darwin",     hint: "British naturalist who proposed the theory of evolution by natural selection." },
-    { word: "Frida Kahlo",        hint: "Mexican painter known for her self-portraits and colourful traditional clothing." },
-    { word: "Adolf Hitler",       hint: "Leader of Nazi Germany responsible for World War II and the Holocaust." },
-    { word: "Steve Jobs",         hint: "Co-founder of Apple who revolutionised personal computers, music and smartphones." },
-    { word: "Mahatma Gandhi",     hint: "Indian independence leader who used nonviolent civil disobedience against British rule." },
-    { word: "Queen Elizabeth II", hint: "Britain's longest-reigning monarch who ruled from 1952 until her death in 2022." },
-    { word: "Bruce Lee",          hint: "Hong Kong-American martial artist and actor famous for his speed and 'Enter the Dragon'." },
-    { word: "Oprah Winfrey",      hint: "American talk show host, media mogul and philanthropist known for her afternoon show." },
-    { word: "Cristiano Ronaldo",  hint: "Portuguese football superstar with multiple Ballon d'Or awards, CR7." },
-    { word: "Elon Musk",          hint: "South African-born entrepreneur who founded Tesla, SpaceX and bought Twitter/X." },
-    { word: "Barack Obama",       hint: "44th US President; first African American to hold the office, 2009–2017." },
-    { word: "Isaac Newton",       hint: "English physicist who formulated the laws of motion and universal gravitation." },
-  ],
-  land: [
-    { word: "Norge",       hint: "A Scandinavian country known for its fjords, northern lights, and capital Oslo." },
-    { word: "Danmark",     hint: "The southernmost Nordic country, famous for Legoland and the Little Mermaid statue." },
-    { word: "Sverige",     hint: "Norway's eastern neighbour, home to ABBA, IKEA and the Nobel Peace Prize ceremony." },
-    { word: "Japan",       hint: "Island nation in East Asia famous for sushi, anime, Mount Fuji and bullet trains." },
-    { word: "Brasil",      hint: "Largest country in South America; hosts the Amazon rainforest and Carnival in Rio." },
-    { word: "Frankrike",   hint: "Western European country famous for the Eiffel Tower, wine, cheese and fashion." },
-    { word: "Australia",   hint: "Continent and country in the Southern Hemisphere, home to kangaroos and the Great Barrier Reef." },
-    { word: "India",       hint: "South Asian country with the world's largest population, known for spices, Bollywood and the Taj Mahal." },
-    { word: "Canada",      hint: "The world's second largest country by area, north of the USA, famous for maple syrup and hockey." },
-    { word: "Egypt",       hint: "North African country on the Nile River, home to the ancient pyramids and Sphinx." },
-    { word: "Italia",      hint: "Mediterranean country shaped like a boot; birthplace of pizza, pasta and the Roman Empire." },
-    { word: "Kina",        hint: "Most populous country in the world with the Great Wall, giant pandas and the Yangtze River." },
-    { word: "Russland",    hint: "Largest country on Earth, spanning Europe and Asia, famous for cold winters and Red Square." },
-    { word: "Spania",      hint: "Iberian Peninsula country known for flamenco, bullfighting, tapas and FC Barcelona." },
-    { word: "Mexico",      hint: "North American country south of the USA; famous for tacos, tequila, Aztec history and Day of the Dead." },
-    { word: "Sveits",      hint: "Landlocked Alpine country known for neutrality, chocolate, cheese and precision watches." },
-    { word: "Sør-Afrika",  hint: "Southernmost country in Africa with three capitals; known for safaris and Nelson Mandela." },
-    { word: "Argentina",   hint: "South American country in the south; birthplace of Lionel Messi and the tango dance." },
-    { word: "New Zealand", hint: "Island nation southeast of Australia, famous for Lord of the Rings filming and Maori culture." },
-    { word: "Tyrkia",      hint: "Country straddling Europe and Asia, known for Istanbul, bazaars and Turkish delight." },
-    { word: "Portugal",    hint: "Small Atlantic country on the Iberian Peninsula, birthplace of Fado music and Cristiano Ronaldo." },
-    { word: "Thailand",    hint: "Southeast Asian kingdom known for its temples, street food, elephants and beautiful beaches." },
-  ],
-  capital: [
-    { word: "Oslo",            hint: "Capital of Norway, located at the head of the Oslofjord; home to the Viking Ship Museum." },
-    { word: "Paris",           hint: "Capital of France, home to the Eiffel Tower, the Louvre and the River Seine." },
-    { word: "Tokyo",           hint: "Capital of Japan and the world's most populous metropolitan area; famous for sushi and anime." },
-    { word: "Washington D.C.", hint: "Capital of the United States; home to the White House and Capitol Building." },
-    { word: "London",          hint: "Capital of the United Kingdom; home to Buckingham Palace, Big Ben and the Thames." },
-    { word: "Berlin",          hint: "Capital of Germany, historically divided by the Wall; reunited in 1989." },
-    { word: "Roma",            hint: "Capital of Italy known as the Eternal City; home to the Colosseum and the Vatican." },
-    { word: "Madrid",          hint: "Capital of Spain; highest capital city in the EU and home to the Prado Museum." },
-    { word: "Kairo",           hint: "Capital of Egypt; located on the Nile and close to the ancient pyramids of Giza." },
-    { word: "Canberra",        hint: "Capital of Australia; purpose-built city chosen instead of Sydney or Melbourne." },
-    { word: "Ottawa",          hint: "Capital of Canada; not Toronto or Montreal – this city sits on the Ottawa River." },
-    { word: "Brasília",        hint: "Capital of Brazil; futuristic planned city that replaced Rio de Janeiro as capital in 1960." },
-    { word: "Moskva",          hint: "Capital of Russia; home to the Kremlin and Red Square on the Moskva River." },
-    { word: "Beijing",         hint: "Capital of China; home to the Forbidden City and Tiananmen Square." },
-    { word: "New Delhi",       hint: "Capital of India; planned city adjacent to the historic city of Delhi." },
-    { word: "Buenos Aires",    hint: "Capital of Argentina on the River Plate; known as the Paris of South America." },
-    { word: "Nairobi",         hint: "Capital of Kenya; name means 'cool water' in the Maasai language." },
-    { word: "Stockholm",       hint: "Capital of Sweden; built on 14 islands where Lake Mälaren meets the Baltic Sea." },
-    { word: "Amsterdam",       hint: "Capital of the Netherlands; known for its canal network, tulips and Rijksmuseum." },
-    { word: "Wellington",      hint: "Capital of New Zealand; world's southernmost national capital, windy city by the sea." },
-    { word: "Ankara",          hint: "Capital of Turkey; often confused with Istanbul, which is larger but NOT the capital." },
-    { word: "Bangkok",         hint: "Capital of Thailand; its full ceremonial name is the longest place name in the world." },
-    { word: "Jakarta",         hint: "Former capital of Indonesia, now being replaced by the new city of Nusantara on Borneo." },
-    { word: "Seoul",           hint: "Capital of South Korea; one of the world's largest cities with nearly 10 million people." },
-  ]
+
+persons: [
+  { word: "Cristiano Ronaldo",  hint: ["Portuguese footballer, wears number 7", "Known as CR7, plays for Al-Nassr", "Has won the Ballon d'Or five times", "Famous for his bicycle kicks and free kicks"] },
+  { word: "Lionel Messi",       hint: ["Argentine footballer, plays for Inter Miami", "Won the 2022 World Cup with Argentina", "Spent most of his career at FC Barcelona", "Often compared to Ronaldo as the world's best"] },
+  { word: "Neymar Jr",          hint: ["Brazilian footballer known for flashy dribbling", "Played for Barcelona and Paris Saint-Germain", "Famous for his tricks and rainbow flicks", "Best friend of Messi during their Barcelona days"] },
+  { word: "Kylian Mbappé",      hint: ["Young French footballer, born in 1998", "Won the World Cup with France aged 19", "Plays for Real Madrid", "Known for incredible sprinting speed"] },
+  { word: "Erling Haaland",     hint: ["Norwegian striker playing for Manchester City", "Son of former footballer Alfie Haaland", "Scored over 50 goals in one Premier League season", "Known for his goal celebrations and Viking looks"] },
+  { word: "LeBron James",       hint: ["American basketball player in the NBA", "Plays for the Los Angeles Lakers", "Often called 'The King'", "Has won four NBA championship rings"] },
+  { word: "Stephen Curry",      hint: ["NBA basketball player famous for three-pointers", "Plays for the Golden State Warriors", "Changed how basketball is played with long-range shooting", "Won four NBA championships"] },
+  { word: "Serena Williams",    hint: ["American tennis player, retired in 2022", "Won 23 Grand Slam singles titles", "Known for powerful serving and athleticism", "Sister of Venus Williams, also a tennis star"] },
+  { word: "Michael Jordan",     hint: ["Retired American basketball legend", "Played for the Chicago Bulls", "Inspired the Air Jordan Nike shoe brand", "Subject of the Netflix documentary 'The Last Dance'"] },
+  { word: "Usain Bolt",         hint: ["Jamaican sprinter, retired in 2017", "Holds the world record in the 100m and 200m", "Famous for his lightning bolt pose", "Won eight Olympic gold medals"] },
+  { word: "Taylor Swift",       hint: ["American pop and country singer", "Famous albums include Eras, Folklore, and 1989", "Known for writing songs about her relationships", "Her fans are called Swifties"] },
+  { word: "Billie Eilish",      hint: ["American singer known for whispery vocals", "Rose to fame as a teenager", "Known for baggy clothes and unique hair colours", "Her brother Finneas produces her music"] },
+  { word: "Harry Styles",       hint: ["British singer and former One Direction member", "Known for colourful and flamboyant fashion", "Had hits like Watermelon Sugar and As It Was", "Also acted in the film Dunkirk"] },
+  { word: "Ariana Grande",      hint: ["American pop singer with a very high vocal range", "Known for her long ponytail hairstyle", "Had hits like Thank U Next and 7 Rings", "Started her career on the TV show Victorious"] },
+  { word: "Ed Sheeran",         hint: ["British singer-songwriter with red hair", "Known for playing guitar alone on stage", "Hits include Shape of You and Perfect", "Has a tiny tattoo collection that covers most of his body"] },
+  { word: "Drake",              hint: ["Canadian rapper and hip-hop superstar", "Started as an actor on the TV show Degrassi", "Known for hits like God's Plan and Hotline Bling", "One of the best-selling music artists of all time"] },
+  { word: "Dua Lipa",           hint: ["British-Albanian pop singer", "Known for her retro-inspired disco pop style", "Hits include Levitating and Don't Start Now", "Was born in London but grew up partly in Kosovo"] },
+  { word: "BTS",                hint: ["South Korean K-pop boy band with 7 members", "Huge global fanbase called ARMY", "Known for songs like Dynamite and Boy With Luv", "First K-pop act to reach number one in the US charts"] },
+  { word: "Elon Musk",          hint: ["Billionaire tech entrepreneur", "Owns Tesla electric cars and SpaceX rockets", "Bought Twitter and renamed it X", "Plans to send humans to Mars"] },
+  { word: "Minecraft Notch",    hint: ["Real name is Markus Persson", "Swedish game developer", "Created the game Minecraft in 2009", "Sold Minecraft to Microsoft for over 2 billion dollars"] },
+  { word: "MrBeast",            hint: ["American YouTuber and philanthropist", "Real name is Jimmy Donaldson", "Known for huge giveaways and extreme challenges", "Has one of the most-subscribed YouTube channels ever"] },
+  { word: "PewDiePie",          hint: ["Swedish YouTuber, real name Felix Kjellberg", "Was the most-subscribed individual on YouTube for years", "Mainly plays video games and does commentary", "Known for his loud reactions and Swedish humour"] },
+  { word: "Emma Watson",        hint: ["British actress famous for playing Hermione Granger", "Starred in all eight Harry Potter films", "Also known as a feminist activist", "Later appeared in Beauty and the Beast (2017)"] },
+  { word: "Tom Holland",        hint: ["British actor who plays Spider-Man in Marvel films", "Known for accidentally spoiling Marvel movie plots", "Girlfriend is actress Zendaya", "Started his career as a stage actor in Billy Elliot the Musical"] },
+  { word: "Zendaya",            hint: ["American actress and singer", "Plays Rue in the TV show Euphoria", "Stars as MJ in the Spider-Man films", "Also appeared in Dune and The Greatest Showman"] },
+  { word: "Dwayne Johnson",     hint: ["American actor also known as 'The Rock'", "Former WWE professional wrestler", "Starred in the Fast & Furious film series", "Known for his large muscles and bald head"] },
+  { word: "Kylie Jenner",       hint: ["American reality TV star and businesswoman", "Part of the famous Kardashian-Jenner family", "Founded Kylie Cosmetics make-up brand", "Featured on the reality show Keeping Up with the Kardashians"] },
+  { word: "Simone Biles",       hint: ["American artistic gymnast", "Considered the greatest gymnast of all time", "Has won more World Championship medals than anyone in gymnastics history", "Known for performing skills named after her"] },
+  { word: "Martin Luther King", hint: ["American civil rights leader in the 1960s", "Famous for his 'I Have a Dream' speech", "Fought for equal rights for Black Americans", "Was assassinated in Memphis in 1968"] },
+  { word: "Albert Einstein",    hint: ["German-born physicist", "Developed the theory of relativity", "Famous equation is E = mc²", "Said to have failed maths at school (though that's a myth)"] },
+  { word: "Steve Jobs",         hint: ["Co-founder of Apple computers", "Introduced the iPhone in 2007", "Known for his black turtleneck and jeans style", "Was adopted and grew up in California"] },
+  { word: "Malala Yousafzai",   hint: ["Pakistani activist for girls' education", "Survived being shot by the Taliban aged 15", "Became the youngest Nobel Peace Prize winner", "Now runs the Malala Fund for girls' education worldwide"] },
+  { word: "Greta Thunberg",     hint: ["Swedish climate activist born in 2003", "Started striking outside the Swedish parliament at age 15", "Founded the Fridays for Future movement", "Famous for her 'How dare you' speech at the UN"] },
+  { word: "Shawn Mendes",       hint: ["Canadian singer who was discovered on Vine", "Known for playing guitar and his charming smile", "Hits include Stitches, Treat You Better, and Senorita", "Collaborated with Camila Cabello on Senorita"] },
+  { word: "Timothée Chalamet",  hint: ["French-American young actor", "Starred in Wonka, Dune, and Call Me By Your Name", "Known for his unusual fashion choices at red carpets", "Often ranked as one of the most stylish young actors"] },
+  { word: "Olivia Rodrigo",     hint: ["American singer who exploded to fame in 2021", "Debut single drivers license broke streaming records", "Also acted in High School Musical: The Musical: The Series", "Her music is influenced by Taylor Swift and pop punk"] },
+  { word: "Nicki Minaj",        hint: ["Trinidadian-American rapper", "Known for her colourful wigs and alter egos", "One of the best-selling female rap artists ever", "Famous tracks include Super Bass and Anaconda"] },
+  { word: "Ronaldinho",         hint: ["Brazilian footballer, retired in 2015", "Played for Barcelona and AC Milan", "Famous for his huge smile and incredible skills", "Won the FIFA World Player of the Year award twice"] },
+  { word: "Virat Kohli",        hint: ["Indian cricketer and former national team captain", "Considered one of the best batsmen in the world", "Married to Bollywood actress Anushka Sharma", "Known for his aggressive batting style and fitness"] },
+  { word: "Lewis Hamilton",     hint: ["British Formula 1 racing driver", "Has won seven World Championship titles", "First Black driver to win the F1 World Championship", "Known for his fashion sense off the track"] },
+  { word: "Novak Djokovic",     hint: ["Serbian tennis player", "Holds the record for most Grand Slam singles titles", "Known as 'Nole' by his fans", "Has a strict plant-based diet"] },
+  { word: "Shakira",            hint: ["Colombian singer known for her hip-shaking dancing", "Famous for the songs Hips Don't Lie and Waka Waka", "Sang the official song for the 2010 FIFA World Cup", "Known for mixing Latin pop with rock and Arab music"] },
+  { word: "Zlatan Ibrahimović", hint: ["Swedish football legend", "Known for spectacular acrobatic goals", "Played for many top clubs including Barcelona, PSG, and Man United", "Famous for talking about himself in the third person"] },
+  { word: "Freddie Mercury",    hint: ["Lead singer of the rock band Queen", "Born in Zanzibar, grew up in England", "Known for his powerful voice and theatrical performances", "Biopic about his life is called Bohemian Rhapsody"] },
+  { word: "Michael Jackson",    hint: ["American pop star known as the King of Pop", "Famous for the moonwalk dance move", "Thriller is one of the best-selling albums ever", "Known for his white glove and Neverland Ranch"] },
+  { word: "Adele",              hint: ["British singer known for her powerful, soulful voice", "Famous songs include Hello, Rolling in the Deep, and Someone Like You", "Has won multiple Grammy Awards", "Known for performing at the 2012 Olympics closing ceremony"] },
+  { word: "Justin Bieber",      hint: ["Canadian pop singer discovered on YouTube as a child", "Managed by Scooter Braun after being discovered", "Known for songs like Baby and Sorry", "Married model Hailey Baldwin in 2018"] },
+  { word: "Rihanna",            hint: ["Barbadian singer and businesswoman", "Has hit songs like Umbrella, Diamonds, and We Found Love", "Founded the Fenty Beauty make-up brand", "Performed at the 2023 Super Bowl halftime show"] },
+  { word: "Miley Cyrus",        hint: ["American singer who started as a Disney child star", "Played Hannah Montana on Disney Channel", "Known for reinventing her image dramatically as an adult", "Hit songs include Wrecking Ball and Flowers"] },
+  { word: "Pedro Pascal",       hint: ["Chilean-American actor", "Plays the main character in The Mandalorian", "Also stars in The Last of Us TV series", "Often called 'daddy of the internet' by his fans"] },
+],
+
+land: [
+  { word: "Norge",          hint: ["Scandinavian country in Northern Europe", "Known for fjords, mountains, and the northern lights", "Capital city is Oslo", "Has a very long coastline along the North Sea"] },
+  { word: "Brasil",         hint: ["Largest country in South America", "Home to the Amazon rainforest", "Famous for the Rio de Janeiro Carnival", "Won the FIFA World Cup five times"] },
+  { word: "USA",            hint: ["The world's third-largest country by size", "Has 50 states and a famous capital called Washington D.C.", "Home to Hollywood and Disneyland", "The president lives in the White House"] },
+  { word: "Japan",          hint: ["Island nation in East Asia", "Famous for anime, manga, and sushi", "Mount Fuji is its most iconic mountain", "Has the world's oldest monarchy still in existence"] },
+  { word: "Australia",      hint: ["The world's sixth-largest country", "Only country that is also an entire continent", "Home to kangaroos, koalas, and the Great Barrier Reef", "Capital is Canberra, but largest city is Sydney"] },
+  { word: "Kina",           hint: ["Largest country in Asia by population", "Has the Great Wall which stretches thousands of kilometres", "Known for giant pandas and kung fu", "Has the world's largest population"] },
+  { word: "India",          hint: ["Second most populous country in the world", "Known for Bollywood films and the Taj Mahal", "Famous for spicy food like curry", "Has over 22 official languages"] },
+  { word: "Frankrike",      hint: ["Western European country", "Famous for the Eiffel Tower in its capital Paris", "Known for wine, cheese, and croissants", "Hosted the 2024 Summer Olympic Games"] },
+  { word: "Italia",         hint: ["Mediterranean country shaped like a boot", "Birthplace of pizza and pasta", "Home to the ancient Roman Colosseum", "Has the most UNESCO World Heritage Sites in the world"] },
+  { word: "Spania",         hint: ["Southern European country on the Iberian Peninsula", "Known for flamenco dancing and bullfighting", "Famous football clubs include Real Madrid and Barcelona", "People take an afternoon nap called a siesta"] },
+  { word: "Mexico",         hint: ["Country in North America bordering the USA", "Famous for tacos, burritos, and tequila", "Home to ancient Aztec and Maya civilisations", "Day of the Dead is a famous cultural celebration"] },
+  { word: "Russland",       hint: ["Largest country in the world by land area", "Spans both Europe and Asia", "Famous for Red Square and the Kremlin in Moscow", "Known for cold winters and the Siberian wilderness"] },
+  { word: "Canada",         hint: ["Second-largest country in the world", "Located directly north of the United States", "Famous for maple syrup, ice hockey, and Niagara Falls", "Has two official languages: English and French"] },
+  { word: "Egypt",          hint: ["Country in North Africa", "Home to the ancient pyramids and the Sphinx", "The Nile is the world's longest river and flows through it", "Cairo is the largest city in Africa"] },
+  { word: "Sør-Korea",      hint: ["Country in East Asia on the Korean Peninsula", "Capital is Seoul, one of the world's largest cities", "Birthplace of K-pop, K-dramas, and Korean BBQ", "Famous tech companies include Samsung and Hyundai"] },
+  { word: "Sverige",        hint: ["Scandinavian country east of Norway", "Known for IKEA, Volvo, and ABBA", "Capital is Stockholm, built on 14 islands", "Home to the Nobel Prize ceremonies"] },
+  { word: "Danmark",        hint: ["Southernmost Nordic country", "Connected to Norway and Sweden by sea", "Famous for Lego, which was invented there", "Home of the fairy tale writer Hans Christian Andersen"] },
+  { word: "Storbritannia",  hint: ["Island nation in northwestern Europe", "Made up of England, Scotland, Wales, and Northern Ireland", "Known for the Royal Family, Big Ben, and fish and chips", "Has a famous underground train system called the Tube"] },
+  { word: "Tyrkia",         hint: ["Country that sits on both Europe and Asia", "Famous for Istanbul, which is split between two continents", "Known for Turkish delight and baklava", "Home to ancient ruins including Troy and Ephesus"] },
+  { word: "Argentina",      hint: ["Large country in South America", "Birthplace of Lionel Messi", "Famous for tango dancing and steak", "Capital is Buenos Aires, known as the Paris of South America"] },
+  { word: "Sveits",         hint: ["Small landlocked country in central Europe", "Known for Swiss chocolate, cheese fondue, and watches", "Has four official languages: German, French, Italian, and Romansh", "Home to the Alps and famous ski resorts"] },
+  { word: "Portugal",       hint: ["Small country in southwestern Europe", "Birthplace of Cristiano Ronaldo", "Known for pastel de nata custard tarts and port wine", "Was once one of the world's greatest sea-exploring empires"] },
+  { word: "Nederland",      hint: ["Flat country in northwestern Europe", "Famous for windmills, tulips, and wooden clogs", "Capital is Amsterdam, known for its canal system", "About a quarter of the country is below sea level"] },
+  { word: "Sør-Afrika",     hint: ["Country at the southern tip of Africa", "Known for safaris, lions, and elephants", "Home of Nelson Mandela, who fought against apartheid", "Has three capital cities: Pretoria, Bloemfontein, and Cape Town"] },
+  { word: "Thailand",       hint: ["Southeast Asian kingdom with a tropical climate", "Famous for temples, street food, and beaches", "Elephants are a national symbol", "Bangkok is one of the world's most visited cities"] },
+  { word: "Marokko",        hint: ["Country in North Africa, bordering the Sahara Desert", "Known for colourful markets called souks", "Famous for mint tea and tagine food", "The Sahara Desert starts at its southern border"] },
+  { word: "Kenya",          hint: ["East African country on the equator", "Home to the Maasai Mara wildlife reserve", "Famous for long-distance runners who win Olympic medals", "Nairobi is its capital city"] },
+  { word: "Hellas",         hint: ["Country in southeastern Europe", "Birthplace of the ancient Olympic Games", "Famous for the Parthenon in Athens", "Known for Greek mythology with gods like Zeus and Athena"] },
+  { word: "Peru",           hint: ["Country in South America", "Home to Machu Picchu, an ancient Inca site", "The Amazon River starts here", "Famous for guinea pig as a traditional food"] },
+  { word: "Indonesia",      hint: ["Largest archipelago in the world with over 17,000 islands", "Has the fourth-largest population in the world", "Home to the island of Bali, a famous tourist destination", "Has active volcanoes including Krakatoa"] },
+  { word: "Saudi-Arabia",   hint: ["Large country in the Middle East", "Has the world's largest oil reserves", "Birthplace of the religion Islam", "Home to the holy cities of Mecca and Medina"] },
+  { word: "Cuba",           hint: ["Caribbean island nation south of Florida", "Known for classic 1950s American cars still on the roads", "Famous for cigars and salsa music", "Capital is Havana"] },
+  { word: "New Zealand",    hint: ["Island country in the Pacific Ocean near Australia", "Filming location for The Lord of the Rings movies", "Known for rugby and the Maori haka", "Home to kiwi birds, which cannot fly"] },
+  { word: "Vietnam",        hint: ["Long, narrow country in Southeast Asia", "Known for pho noodle soup and banh mi sandwiches", "Had a famous war with the USA in the 1960s–70s", "Ha Long Bay is a famous natural wonder there"] },
+  { word: "Polen",          hint: ["Country in Central Europe", "Shares a border with Germany, Russia, and Ukraine", "Capital is Warsaw", "Famous for pierogi dumplings and kielbasa sausage"] },
+  { word: "Nigeria",        hint: ["Most populous country in Africa", "Capital is Abuja, largest city is Lagos", "Known for Nollywood, one of the world's biggest film industries", "Has over 500 different ethnic groups and languages"] },
+  { word: "Pakistan",       hint: ["Country in South Asia", "Shares a border with India and Afghanistan", "Famous for cricket, which is the most popular sport", "Capital is Islamabad"] },
+  { word: "Iran",           hint: ["Country in the Middle East, formerly called Persia", "Known for ancient history and beautiful mosques", "Capital is Tehran", "Produces much of the world's saffron spice"] },
+  { word: "Colombia",       hint: ["Country in South America", "Famous for Colombian coffee", "Known for colourful cities like Cartagena", "Home of singer Shakira and the Netflix show Narcos is set here"] },
+  { word: "Jamaica",        hint: ["Caribbean island nation", "Birthplace of reggae music and Bob Marley", "Home of sprinting legend Usain Bolt", "Famous for Blue Mountain coffee and jerk chicken"] },
+  { word: "Island",         hint: ["Small island nation in the North Atlantic", "Located near the Arctic Circle", "Famous for the northern lights and geysers", "Has no mosquitoes and is one of the world's safest countries"] },
+  { word: "Ukraina",        hint: ["Large country in Eastern Europe", "Shares a border with Russia", "Capital is Kyiv", "Known for sunflowers and vast wheat fields"] },
+  { word: "Finland",        hint: ["Nordic country in Northern Europe", "Has more saunas than cars", "Known for the Nokia phone brand", "Santa Claus is said to live in the Finnish region of Lapland"] },
+  { word: "Østerrike",      hint: ["Small landlocked country in central Europe", "Known for the Alps and excellent skiing", "Capital is Vienna, famous for classical music composers", "Birthplace of Mozart and Arnold Schwarzenegger"] },
+  { word: "Belgia",         hint: ["Small country in western Europe between France and the Netherlands", "Known for waffles, chocolate, and french fries (which are actually Belgian!)", "Capital Brussels is the headquarters of the European Union", "Famous for the comic Tintin, created by Belgian artist Hergé"] },
+  { word: "Israel",         hint: ["Small country in the Middle East", "One of the world's most contested regions politically", "Contains Jerusalem, a holy city for three religions", "Known for the Dead Sea, the lowest point on Earth's surface"] },
+  { word: "Singapore",      hint: ["Tiny city-state in Southeast Asia", "One of the world's smallest but wealthiest countries", "Famous for very strict laws, like no chewing gum in public", "Has one of the world's busiest ports"] },
+  { word: "Tanzania",       hint: ["East African country", "Home to Mount Kilimanjaro, Africa's highest peak", "Serengeti National Park is famous for its wildlife migration", "The island of Zanzibar is part of this country"] },
+  { word: "Filippinene",    hint: ["Archipelago in Southeast Asia with over 7,000 islands", "Capital is Manila", "Famous for beautiful beaches like Boracay", "One of the most disaster-prone countries due to typhoons and earthquakes"] },
+  { word: "Chile",          hint: ["Long, narrow country stretching down the western coast of South America", "Has the Atacama Desert, one of the driest places on Earth", "Known for copper mining and wine production", "Capital is Santiago"] },
+],
+
+capital: [
+  { word: "Oslo",          hint: ["Capital of Norway", "Located at the head of the Oslofjord", "Home to the Viking Ship Museum and the Nobel Peace Center", "Has a ski jump called Holmenkollen within the city"] },
+  { word: "Paris",         hint: ["Capital of France", "Home to the Eiffel Tower, the Louvre, and Notre-Dame Cathedral", "Known as the City of Light", "The River Seine flows through the city"] },
+  { word: "London",        hint: ["Capital of the United Kingdom", "Home to Buckingham Palace and Big Ben", "Has a famous underground metro called the Tube", "The River Thames flows through the centre"] },
+  { word: "Berlin",        hint: ["Capital of Germany", "Was divided in two by a wall from 1961 to 1989", "The Brandenburg Gate is its most famous landmark", "Known for its vibrant nightlife and street art"] },
+  { word: "Tokyo",         hint: ["Capital of Japan", "Most populous metropolitan area in the world", "Home to Disneyland Tokyo and many famous anime studios", "Famous for sushi, ramen, and vending machines everywhere"] },
+  { word: "Washington D.C.", hint: ["Capital of the United States", "The president lives in the White House here", "Home to the Lincoln Memorial and Capitol Building", "D.C. stands for District of Columbia"] },
+  { word: "Canberra",      hint: ["Capital of Australia", "Not Sydney or Melbourne – many people guess wrong!", "Purpose-built city chosen as a compromise between Sydney and Melbourne", "Has the Australian War Memorial and Parliament House"] },
+  { word: "Ottawa",        hint: ["Capital of Canada", "Located in the province of Ontario", "Not Toronto or Vancouver – a common mistake!", "Famous for the Rideau Canal, which becomes the world's largest skating rink in winter"] },
+  { word: "Roma",          hint: ["Capital of Italy", "Known as the Eternal City", "Home to the Colosseum, the Vatican, and the Trevi Fountain", "Founded over 2,700 years ago according to legend"] },
+  { word: "Madrid",        hint: ["Capital of Spain", "Highest capital city in the European Union", "Home to the famous Prado art museum", "FC Real Madrid plays here"] },
+  { word: "Moskva",        hint: ["Capital of Russia", "Home to the Kremlin and Red Square", "The Bolshoi Theatre for ballet is located here", "One of Europe's largest cities by population"] },
+  { word: "Beijing",       hint: ["Capital of China", "Home to the Forbidden City and Tiananmen Square", "Hosted the Summer Olympics in 2008 and Winter Olympics in 2022", "The Great Wall starts near this city"] },
+  { word: "Kairo",         hint: ["Capital of Egypt", "Largest city in Africa", "Close to the ancient pyramids of Giza and the Sphinx", "The Nile River flows through the city"] },
+  { word: "New Delhi",     hint: ["Capital of India", "Not Mumbai, which is the largest city", "Home to the famous Red Fort and India Gate", "A planned city built next to the historic old city of Delhi"] },
+  { word: "Brasília",      hint: ["Capital of Brazil", "Not Rio de Janeiro or São Paulo", "A futuristic planned city built in the middle of the country in 1960", "Designed by famous architect Oscar Niemeyer"] },
+  { word: "Buenos Aires",  hint: ["Capital of Argentina", "Known as the Paris of South America", "Famous for tango music and dancing", "Located on the River Plate estuary"] },
+  { word: "Seoul",         hint: ["Capital of South Korea", "One of the world's biggest and most modern cities", "K-pop music and K-drama TV shows come from here", "Home to over 10 million people"] },
+  { word: "Stockholm",     hint: ["Capital of Sweden", "Built across 14 islands connected by bridges", "Home of the Nobel Prize award ceremonies", "Has a famous open-air museum called Skansen"] },
+  { word: "Amsterdam",     hint: ["Capital of the Netherlands", "Famous for its network of canals", "Home to the Anne Frank House museum", "Known for tulips, windmills, and bicycles"] },
+  { word: "Wellington",    hint: ["Capital of New Zealand", "World's southernmost national capital", "A very windy city by the sea", "Not Auckland, which is larger but not the capital"] },
+  { word: "Ankara",        hint: ["Capital of Turkey", "Not Istanbul, which is much bigger and more famous", "Located in the middle of the country", "Home to Atatürk's mausoleum, Turkey's founder"] },
+  { word: "Bangkok",       hint: ["Capital of Thailand", "Has the world's longest official city name", "Famous for Buddhist temples and street food markets", "The Chao Phraya River runs through it"] },
+  { word: "Jakarta",       hint: ["Capital of Indonesia (currently being moved to a new city called Nusantara)", "Located on the island of Java", "One of the most densely populated cities in the world", "Being abandoned as capital due to flooding and sinking land"] },
+  { word: "Nairobi",       hint: ["Capital of Kenya", "Name means 'cool water' in Maasai language", "Has a national park right next to the city where you can see lions", "Major hub for East Africa"] },
+  { word: "Mexico City",   hint: ["Capital of Mexico", "One of the largest cities in the world by population", "Built on top of the ancient Aztec city of Tenochtitlan", "Located at a very high altitude of 2,200 metres above sea level"] },
+  { word: "Havana",        hint: ["Capital of Cuba", "Famous for classic 1950s American cars still driving on the streets", "Known for Cuban music, cigars, and colourful buildings", "Located on the Caribbean coast"] },
+  { word: "Dublin",        hint: ["Capital of Ireland", "Known for its pub culture and Guinness beer", "Home to famous writers like James Joyce", "The River Liffey flows through its centre"] },
+  { word: "Athen",         hint: ["Capital of Greece", "One of the world's oldest cities, over 3,000 years old", "Home to the Parthenon temple on the Acropolis hill", "Hosted the first modern Olympic Games in 1896"] },
+  { word: "Bern",          hint: ["Capital of Switzerland", "Not Zurich, which is much bigger", "Has medieval streets with covered walkways called arcades", "Located along the Aare River"] },
+  { word: "Brussel",       hint: ["Capital of Belgium", "Headquarters of the European Union and NATO", "Famous for waffles, chocolate, and the Manneken Pis statue", "Home to the Atomium structure built for the 1958 World's Fair"] },
+  { word: "Wien",          hint: ["Capital of Austria", "Famous for classical music and composers like Mozart and Beethoven", "Known for the Ringstrasse boulevard and Schönbrunn Palace", "Home to the famous Lipizzaner horses"] },
+  { word: "Warszawa",      hint: ["Capital of Poland", "Was almost completely destroyed in World War II and rebuilt", "The old town was reconstructed brick by brick after the war", "Located along the Vistula River"] },
+  { word: "Kyiv",          hint: ["Capital of Ukraine", "One of the oldest cities in Eastern Europe", "In the news since Russia invaded Ukraine in 2022", "Has famous golden-domed Orthodox churches"] },
+  { word: "Reykjavik",     hint: ["Capital of Iceland", "The world's northernmost capital of a sovereign state", "A great place to see the northern lights in winter", "Has hot springs and geothermal energy heating the whole city"] },
+  { word: "Ottawa",        hint: ["Capital of Canada", "Located in Ontario province near Quebec border", "The Rideau Canal turns into a giant skating rink in winter", "The Parliament Buildings are its most famous landmark"] },
+  { word: "Lima",          hint: ["Capital of Peru", "Located right on the Pacific coast of South America", "Close to Machu Picchu and the Inca ruins (by flight)", "Known for being one of the world's great food destinations"] },
+  { word: "Santiago",      hint: ["Capital of Chile", "Located in a valley surrounded by the Andes mountains", "On a clear day you can see snow-capped peaks from the city", "About 40% of Chile's population lives here"] },
+  { word: "Bogotá",        hint: ["Capital of Colombia", "Located very high in the Andes mountains at 2,600 metres", "One of the highest capital cities in the world", "Known for its colourful street art and coffee culture"] },
+  { word: "Lagos",         hint: ["Not actually the capital of Nigeria – that is Abuja", "But the largest city in Africa by some measures", "An enormous, chaotic, and vibrant city on the Atlantic coast", "Known for its music scene called Afrobeats"] },
+  { word: "Islamabad",     hint: ["Capital of Pakistan", "A planned, modern city built in the 1960s", "Not Karachi or Lahore, which are bigger but not the capital", "Located near the Margalla Hills in the north of the country"] },
+  { word: "Riyadh",        hint: ["Capital of Saudi Arabia", "One of the world's fastest growing cities", "Located in the middle of the Arabian Desert", "Has transformed rapidly with skyscrapers and entertainment venues"] },
+  { word: "Kuala Lumpur",  hint: ["Capital of Malaysia", "Home to the Petronas Twin Towers, once the world's tallest buildings", "Known for diverse food mixing Malay, Chinese, and Indian cuisines", "Famous for its warm tropical climate all year round"] },
+  { word: "Manila",        hint: ["Capital of the Philippines", "One of the most densely populated cities on Earth", "Located on Luzon island facing Manila Bay", "Known for its vibrant nightlife and colourful jeepney buses"] },
+  { word: "Addis Abeba",   hint: ["Capital of Ethiopia", "Headquarters of the African Union organisation", "Located at over 2,300 metres altitude, one of the highest capitals in the world", "Ethiopia is the only African country never colonised by Europeans"] },
+  { word: "Lusaka",        hint: ["Capital of Zambia in southern Africa", "Near the famous Victoria Falls waterfall", "One of the fastest-growing cities in southern Africa", "Zambia is named after the Zambezi River"] },
+  { word: "Accra",         hint: ["Capital of Ghana in West Africa", "Located right on the Atlantic coast", "Ghana was the first sub-Saharan African country to gain independence", "Known for its vibrant music scene and friendly people"] },
+  { word: "Dar es Salaam", hint: ["Largest city in Tanzania (though the official capital is Dodoma)", "Name means 'Haven of Peace' in Arabic", "Located on the beautiful Indian Ocean coast", "Important port city for East Africa"] },
+  { word: "Bagdad",        hint: ["Capital of Iraq", "One of the world's oldest cities, founded in 762 AD", "Was the centre of the Islamic Golden Age of science and culture", "Located on the Tigris River in the Middle East"] },
+  { word: "Praha",         hint: ["Capital of Czech Republic (Czechia)", "Known as the City of a Hundred Spires", "Has a beautiful medieval old town that survived World War II undamaged", "Famous for its castle overlooking the Vltava River"] },
+  { word: "Budapest",      hint: ["Capital of Hungary", "Actually formed from two cities: Buda and Pest, joined in 1873", "Split by the Danube River", "Known for thermal baths and stunning parliament building"] },
+  { word: "Kapadokia",     hint: ["Famous region in Turkey (not a capital, but very recognisable!)", "Known for its fairy chimney rock formations", "Famous for hot air balloon rides at sunrise", "Has ancient underground cities and cave houses"] },
+],
+
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -688,20 +564,13 @@ function showScreen(name) {
     s.classList.toggle('active', active);
     s.setAttribute('aria-hidden', active ? 'false' : 'true');
   });
-  // Move keyboard focus to the new screen's first heading or button
   requestAnimationFrame(() => {
     const screen = document.getElementById('screen-' + name);
-    const focusTarget = screen.querySelector('h1,h2,button');
-    if (focusTarget) {
-      focusTarget.setAttribute('tabindex', '-1');
-      focusTarget.focus({ preventScroll: false });
-    }
+    const target = screen.querySelector('h1,h2,button');
+    if (target) { target.setAttribute('tabindex','-1'); target.focus({ preventScroll: false }); }
   });
 }
 
-// ═══════════════════════════════════════════════════════════════════
-//  LIVE REGION HELPERS
-// ═══════════════════════════════════════════════════════════════════
 function announce(msg, urgent = false) {
   const el = document.getElementById(urgent ? 'sr-live-urgent' : 'sr-live');
   el.textContent = '';
@@ -709,7 +578,7 @@ function announce(msg, urgent = false) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  SETUP SCREEN
+//  SETUP
 // ═══════════════════════════════════════════════════════════════════
 function initSetup() {
   state.teams = [];
@@ -722,17 +591,15 @@ function initSetup() {
 function renderTeamList() {
   const el = document.getElementById('teams-list');
   el.innerHTML = '';
-  state.teams.forEach((t, i) => {
+  state.teams.forEach((t,i) => {
     const item = document.createElement('div');
     item.setAttribute('role','listitem');
     item.style.cssText = 'display:flex;align-items:center;gap:10px';
     item.innerHTML = `
       <div class="team-dot" style="background:${t.color}" aria-hidden="true"></div>
       <label for="team-name-${i}" class="sr-only">Navn på lag ${i+1}</label>
-      <input type="text" id="team-name-${i}" value="${escHtml(t.name)}"
-             placeholder="Lagnavn" style="flex:1"
-             onchange="updateTeamName(${i}, this.value)"
-             aria-label="Navn på lag ${i+1}">
+      <input type="text" id="team-name-${i}" value="${escHtml(t.name)}" placeholder="Lagnavn"
+             style="flex:1" onchange="updateTeamName(${i},this.value)" aria-label="Navn på lag ${i+1}">
       ${state.teams.length > 2
         ? `<button class="btn btn-red btn-sm" onclick="removeTeam(${i})"
                    aria-label="Fjern ${escHtml(t.name)}" style="padding:6px 10px;min-width:44px">✕</button>`
@@ -747,16 +614,12 @@ function addTeam() {
   const i = state.teams.length;
   state.teams.push({ name: TEAM_DEFAULTS[i] || `Lag ${i+1}`, score: 0, rounds: 0, color: TEAM_COLORS[i] });
   renderTeamList();
-  // Focus the new input
-  requestAnimationFrame(() => {
-    const inp = document.getElementById(`team-name-${i}`);
-    if (inp) inp.focus();
-  });
+  requestAnimationFrame(() => { const inp = document.getElementById(`team-name-${i}`); if (inp) inp.focus(); });
 }
 
 function removeTeam(i) {
   const name = state.teams[i].name;
-  state.teams.splice(i, 1);
+  state.teams.splice(i,1);
   renderTeamList();
   announce(`${name} er fjernet.`);
 }
@@ -765,26 +628,17 @@ function updateTeamName(i, val) {
   state.teams[i].name = val.trim() || `Lag ${i+1}`;
 }
 
-// ═══════════════════════════════════════════════════════════════════
-//  START GAME
-// ═══════════════════════════════════════════════════════════════════
 function startGame() {
   const cats = [];
   if (document.getElementById('cat-persons').checked) cats.push('persons');
   if (document.getElementById('cat-land').checked)    cats.push('land');
   if (document.getElementById('cat-capital').checked) cats.push('capital');
-  if (cats.length === 0) {
-    announce('Velg minst én kategori!', true);
-    document.getElementById('cat-persons').focus();
-    return;
-  }
-  if (state.teams.length < 2) {
-    announce('Legg til minst 2 lag!', true);
-    return;
-  }
+  if (!cats.length) { announce('Velg minst én kategori!', true); return; }
+  if (state.teams.length < 2) { announce('Legg til minst 2 lag!', true); return; }
+
   state.activeCategories   = cats;
-  state.targetScore        = parseInt(document.getElementById('target-score').value);
-  state.roundTime          = parseInt(document.getElementById('round-time').value);
+  state.targetScore        = parseInt(document.getElementById('target-score-range').value);
+  state.roundTime          = parseInt(document.getElementById('round-time-range').value);
   state.currentTeamIdx     = 0;
   state.roundNumber        = 0;
   state.gamePhase          = 'playing';
@@ -810,21 +664,14 @@ function buildWordPool() {
 function showDashboard() {
   const team = state.teams[state.currentTeamIdx];
   document.getElementById('dash-team-name').textContent = team.name + ' sin tur';
-
   const dot = document.getElementById('dash-team-dot');
   dot.style.background = team.color;
-  dot.setAttribute('aria-label', 'Lagfarge: ' + team.color);
-
   document.getElementById('dash-round').textContent  = state.roundNumber + 1;
   document.getElementById('dash-target').textContent = state.targetScore;
   document.getElementById('dash-time').textContent   = state.roundTime + 's';
 
   const notice = document.getElementById('final-round-notice');
-  if (state.gamePhase === 'equalizing') {
-    notice.removeAttribute('hidden');
-  } else {
-    notice.setAttribute('hidden','');
-  }
+  state.gamePhase === 'equalizing' ? notice.removeAttribute('hidden') : notice.setAttribute('hidden','');
 
   renderDashScoreboard();
   announce(`${team.name} sin tur. Runde ${state.roundNumber + 1}.`);
@@ -856,17 +703,14 @@ function renderDashScoreboard() {
 // ═══════════════════════════════════════════════════════════════════
 function startRound() {
   const team = state.teams[state.currentTeamIdx];
-  state.roundScore    = 0;
-  state.roundWordCount= 0;
-  state.timeLeft      = state.roundTime;
+  state.roundScore     = 0;
+  state.roundWordCount = 0;
+  state.timeLeft       = state.roundTime;
 
   document.getElementById('game-team-name').textContent = team.name;
-  document.getElementById('game-team-name').setAttribute('aria-label', 'Laget som forklarer: ' + team.name);
-  document.getElementById('game-score').textContent = team.score;
+  document.getElementById('game-score').textContent     = team.score;
 
-  // Hide hint
   setHintVisible(false);
-
   loadNextWord();
   updateTimerDisplay();
   showScreen('game');
@@ -877,7 +721,6 @@ function startRound() {
 
 function loadNextWord() {
   setHintVisible(false);
-
   const team = state.teams[state.currentTeamIdx];
   const idx  = (team.score + state.roundWordCount) % state.wordPool.length;
   let candidate = null;
@@ -885,24 +728,24 @@ function loadNextWord() {
     const w = state.wordPool[(idx + i) % state.wordPool.length];
     if (!state.usedWords.has(w.word)) { candidate = w; break; }
   }
-  if (!candidate) {
-    state.usedWords = new Set();
-    candidate = state.wordPool[idx % state.wordPool.length];
-  }
+  if (!candidate) { state.usedWords = new Set(); candidate = state.wordPool[idx % state.wordPool.length]; }
+
   state.currentWord = candidate;
   state.usedWords.add(candidate.word);
   state.roundWordCount++;
 
-  document.getElementById('game-word').textContent       = candidate.word;
-  document.getElementById('word-counter').textContent    = state.roundWordCount;
-  document.getElementById('hint-box').textContent        = candidate.hint;
+  document.getElementById('game-word').textContent    = candidate.word;
+  document.getElementById('word-counter').textContent = state.roundWordCount;
 
-  const meta = CAT_META[candidate.category];
+  // Build bullet-list hint
+  const hintEl = document.getElementById('hint-box');
+  hintEl.innerHTML = '<ul>' + candidate.hint.map(h => `<li>${escHtml(h)}</li>`).join('') + '</ul>';
+
+  const meta  = CAT_META[candidate.category];
   const badge = document.getElementById('game-cat-badge');
   badge.className   = 'cat-badge ' + meta.cls;
   badge.textContent = meta.icon + ' ' + meta.label;
 
-  // Announce new word to screen readers
   announce(`Nytt ord: ${candidate.word}. Kategori: ${meta.label}.`);
 }
 
@@ -911,7 +754,7 @@ function setHintVisible(visible) {
   const btn = document.getElementById('hint-btn');
   if (visible) {
     box.removeAttribute('hidden');
-    btn.textContent = '💡 Skjul hint';
+    btn.innerHTML = '<span aria-hidden="true">💡</span> Skjul hint';
     btn.setAttribute('aria-expanded','true');
   } else {
     box.setAttribute('hidden','');
@@ -923,13 +766,12 @@ function setHintVisible(visible) {
 function toggleHint() {
   const hidden = document.getElementById('hint-box').hasAttribute('hidden');
   setHintVisible(hidden);
-  if (hidden) announce('Hint: ' + state.currentWord.hint);
+  if (hidden) announce('Hint: ' + state.currentWord.hint.join('. '));
 }
 
 function correctAnswer() {
   const team = state.teams[state.currentTeamIdx];
-  team.score++;
-  state.roundScore++;
+  team.score++; state.roundScore++;
   document.getElementById('game-score').textContent = team.score;
   flashPoint('+1', true);
   announce(`Riktig! ${team.name} har nå ${team.score} poeng.`);
@@ -938,8 +780,7 @@ function correctAnswer() {
 
 function wrongAnswer() {
   const team = state.teams[state.currentTeamIdx];
-  team.score = Math.max(0, team.score - 1);
-  state.roundScore--;
+  team.score = Math.max(0, team.score - 1); state.roundScore--;
   document.getElementById('game-score').textContent = team.score;
   flashPoint('−1', false);
   announce(`Hopp over. ${team.name} har nå ${team.score} poeng.`);
@@ -948,7 +789,7 @@ function wrongAnswer() {
 
 function flashPoint(text, positive) {
   const el = document.createElement('div');
-  el.className   = 'point-flash ' + (positive ? 'flash-pos' : 'flash-neg');
+  el.className = 'point-flash ' + (positive ? 'flash-pos' : 'flash-neg');
   el.textContent = text;
   el.setAttribute('aria-hidden','true');
   document.body.appendChild(el);
@@ -961,26 +802,17 @@ function flashPoint(text, positive) {
 function tickTimer() {
   state.timeLeft--;
   updateTimerDisplay();
-  // Announce at key thresholds for screen readers
-  if ([30, 10, 5].includes(state.timeLeft)) {
-    announce(`${state.timeLeft} sekunder igjen.`, state.timeLeft <= 10);
-  }
-  if (state.timeLeft <= 0) {
-    clearInterval(state.timerInterval);
-    announce('Tiden er ute!', true);
-    timeUp();
-  }
+  if ([30,10,5].includes(state.timeLeft)) announce(`${state.timeLeft} sekunder igjen.`, state.timeLeft <= 10);
+  if (state.timeLeft <= 0) { clearInterval(state.timerInterval); announce('Tiden er ute!', true); timeUp(); }
 }
 
 function updateTimerDisplay() {
   const t = state.timeLeft;
   document.getElementById('timer-display').textContent = t;
-
   const circumference = 2 * Math.PI * 30;
   const fraction      = t / state.roundTime;
   const arc           = document.getElementById('timer-arc');
   arc.style.strokeDashoffset = circumference * (1 - fraction);
-
   let color = '#7c5cfc';
   if      (fraction < 0.33) color = '#f87171';
   else if (fraction < 0.60) color = '#f6c90e';
@@ -993,23 +825,22 @@ function updateTimerDisplay() {
 // ═══════════════════════════════════════════════════════════════════
 function timeUp() {
   state.teams[state.currentTeamIdx].rounds++;
-  const w = state.currentWord;
+  const w    = state.currentWord;
+  const meta = CAT_META[w.category];
 
   document.getElementById('ot-word').textContent = w.word;
-  document.getElementById('ot-hint-box').textContent = w.hint;
-  document.getElementById('ot-hint-box').setAttribute('hidden','');
+  const otHintEl = document.getElementById('ot-hint-box');
+  otHintEl.innerHTML = '<ul>' + w.hint.map(h => `<li>${escHtml(h)}</li>`).join('') + '</ul>';
+  otHintEl.setAttribute('hidden','');
 
-  // Reset hint button
   const otBtn = document.querySelector('#screen-overtime .btn-hint');
   if (otBtn) { otBtn.setAttribute('aria-expanded','false'); otBtn.innerHTML = '<span aria-hidden="true">💡</span> Hint'; }
 
-  const meta = CAT_META[w.category];
-  const ob   = document.getElementById('ot-cat-badge');
+  const ob = document.getElementById('ot-cat-badge');
   ob.className   = 'cat-badge ' + meta.cls;
   ob.textContent = meta.icon + ' ' + meta.label;
 
-  const btns = document.getElementById('ot-team-buttons');
-  btns.innerHTML = state.teams.map((t,i) => `
+  document.getElementById('ot-team-buttons').innerHTML = state.teams.map((t,i) => `
     <button class="btn btn-ghost"
             style="border-color:${t.color};justify-content:flex-start;gap:12px;padding:1rem 1.25rem;"
             onclick="overtimeTeamGuessed(${i})"
@@ -1019,7 +850,7 @@ function timeUp() {
       <span style="margin-left:auto;font-size:0.85rem;color:var(--c-muted)" aria-hidden="true">${t.score} p</span>
     </button>`).join('');
 
-  announce(`Utjevning! Overtidsordet er: ${w.word}. Kategori: ${meta.label}. Hvem gjettet riktig?`, true);
+  announce(`Utjevning! Ordet er: ${w.word}. Kategori: ${meta.label}. Hvem gjettet riktig?`, true);
   showScreen('overtime');
 }
 
@@ -1027,20 +858,13 @@ function toggleOtHint() {
   const box = document.getElementById('ot-hint-box');
   const btn = document.querySelector('#screen-overtime .btn-hint');
   const hidden = box.hasAttribute('hidden');
-  if (hidden) {
-    box.removeAttribute('hidden');
-    btn.setAttribute('aria-expanded','true');
-    announce('Hint: ' + state.currentWord.hint);
-  } else {
-    box.setAttribute('hidden','');
-    btn.setAttribute('aria-expanded','false');
-  }
+  if (hidden) { box.removeAttribute('hidden'); btn.setAttribute('aria-expanded','true'); }
+  else        { box.setAttribute('hidden','');  btn.setAttribute('aria-expanded','false'); }
 }
 
-function overtimeTeamGuessed(teamIdx) {
-  const team = state.teams[teamIdx];
-  team.score++;
-  announce(`${team.name} fikk overtidspoeng. Ny score: ${team.score}.`);
+function overtimeTeamGuessed(i) {
+  state.teams[i].score++;
+  announce(`${state.teams[i].name} fikk overtidspoeng. Score: ${state.teams[i].score}.`);
   afterRound();
 }
 
@@ -1056,21 +880,17 @@ function afterRound() {
   if (state.gamePhase === 'playing') {
     const leaderScore = Math.max(...state.teams.map(t => t.score));
     if (leaderScore >= state.targetScore) {
-      const leaderIdx           = state.teams.findIndex(t => t.score === leaderScore);
-      state.winnerTeamIdx       = leaderIdx;
-      state.gamePhase           = 'equalizing';
-      state.equalizingUntilIdx  = (leaderIdx + numTeams - 1) % numTeams;
+      const leaderIdx          = state.teams.findIndex(t => t.score === leaderScore);
+      state.winnerTeamIdx      = leaderIdx;
+      state.gamePhase          = 'equalizing';
+      state.equalizingUntilIdx = (leaderIdx + numTeams - 1) % numTeams;
     }
   }
 
   state.currentTeamIdx = (state.currentTeamIdx + 1) % numTeams;
   if (state.currentTeamIdx === 0) state.roundNumber++;
 
-  if (state.gamePhase === 'equalizing' && prevTeamIdx === state.equalizingUntilIdx) {
-    endGame();
-    return;
-  }
-
+  if (state.gamePhase === 'equalizing' && prevTeamIdx === state.equalizingUntilIdx) { endGame(); return; }
   showDashboard();
 }
 
@@ -1081,31 +901,25 @@ function endGame() {
   const sorted = [...state.teams].sort((a,b) => b.score - a.score);
   const winner = sorted[0];
   const ties   = sorted.filter(t => t.score === winner.score);
+  const wName  = ties.length > 1 ? ties.map(t=>t.name).join(' & ') : winner.name;
+  const wSub   = ties.length > 1 ? `Uavgjort med ${winner.score} poeng!` : `Med ${winner.score} poeng – Gratulerer!`;
 
-  const winnerName = ties.length > 1 ? ties.map(t=>t.name).join(' & ') : winner.name;
-  const winnerSub  = ties.length > 1
-    ? `Uavgjort med ${winner.score} poeng!`
-    : `Med ${winner.score} poeng – Gratulerer!`;
-
-  document.getElementById('winner-name').textContent = winnerName;
-  document.getElementById('winner-sub').textContent  = winnerSub;
+  document.getElementById('winner-name').textContent = wName;
+  document.getElementById('winner-sub').textContent  = wSub;
 
   const medals = ['🥇','🥈','🥉'];
-  document.getElementById('winner-scoreboard').innerHTML = sorted.map((t, rank) => `
-    <div class="score-row ${rank===0?'leader':''}"
-         role="listitem"
+  document.getElementById('winner-scoreboard').innerHTML = sorted.map((t,rank) => `
+    <div class="score-row ${rank===0?'leader':''}" role="listitem"
          aria-label="${rank+1}. plass: ${escHtml(t.name)} med ${t.score} poeng">
       <div style="display:flex;align-items:center;gap:10px">
-        <span aria-hidden="true" style="font-size:1.1rem">${medals[rank] || (rank+1)+'.'}</span>
+        <span aria-hidden="true" style="font-size:1.1rem">${medals[rank]||rank+1+'.'}</span>
         <div class="team-dot" style="background:${t.color}" aria-hidden="true"></div>
         <span style="font-weight:500">${escHtml(t.name)}</span>
       </div>
-      <span class="font-display font-bold text-xl"
-            style="color:${rank===0?'var(--c-gold)':'inherit'}"
-            aria-hidden="true">${t.score}</span>
+      <span class="font-display font-bold text-xl" style="color:${rank===0?'var(--c-gold)':'inherit'}" aria-hidden="true">${t.score}</span>
     </div>`).join('');
 
-  announce(`Spillet er over! Vinner: ${winnerName}. ${winnerSub}`, true);
+  announce(`Spillet er over! Vinner: ${wName}. ${wSub}`, true);
   showScreen('winner');
   spawnConfetti();
 }
@@ -1114,7 +928,6 @@ function endGame() {
 //  CONFETTI
 // ═══════════════════════════════════════════════════════════════════
 function spawnConfetti() {
-  // Skip if user prefers reduced motion
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const colors = ['#7c5cfc','#4fd1c5','#f6c90e','#f87171','#34d399','#fb923c'];
   for (let i = 0; i < 80; i++) {
@@ -1122,15 +935,7 @@ function spawnConfetti() {
       const el = document.createElement('div');
       el.className = 'confetti-piece';
       el.setAttribute('aria-hidden','true');
-      el.style.cssText = `
-        left:${Math.random()*100}vw;
-        background:${colors[Math.floor(Math.random()*colors.length)]};
-        animation-duration:${2+Math.random()*2}s;
-        animation-delay:${Math.random()*0.5}s;
-        transform:rotate(${Math.random()*360}deg);
-        width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;
-        border-radius:${Math.random()>0.5?'50%':'2px'};
-      `;
+      el.style.cssText = `left:${Math.random()*100}vw;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*0.5}s;transform:rotate(${Math.random()*360}deg);width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>0.5?'50%':'2px'};`;
       document.body.appendChild(el);
       setTimeout(() => el.remove(), 4500);
     }, i * 30);
@@ -1145,30 +950,23 @@ function restartGame() {
   state.currentTeamIdx = 0; state.roundNumber = 0;
   state.gamePhase = 'playing'; state.usedWords = new Set();
   state.winnerTeamIdx = -1; state.equalizingUntilIdx = -1;
-  buildWordPool();
-  showDashboard();
+  buildWordPool(); showDashboard();
 }
 
-function goToSetup() {
-  clearInterval(state.timerInterval);
-  showScreen('setup');
-}
+function goToSetup() { clearInterval(state.timerInterval); showScreen('setup'); }
 
 // ═══════════════════════════════════════════════════════════════════
 //  UTILITIES
 // ═══════════════════════════════════════════════════════════════════
 function shuffleArray(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
   }
 }
 
-// Prevent XSS in dynamically inserted team names
 function escHtml(str) {
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 // ═══════════════════════════════════════════════════════════════════
