@@ -862,26 +862,46 @@ function buildPlan(t0, pitsDone, accDT, snStart, forbidFirst){
   const seq   = [];
   let   last  = (forbidFirst !== undefined) ? forbidFirst : -1;
 
+  // Reset kart history and seed from already-done stints (live mode)
+  resetKartHistory();
+  if(lStints && lStints.length > 0){
+    lStints.filter(s=>s.type==='drive'&&s.status==='done')
+           .forEach(s=>recordKart(s.di, s.sn));
+    const act=lStints.find(s=>s.type==='drive'&&s.status==='active');
+    if(act) recordKart(act.di, act.sn);
+  }
+
   for(let s=0; s<totalStints; s++){
-    // Primary: highest remSC, not same as last
+    const thisStintNum = (snStart||1) + s; // determines kart A (odd) or B (even)
+
+    // Score: primary = stints remaining (Standard) or speed (Nitro)
+    // Tiebreaker: kart-penalty (prefer driver who hasn't used this kart parity)
     let best=-1, bs=-Infinity;
     for(let di=0;di<n;di++){
       if(di===last)continue;
       if(remSC[di]<=0)continue;
-      // For Nitro: also weight by target
-      const score = isNitro ? (targets[di] / (drivers[di].lt||40)) : remSC[di];
+      const baseScore = isNitro ? (targets[di] / (drivers[di].lt||40)) : remSC[di];
+      // Subtract a small penalty for same kart parity – not a hard rule,
+      // just a preference so drivers with 2 stints get different karts
+      const penalty   = kartPenalty(di, thisStintNum) * 0.5;
+      const score     = baseScore - penalty;
       if(score > bs){ bs=score; best=di; }
     }
-    // Fallback: relax no-consecutive
+    // Fallback: relax no-consecutive rule
     if(best<0){
       for(let di=0;di<n;di++){
         if(remSC[di]<=0)continue;
-        const score = isNitro ? (targets[di] / (drivers[di].lt||40)) : remSC[di];
+        const baseScore = isNitro ? (targets[di] / (drivers[di].lt||40)) : remSC[di];
+        const penalty   = kartPenalty(di, thisStintNum) * 0.5;
+        const score     = baseScore - penalty;
         if(score > bs){ bs=score; best=di; }
       }
     }
     if(best<0) break;
-    seq.push(best); remSC[best]--; last=best;
+    seq.push(best);
+    recordKart(best, thisStintNum); // register which kart parity this driver gets
+    remSC[best]--;
+    last=best;
   }
 
   // ── Assign times ──────────────────────────────────────────────
