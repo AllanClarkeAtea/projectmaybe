@@ -823,13 +823,11 @@ function buildPlan(t0, pitsDone, accDT, snStart, forbidFirst){
   const n       = drivers.length;
   const isNitro = (mode === 'speed5');
 
-  // pitsLeft: how many more pits we MUST do to meet minP
-  // nStints:  a pit separates every pair of stints, so we need at least pitsLeft+1 drive stints
-  const pitsLeft = Math.max(0, minP - pitsDone);
-  const minDriveStints = pitsLeft + 1; // minimum drive stints to fulfil minP
-
-  // Total drive time available (reserve time for mandatory pits)
-  const totalDriveTime = Math.max(0, rSec - t0 - pitsLeft * pitSec);
+  // Effective pits: at least minP, at least n-1 (every driver gets a stint)
+  const effectiveMinPits = Math.max(minP - pitsDone, n - 1);
+  const pitsLeft         = Math.max(0, effectiveMinPits);
+  const totalDriveTime   = Math.max(0, rSec - t0 - pitsLeft * pitSec);
+  const totalStints      = pitsLeft + 1;
 
   // ── Target drive time per driver ──────────────────────────────
   let targets;
@@ -846,89 +844,77 @@ function buildPlan(t0, pitsDone, accDT, snStart, forbidFirst){
     targets = drivers.map((d,i) => Math.min(MAX_TOT - accDT[i], share));
   }
 
-  const result = [];
-  const remTgt = targets.slice();
-  const curDT  = accDT.slice();
-  let clk      = t0;
-  let pitN     = pitsDone;
-  let sn       = snStart || 1;
-  let lastDi   = (forbidFirst !== undefined) ? forbidFirst : -1;
-  let maxIter  = 60;
+  // ── Pre-allocate stints per driver ────────────────────────────
+  // Some drivers get floor(total/n) stints, some get ceil.
+  // For Nitro: drivers with higher target get more stints.
+  // For Standard: distribute as evenly as possible.
+  const baseStints  = Math.floor(totalStints / n);
+  const extraSlots  = totalStints % n;
 
-  while(maxIter-- > 0){
-    const remaining   = rSec - clk;
-    const pitsStillNeeded = Math.max(0, minP - pitN);      // must-do pits remaining
-    const driveStintsDone = result.filter(s=>s.type==='drive').length;
-    const driveStintsLeft = Math.max(0, minDriveStints - driveStintsDone); // min drive stints left
+  // Sort drivers by target descending – top extraSlots get one extra stint
+  const sortedByTarget = drivers.map((_,i)=>i).sort((a,b)=>targets[b]-targets[a]);
+  const stintAlloc = Array(n).fill(baseStints);
+  for(let k=0; k<extraSlots; k++) stintAlloc[sortedByTarget[k]]++;
 
-    // Can we stop? Only if we've filled rSec AND met minP
-    if(clk >= rSec && pitN >= minP) break;
+  // ── Build driver sequence ─────────────────────────────────────
+  // Pick driver with most remaining stints, never same as last
+  const remSC = stintAlloc.slice();
+  const seq   = [];
+  let   last  = (forbidFirst !== undefined) ? forbidFirst : -1;
 
-    // If we've hit rSec but still need more pits, we add them
-    // by splitting the last stint shorter and inserting more pits
-    if(clk >= rSec && pitN < minP){
-      // Find last drive stint and shorten it to make room for more pits+drives
-      const lastD = [...result].reverse().find(s=>s.type==='drive');
-      if(lastD && (lastD.end - lastD.start) > MIN_S + pitSec + MIN_S){
-        // Split: shorten last drive, add pit, add one more short drive
-        const origEnd = lastD.end;
-        const splitAt = lastD.start + Math.min(MAX_S, Math.round((lastD.end-lastD.start)*0.55));
-        lastD.end = splitAt;
-        lastD.signAt = sgAt(splitAt);
-        lastD.plannedRounds = Math.floor((splitAt-lastD.start)/(lastD.lT||40));
-        lastD.bc = boostW.filter(([a])=>a>=lastD.start&&a<splitAt).length;
-        clk = splitAt;
-        // Continue loop to add pit + drive
-        continue;
-      }
-      break; // can't fit more pits
+  for(let s=0; s<totalStints; s++){
+    // Primary: highest remSC, not same as last
+    let best=-1, bs=-Infinity;
+    for(let di=0;di<n;di++){
+      if(di===last)continue;
+      if(remSC[di]<=0)continue;
+      // For Nitro: also weight by target
+      const score = isNitro ? (targets[di] / (drivers[di].lt||40)) : remSC[di];
+      if(score > bs){ bs=score; best=di; }
     }
-
-    if(remaining <= 0 && pitN >= minP) break;
-
-    // Pick best driver
-    let best = -1, bestScore = -Infinity;
-    for(let di = 0; di < n; di++){
-      if(di === lastDi) continue;
-      const allowed = maxAllowedNow(di, curDT);
-      if(allowed < MIN_S) continue;
-      const score = Math.max(0.01, isNitro
-        ? (remTgt[di] / (drivers[di].lt||40))
-        : remTgt[di]);
-      if(score > bestScore){ bestScore = score; best = di; }
-    }
-    // Fallback: relax no-consecutive rule
-    if(best < 0){
-      for(let di = 0; di < n; di++){
-        const allowed = maxAllowedNow(di, curDT);
-        if(allowed < MIN_S) continue;
-        const score = Math.max(0.01, isNitro
-          ? (remTgt[di] / (drivers[di].lt||40))
-          : remTgt[di]);
-        if(score > bestScore){ bestScore = score; best = di; }
+    // Fallback: relax no-consecutive
+    if(best<0){
+      for(let di=0;di<n;di++){
+        if(remSC[di]<=0)continue;
+        const score = isNitro ? (targets[di] / (drivers[di].lt||40)) : remSC[di];
+        if(score > bs){ bs=score; best=di; }
       }
     }
-    if(best < 0) break;
+    if(best<0) break;
+    seq.push(best); remSC[best]--; last=best;
+  }
 
-    const di      = best;
-    const lT      = drivers[di].lt || 40;
-    const allowed = maxAllowedNow(di, curDT);
+  // ── Assign times ──────────────────────────────────────────────
+  const result       = [];
+  const curDT        = accDT.slice();
+  const driverStintN = Array(n).fill(0); // stints done per driver so far
+  let clk = t0, pitN = pitsDone, sn = snStart||1;
 
-    // Calculate stint length.
-    // If we still need more pits, cap stint so there's room for pit+MIN_S after.
-    const pitsAfterThis = Math.max(0, minP - pitN - 1); // pits needed after next pit
-    const reserve = pitsAfterThis * (pitSec + MIN_S);
-    let sl = Math.min(allowed, remaining - pitSec - MIN_S - reserve);
+  for(let s=0; s<seq.length; s++){
+    const di       = seq[s];
+    const lT       = drivers[di].lt || 40;
+    const allowed  = Math.min(MAX_S, Math.max(0, MAX_TOT - curDT[di]));
+    const remMyS   = stintAlloc[di] - driverStintN[di]; // remaining stints for this driver
+    const remTgt   = Math.max(0, targets[di] - curDT[di] + accDT[di]); // remaining target
+
+    let sl;
+    const isLast = (s === seq.length - 1);
+    if(isLast){
+      // Last stint in plan: fill to rSec
+      sl = Math.min(allowed, rSec - clk);
+    } else {
+      // Spread remaining target evenly across remaining stints for this driver
+      sl = remMyS > 0 ? Math.round(remTgt / remMyS) : Math.round(remTgt);
+      sl = Math.min(sl, allowed);
+      // Ensure we leave room for remaining pits and minimum stints
+      const pitsAfter   = Math.max(0, pitsDone + effectiveMinPits - pitN - 1);
+      const stintsAfter = seq.length - s - 1;
+      const reserve     = pitsAfter * pitSec + stintsAfter * MIN_S;
+      sl = Math.min(sl, (rSec - clk) - pitSec - MIN_S - reserve);
+    }
+
     sl = Math.max(MIN_S, Math.min(MAX_S, sl));
     if(sl <= 0) sl = MIN_S;
-
-    // If this is the LAST drive stint (after last required pit), fill to rSec
-    // True only when ALL required pits are already done
-    const isLastStint = (pitN >= minP);
-    if(isLastStint){
-      sl = Math.min(allowed, remaining);
-      sl = Math.max(MIN_S, Math.min(MAX_S, sl));
-    }
 
     const end  = Math.min(clk + sl, rSec);
     const sgT  = sgAt(end);
@@ -937,20 +923,20 @@ function buildPlan(t0, pitsDone, accDT, snStart, forbidFirst){
 
     result.push({
       type:'drive', di,
-      name: drivers[di].name || ('Fører '+(di+1)),
-      start:clk, end, col:C[di%C.length], lT,
-      signAt:sgT, status:'future', aStart:null, rep:false,
+      name:   drivers[di].name || ('Fører '+(di+1)),
+      start:  clk, end, col:C[di%C.length], lT,
+      signAt: sgT, status:'future', aStart:null, rep:false,
       sn, bc, plannedRounds:pRnd,
     });
 
-    remTgt[di] -= (end-clk);
-    curDT[di]  += (end-clk);
-    clk = end; sn++; lastDi = di;
+    curDT[di]        += (end - clk);
+    driverStintN[di] ++;
+    clk = end; sn++; last = di;
 
-    // Add pit UNLESS we have already met minP AND clk >= rSec
-    if(clk < rSec || pitN < minP){
-      const nxtDi = findNextDriver(di, curDT, remTgt, isNitro, n);
-      const wu    = WU * (drivers[nxtDi >= 0 ? nxtDi : 0]?.lt || 40);
+    // Add pit after every drive stint except the last
+    if(s < seq.length - 1 && clk < rSec){
+      const nxtDi = seq[s+1];
+      const wu    = WU * (drivers[nxtDi]?.lt || 40);
       const{ps, pe} = vPit(clk, pitSec, wu);
       if(ps < rSec){
         pitN++;
@@ -963,7 +949,7 @@ function buildPlan(t0, pitsDone, accDT, snStart, forbidFirst){
     }
   }
 
-  // Guarantee last drive stint ends exactly at rSec (within MAX_S)
+  // ── Guarantee last drive stint ends at rSec ───────────────────
   const lastDrive = [...result].reverse().find(s=>s.type==='drive');
   if(lastDrive && lastDrive.end < rSec){
     const newEnd = Math.min(lastDrive.start + MAX_S, rSec);
@@ -975,6 +961,7 @@ function buildPlan(t0, pitsDone, accDT, snStart, forbidFirst){
     }
   }
 
+  // ── Also remove the post-process rebalance block (no longer needed) ───────
   return { stints:result, finalDT:curDT };
 }
 
@@ -2185,4 +2172,3 @@ rdDrvs();
 </script>
 </body>
 </html>
-
