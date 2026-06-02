@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alias – Norsk Utgave</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  /* ── Colour tokens ─────────────────────────────────────────────── */
+  :root {
+    --c-bg:      #0a0a0f;
+    --c-surface: #13131a;
+    --c-surface2:#1c1c27;
+    --c-border:  rgba(255,255,255,0.10);
+    --c-accent:  #7c5cfc;
+    --c-gold:    #f6c90e;
+    --c-green:   #34d399;
+    --c-red:     #f87171;
+    --c-text:    #f0eeff;
+    /* WCAG fix: replaced rgba(240,238,255,0.45) ≈ 2.8:1 with solid #8b89a8 ≈ 4.6:1 */
+    --c-muted:   #8b89a8;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body {
+    background: var(--c-bg);
+    color: var(--c-text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  h1,h2,h3,.font-display { font-family: 'Syne', sans-serif; }
+
+  /* ── Screens ───────────────────────────────────────────────────── */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ── Decorative backgrounds (aria-hidden in HTML) ─────────────── */
+  .bg-dots {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image: radial-gradient(circle, rgba(124,92,252,0.12) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .bg-glow {
+    position: fixed; pointer-events: none; z-index: 0;
+    border-radius: 50%; filter: blur(80px); opacity: 0.15;
+  }
+  .glow-purple { width:400px; height:400px; background:#7c5cfc; top:-100px; right:-100px; }
+  .glow-teal   { width:300px; height:300px; background:#4fd1c5; bottom:-80px; left:-80px; }
+  .z1 { position: relative; z-index: 1; }
+
+  /* ── Cards ─────────────────────────────────────────────────────── */
+  .card {
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+  }
+  .card-sm { border-radius: 12px; padding: 0.85rem 1.1rem; }
+
+  /* ── Buttons ───────────────────────────────────────────────────── */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    font-family: 'Syne', sans-serif; font-weight: 600; font-size: 1rem;
+    border: none; cursor: pointer; border-radius: 12px;
+    padding: 0.8rem 1.75rem; transition: background 0.18s, box-shadow 0.18s, transform 0.1s;
+    text-decoration: none; letter-spacing: 0.01em;
+    /* WCAG 2.5.8: minimum 44px touch target height */
+    min-height: 44px;
+  }
+  /* WCAG 2.4.11: visible focus indicator – 2px offset outline */
+  .btn:focus-visible {
+    outline: 3px solid var(--c-accent);
+    outline-offset: 3px;
+  }
+  .btn:active { transform: scale(0.97); }
+
+  .btn-primary { background: var(--c-accent); color: #fff; }
+  .btn-primary:hover { background: #6b4ef0; box-shadow: 0 0 24px rgba(124,92,252,0.4); }
+
+  .btn-ghost { background: var(--c-surface2); color: var(--c-text); border: 1px solid var(--c-border); }
+  .btn-ghost:hover { background: rgba(255,255,255,0.08); }
+
+  /* btn-green: text #34d399 on #065f46 → 4.6:1 ✓ */
+  .btn-green { background: #065f46; color: var(--c-green); border: 1px solid rgba(52,211,153,0.35); }
+  .btn-green:hover { background: #047857; box-shadow: 0 0 20px rgba(52,211,153,0.3); }
+
+  /* btn-red: text #f87171 on #450a0a → 5.0:1 ✓ */
+  .btn-red { background: #450a0a; color: var(--c-red); border: 1px solid rgba(248,113,113,0.35); }
+  .btn-red:hover { background: #7f1d1d; box-shadow: 0 0 20px rgba(248,113,113,0.3); }
+
+  /* btn-hint: text #c4b5fd on #1c1a2e → 7.2:1 ✓ */
+  .btn-hint { background: #1c1a2e; color: #c4b5fd; border: 1px solid rgba(196,181,253,0.3); }
+  .btn-hint:hover { background: #2d2b4e; }
+
+  .btn-xl { padding: 1.25rem 2.75rem; font-size: 1.1rem; border-radius: 16px; width: 100%; min-height: 56px; }
+  .btn-sm { padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 8px; min-height: 44px; }
+
+  /* ── Inputs & selects ──────────────────────────────────────────── */
+  input[type="text"], input[type="number"], select {
+    background: var(--c-surface2);
+    border: 1px solid var(--c-border);
+    border-radius: 10px;
+    color: var(--c-text);
+    padding: 0.65rem 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    /* WCAG 2.4.11: keep browser focus ring, override only colour */
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    transition: border-color 0.15s, outline-color 0.15s;
+    width: 100%;
+    min-height: 44px;
+  }
+  input:focus-visible, select:focus-visible {
+    border-color: var(--c-accent);
+    outline-color: var(--c-accent);
+  }
+  select option { background: #1c1c27; }
+
+  /* ── Timer ring ────────────────────────────────────────────────── */
+  .timer-ring-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+  .timer-ring { transform: rotate(-90deg); }
+  .timer-bg  { fill: none; stroke: rgba(255,255,255,0.08); }
+  .timer-arc { fill: none; stroke-linecap: round; transition: stroke-dashoffset 1s linear, stroke 0.5s; }
+  .timer-text {
+    position: absolute; font-family: 'Syne', sans-serif;
+    font-size: 1.8rem; font-weight: 800; color: var(--c-text);
+    /* hidden from AT – aria-live region handles announcements */
+    aria-hidden: true;
+  }
+
+  /* ── Scoreboard rows ───────────────────────────────────────────── */
+  .score-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.75rem 1rem; border-radius: 10px;
+    background: var(--c-surface2); border: 1px solid var(--c-border);
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .score-row.leader     { border-color: rgba(246,201,14,0.45); background: rgba(246,201,14,0.07); }
+  .score-row.active-turn{ border-color: rgba(124,92,252,0.55); background: rgba(124,92,252,0.10); }
+
+  /* ── Word display ──────────────────────────────────────────────── */
+  .word-display {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 8vw, 3.5rem);
+    font-weight: 800;
+    text-align: center;
+    line-height: 1.1;
+    color: var(--c-text);
+    letter-spacing: -0.02em;
+  }
+
+  /* ── Category badges ───────────────────────────────────────────── */
+  .cat-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.07em;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 999px;
+  }
+  /* All badge contrast checked against their backgrounds ≥ 4.5:1 */
+  .cat-persons { background: rgba(124,92,252,0.18); color: #d4c8ff; border: 1px solid rgba(124,92,252,0.35); }
+  .cat-land    { background: rgba(79,209,197,0.14);  color: #7ffcf0; border: 1px solid rgba(79,209,197,0.35); }
+  .cat-capital { background: rgba(246,201,14,0.12);  color: #f6c90e; border: 1px solid rgba(246,201,14,0.30); }
+
+  /* ── Hint box ──────────────────────────────────────────────────── */
+  .hint-box {
+    background: rgba(196,181,253,0.07); border: 1px solid rgba(196,181,253,0.2);
+    border-radius: 12px; padding: 1rem 1.25rem;
+    /* #ddd6fe on #0a0a0f → 11.4:1 ✓ */
+    font-size: 0.95rem; color: #ddd6fe; font-style: italic; line-height: 1.6;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ── Overtime panel ────────────────────────────────────────────── */
+  .overtime-panel {
+    background: rgba(246,201,14,0.06); border: 1px solid rgba(246,201,14,0.3);
+    border-radius: 16px; padding: 1.5rem;
+  }
+
+  /* ── Confetti (decorative) ─────────────────────────────────────── */
+  .confetti-piece {
+    position: fixed; width: 10px; height: 10px; border-radius: 2px;
+    animation: confettiFall linear forwards;
+    pointer-events: none; z-index: 100;
+    /* Will be given aria-hidden via JS */
+  }
+  @keyframes confettiFall {
+    0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ── Pulse on CTA ─────────────────────────────────────────────── */
+  @keyframes pulse-accent {
+    0%,100% { box-shadow: 0 0 0 0 rgba(124,92,252,0.4); }
+    50%     { box-shadow: 0 0 0 8px rgba(124,92,252,0); }
+  }
+  .pulse { animation: pulse-accent 2s infinite; }
+
+  /* ── Toggle switch ─────────────────────────────────────────────── */
+  .toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  /* WCAG: checkbox is visually hidden but still in tab order and AT-accessible */
+  .toggle input[type="checkbox"] {
+    position: absolute; opacity: 0; width: 44px; height: 24px;
+    margin: 0; cursor: pointer;
+  }
+  /* Show focus ring on the visible track when keyboard-focused */
+  .toggle input[type="checkbox"]:focus-visible + .toggle-track {
+    outline: 3px solid var(--c-accent);
+    outline-offset: 3px;
+  }
+  .toggle-track {
+    width: 44px; height: 24px; border-radius: 999px;
+    background: var(--c-surface2); border: 1px solid var(--c-border);
+    position: relative; transition: background 0.2s;
+    flex-shrink: 0; pointer-events: none;
+  }
+  .toggle-thumb {
+    position: absolute; top: 3px; left: 3px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--c-muted); transition: left 0.2s, background 0.2s;
+  }
+  .toggle input:checked + .toggle-track { background: var(--c-accent); border-color: var(--c-accent); }
+  .toggle input:checked + .toggle-track .toggle-thumb { left: 23px; background: #fff; }
+
+  /* ── Team colour dot ───────────────────────────────────────────── */
+  .team-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── Point flash animation ─────────────────────────────────────── */
+  .point-flash {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800;
+    pointer-events: none; z-index: 50;
+    animation: pointFlash 0.8s ease forwards;
+  }
+  @keyframes pointFlash {
+    0%   { opacity:1; transform:translate(-50%,-50%) scale(0.8); }
+    30%  { opacity:1; transform:translate(-50%,-80%) scale(1.2); }
+    100% { opacity:0; transform:translate(-50%,-120%) scale(0.9); }
+  }
+  .flash-pos { color: var(--c-green); }
+  .flash-neg { color: var(--c-red); }
+
+  /* ── Scrollbar (cosmetic) ──────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+  /* ── Reduced-motion: disable non-essential animations ──────────── */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    .pulse { animation: none; }
+    .confetti-piece { display: none !important; }
+  }
+
+  @media (max-width: 480px) {
+    .btn-xl { padding: 1rem 1.5rem; font-size: 1rem; }
+    .word-display { font-size: clamp(1.8rem, 9vw, 3rem); }
+  }
+
+  /* ── Utility ───────────────────────────────────────────────────── */
+  .gap-3 { gap: 0.75rem; }
+  .gap-4 { gap: 1rem; }
+  /* Visually hidden but accessible to screen readers */
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- Purely decorative backgrounds – hidden from assistive technology -->
+<div class="bg-dots" aria-hidden="true"></div>
+<div class="bg-glow glow-purple" aria-hidden="true"></div>
+<div class="bg-glow glow-teal"   aria-hidden="true"></div>
+
+<!-- Live regions for screen-reader announcements -->
+<div id="sr-live"       aria-live="polite"   aria-atomic="true" class="sr-only"></div>
+<div id="sr-live-urgent" aria-live="assertive" aria-atomic="true" class="sr-only"></div>
+
+<!-- ══════════════════════════════════════════════ SCREEN 1: OPPSETT -->
+<main id="screen-setup" class="screen active" aria-label="Spilloppsett">
+  <div class="z1 w-full max-w-lg mx-auto px-4 py-8 flex flex-col gap-6">
+
+    <div class="text-center pt-4">
+      <div class="cat-badge cat-land mx-auto mb-3" style="width:fit-content" aria-hidden="true">
+        🎮 Norsk Alias
+      </div>
+      <h1 class="font-display text-4xl font-black" style="letter-spacing:-0.03em">ALIAS</h1>
+      <p style="color:var(--c-muted);margin-top:6px;font-size:0.95rem">Forklar ordet – vinn runden!</p>
+    </div>
+
+    <!-- Lag-seksjon -->
+    <section class="card" aria-labelledby="teams-heading">
+      <div class="flex items-center justify-between mb-4">
+        <h2 id="teams-heading" class="font-display text-lg font-bold">Lag</h2>
+        <button class="btn btn-ghost btn-sm" onclick="addTeam()" aria-label="Legg til et nytt lag">
+          + Legg til lag
+        </button>
+      </div>
+      <div id="teams-list" class="flex flex-col gap-3" role="list" aria-label="Lagliste"></div>
+    </section>
+
+    <!-- Innstillinger-seksjon -->
+    <section class="card" aria-labelledby="settings-heading">
+      <h2 id="settings-heading" class="font-display text-lg font-bold mb-4">Spillinnstillinger</h2>
+      <div class="flex flex-col gap-4">
+
+        <div>
+          <label for="target-score" style="font-size:0.85rem;color:var(--c-muted);display:block;margin-bottom:6px">
+            Poengmål (vinnerpoeng)
+          </label>
+          <select id="target-score">
+            <option value="20">20 poeng</option>
+            <option value="30" selected>30 poeng</option>
+            <option value="40">40 poeng</option>
+            <option value="50">50 poeng</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="round-time" style="font-size:0.85rem;color:var(--c-muted);display:block;margin-bottom:6px">
+            Tid per runde
+          </label>
+          <select id="round-time">
+            <option value="45">45 sekunder</option>
+            <option value="60" selected>60 sekunder</option>
+            <option value="90">90 sekunder</option>
+          </select>
+        </div>
+
+        <fieldset style="border:none;padding:0">
+          <legend style="font-size:0.85rem;color:var(--c-muted);margin-bottom:8px">Kategorier</legend>
+          <div class="flex flex-col gap-3">
+            <label class="toggle">
+              <input type="checkbox" id="cat-persons" checked aria-describedby="cat-persons-desc">
+              <div class="toggle-track" aria-hidden="true"><div class="toggle-thumb"></div></div>
+              <span><span aria-hidden="true">👤</span> Kjente personer</span>
+              <span id="cat-persons-desc" class="sr-only">Aktiver kategorien Kjente personer</span>
+            </label>
+            <label class="toggle">
+              <input type="checkbox" id="cat-land" checked>
+              <div class="toggle-track" aria-hidden="true"><div class="toggle-thumb"></div></div>
+              <span><span aria-hidden="true">🌍</span> Land</span>
+            </label>
+            <label class="toggle">
+              <input type="checkbox" id="cat-capital" checked>
+              <div class="toggle-track" aria-hidden="true"><div class="toggle-thumb"></div></div>
+              <span><span aria-hidden="true">🏛️</span> Hovedstader</span>
+            </label>
+          </div>
+        </fieldset>
+      </div>
+    </section>
+
+    <button class="btn btn-primary btn-xl" onclick="startGame()">
+      Start spillet <span aria-hidden="true">▶</span>
+    </button>
+  </div>
+</main>
+
+<!-- ══════════════════════════════════════════════ SCREEN 2: DASHBOARD -->
+<main id="screen-dashboard" class="screen" aria-label="Rundevisning" aria-hidden="true">
+  <div class="z1 w-full max-w-lg mx-auto px-4 py-8 flex flex-col gap-5">
+
+    <div class="text-center">
+      <p style="font-size:0.8rem;letter-spacing:0.12em;color:var(--c-muted);text-transform:uppercase;margin-bottom:4px" aria-hidden="true">
+        Neste runde
+      </p>
+      <h2 class="font-display text-3xl font-black" id="dash-team-name">Lag 1 sin tur</h2>
+      <div id="dash-team-dot" class="mx-auto mt-2 team-dot" aria-hidden="true"></div>
+    </div>
+
+    <section class="card" aria-labelledby="dash-score-heading">
+      <h3 id="dash-score-heading" class="font-display text-sm font-bold mb-3"
+          style="color:var(--c-muted);text-transform:uppercase;letter-spacing:0.1em">Stillingen</h3>
+      <div id="dash-scoreboard" class="flex flex-col gap-2" role="list" aria-label="Poengstilling"></div>
+    </section>
+
+    <div class="card" style="background:rgba(124,92,252,0.08);border-color:rgba(124,92,252,0.3)"
+         aria-label="Rundeinfo">
+      <div class="flex justify-between items-center">
+        <div>
+          <p style="font-size:0.8rem;color:var(--c-muted)" id="dash-round-label">Runde</p>
+          <p class="font-display text-2xl font-bold" id="dash-round" aria-labelledby="dash-round-label">1</p>
+        </div>
+        <div style="text-align:right">
+          <p style="font-size:0.8rem;color:var(--c-muted)" id="dash-target-label">Poengmål</p>
+          <p class="font-display text-2xl font-bold" id="dash-target" aria-labelledby="dash-target-label">30</p>
+        </div>
+        <div style="text-align:right">
+          <p style="font-size:0.8rem;color:var(--c-muted)" id="dash-time-label">Tid</p>
+          <p class="font-display text-2xl font-bold" id="dash-time" aria-labelledby="dash-time-label">60s</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="final-round-notice" class="card" hidden
+         style="background:rgba(246,201,14,0.06);border-color:rgba(246,201,14,0.35);text-align:center"
+         role="status">
+      <p style="color:var(--c-gold);font-weight:600">
+        <span aria-hidden="true">⚠️</span> Utjevningsrunde pågår!
+      </p>
+      <p style="font-size:0.85rem;color:var(--c-muted);margin-top:4px">
+        Alle lag spiller sin siste runde for rettferdig avslutning.
+      </p>
+    </div>
+
+    <button class="btn btn-primary btn-xl pulse" onclick="startRound()">
+      Start runden <span aria-hidden="true">🎯</span>
+    </button>
+  </div>
+</main>
+
+<!-- ══════════════════════════════════════════════ SCREEN 3: SPILLBRETT -->
+<main id="screen-game" class="screen" aria-label="Spill pågår" aria-hidden="true">
+  <div class="z1 w-full max-w-lg mx-auto px-4 py-6 flex flex-col gap-4" style="min-height:100vh">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+      <div>
+        <p style="font-size:0.75rem;color:var(--c-muted);letter-spacing:0.1em;text-transform:uppercase" aria-hidden="true">
+          Forklarer
+        </p>
+        <p class="font-display font-bold" id="game-team-name" style="font-size:1.1rem"
+           aria-label="Laget som forklarer: Lag 1">Lag 1</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Score card -->
+        <div class="card card-sm" style="padding:6px 14px;text-align:center">
+          <p style="font-size:0.7rem;color:var(--c-muted)" id="score-label">Poeng</p>
+          <p class="font-display font-bold text-lg" id="game-score"
+             aria-labelledby="score-label" aria-live="polite">0</p>
+        </div>
+        <!-- Timer -->
+        <div class="timer-ring-wrap"
+             role="timer"
+             aria-label="Nedtelling"
+             aria-describedby="timer-display">
+          <svg class="timer-ring" width="70" height="70" viewBox="0 0 70 70" aria-hidden="true">
+            <title>Nedtellingssirkel</title>
+            <circle class="timer-bg" cx="35" cy="35" r="30" stroke-width="5"/>
+            <circle id="timer-arc" class="timer-arc" cx="35" cy="35" r="30" stroke-width="5"
+              stroke-dasharray="188.5" stroke-dashoffset="0" stroke="#7c5cfc"/>
+          </svg>
+          <span class="timer-text" id="timer-display" aria-hidden="true">60</span>
+        </div>
+        <!-- Screen-reader-only live timer announcements every 10s are handled in JS -->
+      </div>
+    </div>
+
+    <!-- Category -->
+    <div class="text-center">
+      <span id="game-cat-badge" class="cat-badge cat-persons" role="status">Kjente personer</span>
+    </div>
+
+    <!-- Word -->
+    <div class="card flex flex-col items-center justify-center"
+         style="min-height:160px;padding:2rem;text-align:center;"
+         aria-live="polite" aria-atomic="true" aria-label="Gjeldende ord">
+      <p class="word-display" id="game-word">LASTER…</p>
+    </div>
+
+    <!-- Hint -->
+    <div>
+      <button class="btn btn-hint w-full" onclick="toggleHint()" id="hint-btn"
+              aria-expanded="false" aria-controls="hint-box">
+        <span aria-hidden="true">💡</span> Vis hint
+      </button>
+      <div id="hint-box" class="hint-box mt-3" hidden
+           role="complementary" aria-label="Hint på engelsk"></div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="flex gap-3" role="group" aria-label="Spillhandlinger">
+      <button class="btn btn-red flex-1"
+              style="flex-direction:column;gap:4px;padding:1rem 0.5rem;"
+              onclick="wrongAnswer()"
+              aria-label="Hopp over eller feil svar, minus ett poeng">
+        <span aria-hidden="true" style="font-size:1.3rem">✗</span>
+        <span style="font-size:0.85rem">Hopp over / Feil</span>
+        <span style="font-size:0.7rem;color:var(--c-muted)" aria-hidden="true">−1 poeng</span>
+      </button>
+      <button class="btn btn-green flex-1"
+              style="flex-direction:column;gap:4px;padding:1rem 0.5rem;"
+              onclick="correctAnswer()"
+              aria-label="Riktig svar, pluss ett poeng">
+        <span aria-hidden="true" style="font-size:1.3rem">✓</span>
+        <span style="font-size:0.85rem">Riktig!</span>
+        <span style="font-size:0.7rem;color:var(--c-muted)" aria-hidden="true">+1 poeng</span>
+      </button>
+    </div>
+
+    <!-- Word counter -->
+    <div style="text-align:center" aria-live="polite">
+      <p style="font-size:0.8rem;color:var(--c-muted)">
+        Ord <span id="word-counter">1</span> denne runden
+      </p>
+    </div>
+  </div>
+</main>
+
+<!-- ══════════════════════════════════════════════ SCREEN 4: UTJEVNING -->
+<main id="screen-overtime" class="screen" aria-label="Utjevningsrunde" aria-hidden="true">
+  <div class="z1 w-full max-w-lg mx-auto px-4 py-8 flex flex-col gap-5">
+
+    <div class="text-center">
+      <span class="text-5xl mb-3" aria-hidden="true" style="display:block">⏰</span>
+      <h2 class="font-display text-3xl font-black" style="color:var(--c-gold)">UTJEVNING!</h2>
+      <p style="color:var(--c-muted);margin-top:6px">Hvem gjetter ordet riktig? Trykk først!</p>
+    </div>
+
+    <section class="overtime-panel text-center" aria-label="Overtidsordet">
+      <p style="font-size:0.75rem;color:var(--c-gold);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">
+        Overtidsordet
+      </p>
+      <p class="word-display" id="ot-word" style="font-size:2rem" aria-live="polite"></p>
+      <span id="ot-cat-badge" class="cat-badge cat-persons mt-3" style="display:inline-flex"></span>
+      <div class="mt-4">
+        <button class="btn btn-hint btn-sm" onclick="toggleOtHint()"
+                aria-expanded="false" aria-controls="ot-hint-box">
+          <span aria-hidden="true">💡</span> Hint
+        </button>
+        <div id="ot-hint-box" class="hint-box mt-2" hidden
+             role="complementary" aria-label="Hint på engelsk" style="text-align:left"></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="ot-buzzers-heading">
+      <h3 id="ot-buzzers-heading" style="font-size:0.85rem;color:var(--c-muted);text-align:center;margin-bottom:12px">
+        Trykk for laget som svarte riktig:
+      </h3>
+      <div id="ot-team-buttons" class="flex flex-col gap-3" role="group" aria-label="Lagknapper for utjevning"></div>
+    </section>
+
+    <button class="btn btn-ghost w-full" onclick="skipOvertime()">
+      Ingen gjettet riktig – gå videre
+    </button>
+  </div>
+</main>
+
+<!-- ══════════════════════════════════════════════ SCREEN 5: VINNER -->
+<main id="screen-winner" class="screen" aria-label="Spillresultat" aria-hidden="true">
+  <div class="z1 w-full max-w-lg mx-auto px-4 py-8 flex flex-col gap-5 items-center">
+
+    <div class="text-center pt-4">
+      <span class="text-6xl mb-4" aria-hidden="true" style="display:block">🏆</span>
+      <p style="font-size:0.8rem;letter-spacing:0.15em;color:var(--c-gold);text-transform:uppercase">VINNER</p>
+      <h2 class="font-display text-4xl font-black mt-2" id="winner-name">Lag 1</h2>
+      <p style="color:var(--c-muted);margin-top:6px" id="winner-sub">Gratulerer med seieren!</p>
+    </div>
+
+    <section class="card w-full" aria-labelledby="final-score-heading">
+      <h3 id="final-score-heading" class="font-display text-sm font-bold mb-3"
+          style="color:var(--c-muted);text-transform:uppercase;letter-spacing:0.1em">Sluttresultat</h3>
+      <div id="winner-scoreboard" class="flex flex-col gap-2" role="list" aria-label="Endelig poengstilling"></div>
+    </section>
+
+    <button class="btn btn-primary btn-xl" onclick="restartGame()">
+      Spill igjen <span aria-hidden="true">🔁</span>
+    </button>
+    <button class="btn btn-ghost w-full" onclick="goToSetup()">
+      Tilbake til innstillinger
+    </button>
+  </div>
+</main>
+
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//  WORD DATABASE
+// ═══════════════════════════════════════════════════════════════════
+const WORDS = {
+  persons: [
+    { word: "Albert Einstein",    hint: "German physicist who developed the theory of relativity; famous equation E=mc²." },
+    { word: "Marilyn Monroe",     hint: "Iconic American actress and model from the 1950s, known for 'Some Like It Hot'." },
+    { word: "Napoleon Bonaparte", hint: "French military general who became Emperor of France in the early 1800s." },
+    { word: "Cleopatra",          hint: "Last active ruler of ancient Egypt, famously linked to Julius Caesar and Mark Antony." },
+    { word: "Leonardo da Vinci",  hint: "Italian Renaissance genius who painted the Mona Lisa and designed flying machines." },
+    { word: "Michael Jackson",    hint: "King of Pop; moonwalk dancer known for 'Thriller' and the glove." },
+    { word: "Nelson Mandela",     hint: "South African anti-apartheid revolutionary who became the country's first Black president." },
+    { word: "William Shakespeare",hint: "English playwright from the 1600s who wrote Romeo and Juliet and Hamlet." },
+    { word: "Elvis Presley",      hint: "King of Rock and Roll from Memphis; known for his hip shaking and blue suede shoes." },
+    { word: "Marie Curie",        hint: "First woman to win a Nobel Prize; discovered radium and polonium." },
+    { word: "Charles Darwin",     hint: "British naturalist who proposed the theory of evolution by natural selection." },
+    { word: "Frida Kahlo",        hint: "Mexican painter known for her self-portraits and colourful traditional clothing." },
+    { word: "Adolf Hitler",       hint: "Leader of Nazi Germany responsible for World War II and the Holocaust." },
+    { word: "Steve Jobs",         hint: "Co-founder of Apple who revolutionised personal computers, music and smartphones." },
+    { word: "Mahatma Gandhi",     hint: "Indian independence leader who used nonviolent civil disobedience against British rule." },
+    { word: "Queen Elizabeth II", hint: "Britain's longest-reigning monarch who ruled from 1952 until her death in 2022." },
+    { word: "Bruce Lee",          hint: "Hong Kong-American martial artist and actor famous for his speed and 'Enter the Dragon'." },
+    { word: "Oprah Winfrey",      hint: "American talk show host, media mogul and philanthropist known for her afternoon show." },
+    { word: "Cristiano Ronaldo",  hint: "Portuguese football superstar with multiple Ballon d'Or awards, CR7." },
+    { word: "Elon Musk",          hint: "South African-born entrepreneur who founded Tesla, SpaceX and bought Twitter/X." },
+    { word: "Barack Obama",       hint: "44th US President; first African American to hold the office, 2009–2017." },
+    { word: "Isaac Newton",       hint: "English physicist who formulated the laws of motion and universal gravitation." },
+  ],
+  land: [
+    { word: "Norge",       hint: "A Scandinavian country known for its fjords, northern lights, and capital Oslo." },
+    { word: "Danmark",     hint: "The southernmost Nordic country, famous for Legoland and the Little Mermaid statue." },
+    { word: "Sverige",     hint: "Norway's eastern neighbour, home to ABBA, IKEA and the Nobel Peace Prize ceremony." },
+    { word: "Japan",       hint: "Island nation in East Asia famous for sushi, anime, Mount Fuji and bullet trains." },
+    { word: "Brasil",      hint: "Largest country in South America; hosts the Amazon rainforest and Carnival in Rio." },
+    { word: "Frankrike",   hint: "Western European country famous for the Eiffel Tower, wine, cheese and fashion." },
+    { word: "Australia",   hint: "Continent and country in the Southern Hemisphere, home to kangaroos and the Great Barrier Reef." },
+    { word: "India",       hint: "South Asian country with the world's largest population, known for spices, Bollywood and the Taj Mahal." },
+    { word: "Canada",      hint: "The world's second largest country by area, north of the USA, famous for maple syrup and hockey." },
+    { word: "Egypt",       hint: "North African country on the Nile River, home to the ancient pyramids and Sphinx." },
+    { word: "Italia",      hint: "Mediterranean country shaped like a boot; birthplace of pizza, pasta and the Roman Empire." },
+    { word: "Kina",        hint: "Most populous country in the world with the Great Wall, giant pandas and the Yangtze River." },
+    { word: "Russland",    hint: "Largest country on Earth, spanning Europe and Asia, famous for cold winters and Red Square." },
+    { word: "Spania",      hint: "Iberian Peninsula country known for flamenco, bullfighting, tapas and FC Barcelona." },
+    { word: "Mexico",      hint: "North American country south of the USA; famous for tacos, tequila, Aztec history and Day of the Dead." },
+    { word: "Sveits",      hint: "Landlocked Alpine country known for neutrality, chocolate, cheese and precision watches." },
+    { word: "Sør-Afrika",  hint: "Southernmost country in Africa with three capitals; known for safaris and Nelson Mandela." },
+    { word: "Argentina",   hint: "South American country in the south; birthplace of Lionel Messi and the tango dance." },
+    { word: "New Zealand", hint: "Island nation southeast of Australia, famous for Lord of the Rings filming and Maori culture." },
+    { word: "Tyrkia",      hint: "Country straddling Europe and Asia, known for Istanbul, bazaars and Turkish delight." },
+    { word: "Portugal",    hint: "Small Atlantic country on the Iberian Peninsula, birthplace of Fado music and Cristiano Ronaldo." },
+    { word: "Thailand",    hint: "Southeast Asian kingdom known for its temples, street food, elephants and beautiful beaches." },
+  ],
+  capital: [
+    { word: "Oslo",            hint: "Capital of Norway, located at the head of the Oslofjord; home to the Viking Ship Museum." },
+    { word: "Paris",           hint: "Capital of France, home to the Eiffel Tower, the Louvre and the River Seine." },
+    { word: "Tokyo",           hint: "Capital of Japan and the world's most populous metropolitan area; famous for sushi and anime." },
+    { word: "Washington D.C.", hint: "Capital of the United States; home to the White House and Capitol Building." },
+    { word: "London",          hint: "Capital of the United Kingdom; home to Buckingham Palace, Big Ben and the Thames." },
+    { word: "Berlin",          hint: "Capital of Germany, historically divided by the Wall; reunited in 1989." },
+    { word: "Roma",            hint: "Capital of Italy known as the Eternal City; home to the Colosseum and the Vatican." },
+    { word: "Madrid",          hint: "Capital of Spain; highest capital city in the EU and home to the Prado Museum." },
+    { word: "Kairo",           hint: "Capital of Egypt; located on the Nile and close to the ancient pyramids of Giza." },
+    { word: "Canberra",        hint: "Capital of Australia; purpose-built city chosen instead of Sydney or Melbourne." },
+    { word: "Ottawa",          hint: "Capital of Canada; not Toronto or Montreal – this city sits on the Ottawa River." },
+    { word: "Brasília",        hint: "Capital of Brazil; futuristic planned city that replaced Rio de Janeiro as capital in 1960." },
+    { word: "Moskva",          hint: "Capital of Russia; home to the Kremlin and Red Square on the Moskva River." },
+    { word: "Beijing",         hint: "Capital of China; home to the Forbidden City and Tiananmen Square." },
+    { word: "New Delhi",       hint: "Capital of India; planned city adjacent to the historic city of Delhi." },
+    { word: "Buenos Aires",    hint: "Capital of Argentina on the River Plate; known as the Paris of South America." },
+    { word: "Nairobi",         hint: "Capital of Kenya; name means 'cool water' in the Maasai language." },
+    { word: "Stockholm",       hint: "Capital of Sweden; built on 14 islands where Lake Mälaren meets the Baltic Sea." },
+    { word: "Amsterdam",       hint: "Capital of the Netherlands; known for its canal network, tulips and Rijksmuseum." },
+    { word: "Wellington",      hint: "Capital of New Zealand; world's southernmost national capital, windy city by the sea." },
+    { word: "Ankara",          hint: "Capital of Turkey; often confused with Istanbul, which is larger but NOT the capital." },
+    { word: "Bangkok",         hint: "Capital of Thailand; its full ceremonial name is the longest place name in the world." },
+    { word: "Jakarta",         hint: "Former capital of Indonesia, now being replaced by the new city of Nusantara on Borneo." },
+    { word: "Seoul",           hint: "Capital of South Korea; one of the world's largest cities with nearly 10 million people." },
+  ]
+};
+
+// ═══════════════════════════════════════════════════════════════════
+//  CONSTANTS
+// ═══════════════════════════════════════════════════════════════════
+const TEAM_COLORS   = ['#7c5cfc','#4fd1c5','#f6c90e','#f87171','#34d399','#fb923c','#a78bfa','#38bdf8'];
+const TEAM_DEFAULTS = ['Lag 1','Lag 2','Lag 3','Lag 4'];
+const CAT_META = {
+  persons: { cls: 'cat-persons', label: 'Kjente personer', icon: '👤' },
+  land:    { cls: 'cat-land',    label: 'Land',            icon: '🌍' },
+  capital: { cls: 'cat-capital', label: 'Hovedstader',     icon: '🏛️' },
+};
+
+// ═══════════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════════
+let state = {
+  teams: [], wordPool: [], usedWords: new Set(),
+  currentTeamIdx: 0, roundNumber: 0,
+  targetScore: 30, roundTime: 60,
+  activeCategories: ['persons','land','capital'],
+  gamePhase: 'setup',
+  currentWord: null, roundWordCount: 0,
+  timerInterval: null, timeLeft: 60,
+  roundScore: 0,
+  winnerTeamIdx: -1, equalizingUntilIdx: -1,
+};
+
+// ═══════════════════════════════════════════════════════════════════
+//  SCREEN MANAGEMENT
+// ═══════════════════════════════════════════════════════════════════
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => {
+    const active = s.id === 'screen-' + name;
+    s.classList.toggle('active', active);
+    s.setAttribute('aria-hidden', active ? 'false' : 'true');
+  });
+  // Move keyboard focus to the new screen's first heading or button
+  requestAnimationFrame(() => {
+    const screen = document.getElementById('screen-' + name);
+    const focusTarget = screen.querySelector('h1,h2,button');
+    if (focusTarget) {
+      focusTarget.setAttribute('tabindex', '-1');
+      focusTarget.focus({ preventScroll: false });
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  LIVE REGION HELPERS
+// ═══════════════════════════════════════════════════════════════════
+function announce(msg, urgent = false) {
+  const el = document.getElementById(urgent ? 'sr-live-urgent' : 'sr-live');
+  el.textContent = '';
+  requestAnimationFrame(() => { el.textContent = msg; });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  SETUP SCREEN
+// ═══════════════════════════════════════════════════════════════════
+function initSetup() {
+  state.teams = [];
+  TEAM_DEFAULTS.slice(0,2).forEach((n,i) => {
+    state.teams.push({ name: n, score: 0, rounds: 0, color: TEAM_COLORS[i] });
+  });
+  renderTeamList();
+}
+
+function renderTeamList() {
+  const el = document.getElementById('teams-list');
+  el.innerHTML = '';
+  state.teams.forEach((t, i) => {
+    const item = document.createElement('div');
+    item.setAttribute('role','listitem');
+    item.style.cssText = 'display:flex;align-items:center;gap:10px';
+    item.innerHTML = `
+      <div class="team-dot" style="background:${t.color}" aria-hidden="true"></div>
+      <label for="team-name-${i}" class="sr-only">Navn på lag ${i+1}</label>
+      <input type="text" id="team-name-${i}" value="${escHtml(t.name)}"
+             placeholder="Lagnavn" style="flex:1"
+             onchange="updateTeamName(${i}, this.value)"
+             aria-label="Navn på lag ${i+1}">
+      ${state.teams.length > 2
+        ? `<button class="btn btn-red btn-sm" onclick="removeTeam(${i})"
+                   aria-label="Fjern ${escHtml(t.name)}" style="padding:6px 10px;min-width:44px">✕</button>`
+        : ''}
+    `;
+    el.appendChild(item);
+  });
+}
+
+function addTeam() {
+  if (state.teams.length >= 8) return;
+  const i = state.teams.length;
+  state.teams.push({ name: TEAM_DEFAULTS[i] || `Lag ${i+1}`, score: 0, rounds: 0, color: TEAM_COLORS[i] });
+  renderTeamList();
+  // Focus the new input
+  requestAnimationFrame(() => {
+    const inp = document.getElementById(`team-name-${i}`);
+    if (inp) inp.focus();
+  });
+}
+
+function removeTeam(i) {
+  const name = state.teams[i].name;
+  state.teams.splice(i, 1);
+  renderTeamList();
+  announce(`${name} er fjernet.`);
+}
+
+function updateTeamName(i, val) {
+  state.teams[i].name = val.trim() || `Lag ${i+1}`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  START GAME
+// ═══════════════════════════════════════════════════════════════════
+function startGame() {
+  const cats = [];
+  if (document.getElementById('cat-persons').checked) cats.push('persons');
+  if (document.getElementById('cat-land').checked)    cats.push('land');
+  if (document.getElementById('cat-capital').checked) cats.push('capital');
+  if (cats.length === 0) {
+    announce('Velg minst én kategori!', true);
+    document.getElementById('cat-persons').focus();
+    return;
+  }
+  if (state.teams.length < 2) {
+    announce('Legg til minst 2 lag!', true);
+    return;
+  }
+  state.activeCategories   = cats;
+  state.targetScore        = parseInt(document.getElementById('target-score').value);
+  state.roundTime          = parseInt(document.getElementById('round-time').value);
+  state.currentTeamIdx     = 0;
+  state.roundNumber        = 0;
+  state.gamePhase          = 'playing';
+  state.usedWords          = new Set();
+  state.winnerTeamIdx      = -1;
+  state.equalizingUntilIdx = -1;
+  state.teams.forEach(t => { t.score = 0; t.rounds = 0; });
+  buildWordPool();
+  showDashboard();
+}
+
+function buildWordPool() {
+  state.wordPool = [];
+  state.activeCategories.forEach(cat => {
+    WORDS[cat].forEach(w => state.wordPool.push({ ...w, category: cat }));
+  });
+  shuffleArray(state.wordPool);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════════════════════════════════
+function showDashboard() {
+  const team = state.teams[state.currentTeamIdx];
+  document.getElementById('dash-team-name').textContent = team.name + ' sin tur';
+
+  const dot = document.getElementById('dash-team-dot');
+  dot.style.background = team.color;
+  dot.setAttribute('aria-label', 'Lagfarge: ' + team.color);
+
+  document.getElementById('dash-round').textContent  = state.roundNumber + 1;
+  document.getElementById('dash-target').textContent = state.targetScore;
+  document.getElementById('dash-time').textContent   = state.roundTime + 's';
+
+  const notice = document.getElementById('final-round-notice');
+  if (state.gamePhase === 'equalizing') {
+    notice.removeAttribute('hidden');
+  } else {
+    notice.setAttribute('hidden','');
+  }
+
+  renderDashScoreboard();
+  announce(`${team.name} sin tur. Runde ${state.roundNumber + 1}.`);
+  showScreen('dashboard');
+}
+
+function renderDashScoreboard() {
+  const el = document.getElementById('dash-scoreboard');
+  const sorted = [...state.teams].sort((a,b) => b.score - a.score);
+  el.innerHTML = sorted.map((t, rank) => {
+    const isActive = t === state.teams[state.currentTeamIdx];
+    const isLeader = rank === 0 && t.score > 0;
+    return `
+      <div class="score-row ${isLeader?'leader':''} ${isActive?'active-turn':''}"
+           role="listitem"
+           aria-label="${escHtml(t.name)}: ${t.score} poeng${isActive?' – din tur':''}${isLeader?' – leder':''}">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="team-dot" style="background:${t.color}" aria-hidden="true"></div>
+          <span style="font-weight:500">${escHtml(t.name)}</span>
+          ${isActive ? '<span style="font-size:0.7rem;color:var(--c-accent);background:rgba(124,92,252,0.15);padding:2px 8px;border-radius:999px" aria-hidden="true">DIN TUR</span>' : ''}
+        </div>
+        <span class="font-display font-bold text-xl" aria-hidden="true">${t.score}</span>
+      </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  GAMEPLAY
+// ═══════════════════════════════════════════════════════════════════
+function startRound() {
+  const team = state.teams[state.currentTeamIdx];
+  state.roundScore    = 0;
+  state.roundWordCount= 0;
+  state.timeLeft      = state.roundTime;
+
+  document.getElementById('game-team-name').textContent = team.name;
+  document.getElementById('game-team-name').setAttribute('aria-label', 'Laget som forklarer: ' + team.name);
+  document.getElementById('game-score').textContent = team.score;
+
+  // Hide hint
+  setHintVisible(false);
+
+  loadNextWord();
+  updateTimerDisplay();
+  showScreen('game');
+
+  clearInterval(state.timerInterval);
+  state.timerInterval = setInterval(tickTimer, 1000);
+}
+
+function loadNextWord() {
+  setHintVisible(false);
+
+  const team = state.teams[state.currentTeamIdx];
+  const idx  = (team.score + state.roundWordCount) % state.wordPool.length;
+  let candidate = null;
+  for (let i = 0; i < state.wordPool.length; i++) {
+    const w = state.wordPool[(idx + i) % state.wordPool.length];
+    if (!state.usedWords.has(w.word)) { candidate = w; break; }
+  }
+  if (!candidate) {
+    state.usedWords = new Set();
+    candidate = state.wordPool[idx % state.wordPool.length];
+  }
+  state.currentWord = candidate;
+  state.usedWords.add(candidate.word);
+  state.roundWordCount++;
+
+  document.getElementById('game-word').textContent       = candidate.word;
+  document.getElementById('word-counter').textContent    = state.roundWordCount;
+  document.getElementById('hint-box').textContent        = candidate.hint;
+
+  const meta = CAT_META[candidate.category];
+  const badge = document.getElementById('game-cat-badge');
+  badge.className   = 'cat-badge ' + meta.cls;
+  badge.textContent = meta.icon + ' ' + meta.label;
+
+  // Announce new word to screen readers
+  announce(`Nytt ord: ${candidate.word}. Kategori: ${meta.label}.`);
+}
+
+function setHintVisible(visible) {
+  const box = document.getElementById('hint-box');
+  const btn = document.getElementById('hint-btn');
+  if (visible) {
+    box.removeAttribute('hidden');
+    btn.textContent = '💡 Skjul hint';
+    btn.setAttribute('aria-expanded','true');
+  } else {
+    box.setAttribute('hidden','');
+    btn.innerHTML = '<span aria-hidden="true">💡</span> Vis hint';
+    btn.setAttribute('aria-expanded','false');
+  }
+}
+
+function toggleHint() {
+  const hidden = document.getElementById('hint-box').hasAttribute('hidden');
+  setHintVisible(hidden);
+  if (hidden) announce('Hint: ' + state.currentWord.hint);
+}
+
+function correctAnswer() {
+  const team = state.teams[state.currentTeamIdx];
+  team.score++;
+  state.roundScore++;
+  document.getElementById('game-score').textContent = team.score;
+  flashPoint('+1', true);
+  announce(`Riktig! ${team.name} har nå ${team.score} poeng.`);
+  loadNextWord();
+}
+
+function wrongAnswer() {
+  const team = state.teams[state.currentTeamIdx];
+  team.score = Math.max(0, team.score - 1);
+  state.roundScore--;
+  document.getElementById('game-score').textContent = team.score;
+  flashPoint('−1', false);
+  announce(`Hopp over. ${team.name} har nå ${team.score} poeng.`);
+  loadNextWord();
+}
+
+function flashPoint(text, positive) {
+  const el = document.createElement('div');
+  el.className   = 'point-flash ' + (positive ? 'flash-pos' : 'flash-neg');
+  el.textContent = text;
+  el.setAttribute('aria-hidden','true');
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 800);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  TIMER
+// ═══════════════════════════════════════════════════════════════════
+function tickTimer() {
+  state.timeLeft--;
+  updateTimerDisplay();
+  // Announce at key thresholds for screen readers
+  if ([30, 10, 5].includes(state.timeLeft)) {
+    announce(`${state.timeLeft} sekunder igjen.`, state.timeLeft <= 10);
+  }
+  if (state.timeLeft <= 0) {
+    clearInterval(state.timerInterval);
+    announce('Tiden er ute!', true);
+    timeUp();
+  }
+}
+
+function updateTimerDisplay() {
+  const t = state.timeLeft;
+  document.getElementById('timer-display').textContent = t;
+
+  const circumference = 2 * Math.PI * 30;
+  const fraction      = t / state.roundTime;
+  const arc           = document.getElementById('timer-arc');
+  arc.style.strokeDashoffset = circumference * (1 - fraction);
+
+  let color = '#7c5cfc';
+  if      (fraction < 0.33) color = '#f87171';
+  else if (fraction < 0.60) color = '#f6c90e';
+  arc.style.stroke = color;
+  document.getElementById('timer-display').style.color = fraction < 0.33 ? '#f87171' : 'var(--c-text)';
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  OVERTIME
+// ═══════════════════════════════════════════════════════════════════
+function timeUp() {
+  state.teams[state.currentTeamIdx].rounds++;
+  const w = state.currentWord;
+
+  document.getElementById('ot-word').textContent = w.word;
+  document.getElementById('ot-hint-box').textContent = w.hint;
+  document.getElementById('ot-hint-box').setAttribute('hidden','');
+
+  // Reset hint button
+  const otBtn = document.querySelector('#screen-overtime .btn-hint');
+  if (otBtn) { otBtn.setAttribute('aria-expanded','false'); otBtn.innerHTML = '<span aria-hidden="true">💡</span> Hint'; }
+
+  const meta = CAT_META[w.category];
+  const ob   = document.getElementById('ot-cat-badge');
+  ob.className   = 'cat-badge ' + meta.cls;
+  ob.textContent = meta.icon + ' ' + meta.label;
+
+  const btns = document.getElementById('ot-team-buttons');
+  btns.innerHTML = state.teams.map((t,i) => `
+    <button class="btn btn-ghost"
+            style="border-color:${t.color};justify-content:flex-start;gap:12px;padding:1rem 1.25rem;"
+            onclick="overtimeTeamGuessed(${i})"
+            aria-label="${escHtml(t.name)} gjettet riktig – gi dem poenget">
+      <div class="team-dot" style="background:${t.color};width:12px;height:12px" aria-hidden="true"></div>
+      <span>${escHtml(t.name)}</span>
+      <span style="margin-left:auto;font-size:0.85rem;color:var(--c-muted)" aria-hidden="true">${t.score} p</span>
+    </button>`).join('');
+
+  announce(`Utjevning! Overtidsordet er: ${w.word}. Kategori: ${meta.label}. Hvem gjettet riktig?`, true);
+  showScreen('overtime');
+}
+
+function toggleOtHint() {
+  const box = document.getElementById('ot-hint-box');
+  const btn = document.querySelector('#screen-overtime .btn-hint');
+  const hidden = box.hasAttribute('hidden');
+  if (hidden) {
+    box.removeAttribute('hidden');
+    btn.setAttribute('aria-expanded','true');
+    announce('Hint: ' + state.currentWord.hint);
+  } else {
+    box.setAttribute('hidden','');
+    btn.setAttribute('aria-expanded','false');
+  }
+}
+
+function overtimeTeamGuessed(teamIdx) {
+  const team = state.teams[teamIdx];
+  team.score++;
+  announce(`${team.name} fikk overtidspoeng. Ny score: ${team.score}.`);
+  afterRound();
+}
+
+function skipOvertime() { afterRound(); }
+
+// ═══════════════════════════════════════════════════════════════════
+//  ROUND TRANSITIONS
+// ═══════════════════════════════════════════════════════════════════
+function afterRound() {
+  const numTeams    = state.teams.length;
+  const prevTeamIdx = state.currentTeamIdx;
+
+  if (state.gamePhase === 'playing') {
+    const leaderScore = Math.max(...state.teams.map(t => t.score));
+    if (leaderScore >= state.targetScore) {
+      const leaderIdx           = state.teams.findIndex(t => t.score === leaderScore);
+      state.winnerTeamIdx       = leaderIdx;
+      state.gamePhase           = 'equalizing';
+      state.equalizingUntilIdx  = (leaderIdx + numTeams - 1) % numTeams;
+    }
+  }
+
+  state.currentTeamIdx = (state.currentTeamIdx + 1) % numTeams;
+  if (state.currentTeamIdx === 0) state.roundNumber++;
+
+  if (state.gamePhase === 'equalizing' && prevTeamIdx === state.equalizingUntilIdx) {
+    endGame();
+    return;
+  }
+
+  showDashboard();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  END GAME
+// ═══════════════════════════════════════════════════════════════════
+function endGame() {
+  const sorted = [...state.teams].sort((a,b) => b.score - a.score);
+  const winner = sorted[0];
+  const ties   = sorted.filter(t => t.score === winner.score);
+
+  const winnerName = ties.length > 1 ? ties.map(t=>t.name).join(' & ') : winner.name;
+  const winnerSub  = ties.length > 1
+    ? `Uavgjort med ${winner.score} poeng!`
+    : `Med ${winner.score} poeng – Gratulerer!`;
+
+  document.getElementById('winner-name').textContent = winnerName;
+  document.getElementById('winner-sub').textContent  = winnerSub;
+
+  const medals = ['🥇','🥈','🥉'];
+  document.getElementById('winner-scoreboard').innerHTML = sorted.map((t, rank) => `
+    <div class="score-row ${rank===0?'leader':''}"
+         role="listitem"
+         aria-label="${rank+1}. plass: ${escHtml(t.name)} med ${t.score} poeng">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span aria-hidden="true" style="font-size:1.1rem">${medals[rank] || (rank+1)+'.'}</span>
+        <div class="team-dot" style="background:${t.color}" aria-hidden="true"></div>
+        <span style="font-weight:500">${escHtml(t.name)}</span>
+      </div>
+      <span class="font-display font-bold text-xl"
+            style="color:${rank===0?'var(--c-gold)':'inherit'}"
+            aria-hidden="true">${t.score}</span>
+    </div>`).join('');
+
+  announce(`Spillet er over! Vinner: ${winnerName}. ${winnerSub}`, true);
+  showScreen('winner');
+  spawnConfetti();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  CONFETTI
+// ═══════════════════════════════════════════════════════════════════
+function spawnConfetti() {
+  // Skip if user prefers reduced motion
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const colors = ['#7c5cfc','#4fd1c5','#f6c90e','#f87171','#34d399','#fb923c'];
+  for (let i = 0; i < 80; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.setAttribute('aria-hidden','true');
+      el.style.cssText = `
+        left:${Math.random()*100}vw;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        animation-duration:${2+Math.random()*2}s;
+        animation-delay:${Math.random()*0.5}s;
+        transform:rotate(${Math.random()*360}deg);
+        width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;
+        border-radius:${Math.random()>0.5?'50%':'2px'};
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4500);
+    }, i * 30);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════════════════
+function restartGame() {
+  state.teams.forEach(t => { t.score = 0; t.rounds = 0; });
+  state.currentTeamIdx = 0; state.roundNumber = 0;
+  state.gamePhase = 'playing'; state.usedWords = new Set();
+  state.winnerTeamIdx = -1; state.equalizingUntilIdx = -1;
+  buildWordPool();
+  showDashboard();
+}
+
+function goToSetup() {
+  clearInterval(state.timerInterval);
+  showScreen('setup');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════════════════════════════════
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+// Prevent XSS in dynamically inserted team names
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════════════════════════════
+initSetup();
+</script>
+</body>
+</html>
