@@ -144,6 +144,25 @@
 
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
+  /* ── Penalty selector ─────────────────────────────────────────── */
+  .penalty-opt {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px; padding: 0.85rem 0.5rem; border-radius: 12px; text-align: center;
+    background: var(--c-surface2); border: 2px solid var(--c-border);
+    color: var(--c-muted); transition: all 0.18s; cursor: pointer; user-select: none;
+    min-height: 72px;
+  }
+  .penalty-opt:hover { border-color: rgba(124,92,252,0.5); color: var(--c-text); }
+  .penalty-opt-active {
+    border-color: var(--c-accent);
+    background: rgba(124,92,252,0.12);
+    color: var(--c-text);
+    box-shadow: 0 0 0 1px var(--c-accent);
+  }
+  input[type="radio"]:focus-visible + .penalty-opt {
+    outline: 3px solid var(--c-accent); outline-offset: 3px;
+  }
+
   /* ── Rules modal ───────────────────────────────────────────────── */
   .modal-backdrop {
     position: fixed; inset: 0; z-index: 200;
@@ -243,7 +262,7 @@
         <li>Hvert lag tar tur – én person fra laget er «forklareren» denne runden</li>
         <li>Forklareren ser et ord på skjermen og skal få laget til å gjette det</li>
         <li>Gjetter laget riktig → trykk <strong>Riktig!</strong> og få +1 poeng</li>
-        <li>Vil ikke forklare et ord, eller bryter reglene → trykk <strong>Hopp over / Feil</strong> og mist 1 poeng</li>
+        <li>Vil ikke forklare et ord, eller brytes en regel → trykk <strong>Hopp over / Feil</strong>. Avhengig av spillets oppsett gir dette enten 0 poeng (ingen straff) eller −1 poeng (trekk)</li>
         <li>Runden fortsetter til tiden renner ut</li>
       </ul>
     </div>
@@ -344,6 +363,28 @@
           </div>
         </div>
 
+        <div>
+          <p style="font-size:0.85rem;color:var(--c-muted);margin-bottom:10px" id="penalty-legend">Straff for hopp over / feil</p>
+          <div role="radiogroup" aria-labelledby="penalty-legend" style="display:flex;gap:10px">
+            <label style="flex:1;cursor:pointer">
+              <input type="radio" name="penalty" id="penalty-minus" value="-1" checked
+                     style="position:absolute;opacity:0;width:1px;height:1px">
+              <div id="penalty-minus-box" class="penalty-opt penalty-opt-active" onclick="selectPenalty(-1)">
+                <span style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800">−1</span>
+                <span style="font-size:0.78rem;margin-top:2px">Trekk ett poeng</span>
+              </div>
+            </label>
+            <label style="flex:1;cursor:pointer">
+              <input type="radio" name="penalty" id="penalty-zero" value="0"
+                     style="position:absolute;opacity:0;width:1px;height:1px">
+              <div id="penalty-zero-box" class="penalty-opt" onclick="selectPenalty(0)">
+                <span style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800">0</span>
+                <span style="font-size:0.78rem;margin-top:2px">Ingen straff</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
         <fieldset style="border:none;padding:0">
           <legend style="font-size:0.85rem;color:var(--c-muted);margin-bottom:8px">Kategorier</legend>
           <div class="flex flex-col gap-3">
@@ -439,10 +480,10 @@
     </div>
 
     <div class="flex gap-3" role="group" aria-label="Spillhandlinger">
-      <button class="btn btn-red flex-1" style="flex-direction:column;gap:4px;padding:1rem 0.5rem;" onclick="wrongAnswer()" aria-label="Hopp over eller feil svar, minus ett poeng">
+      <button class="btn btn-red flex-1" style="flex-direction:column;gap:4px;padding:1rem 0.5rem;" onclick="wrongAnswer()" id="wrong-btn" aria-label="Hopp over eller feil svar">
         <span aria-hidden="true" style="font-size:1.3rem">✗</span>
         <span style="font-size:0.85rem">Hopp over / Feil</span>
-        <span style="font-size:0.7rem;color:var(--c-muted)" aria-hidden="true">−1 poeng</span>
+        <span id="penalty-label" style="font-size:0.7rem;color:var(--c-muted)" aria-hidden="true">−1 poeng</span>
       </button>
       <button class="btn btn-green flex-1" style="flex-direction:column;gap:4px;padding:1rem 0.5rem;" onclick="correctAnswer()" aria-label="Riktig svar, pluss ett poeng">
         <span aria-hidden="true" style="font-size:1.3rem">✓</span>
@@ -694,6 +735,7 @@ let state = {
   currentWord: null, roundWordCount: 0,
   timerInterval: null, timeLeft: 60,
   roundScore: 0,
+  penaltyScore: -1,   // 0 or -1, set at game start
   winnerTeamIdx: -1, equalizingUntilIdx: -1,
 };
 
@@ -770,6 +812,12 @@ function updateTeamName(i, val) {
   state.teams[i].name = val.trim() || `Lag ${i+1}`;
 }
 
+function selectPenalty(val) {
+  document.getElementById(val < 0 ? 'penalty-minus' : 'penalty-zero').checked = true;
+  document.getElementById('penalty-minus-box').classList.toggle('penalty-opt-active', val < 0);
+  document.getElementById('penalty-zero-box').classList.toggle('penalty-opt-active', val === 0);
+}
+
 function startGame() {
   const cats = [];
   if (document.getElementById('cat-persons').checked) cats.push('persons');
@@ -781,6 +829,7 @@ function startGame() {
   state.activeCategories   = cats;
   state.targetScore        = parseInt(document.getElementById('target-score-range').value);
   state.roundTime          = parseInt(document.getElementById('round-time-range').value);
+  state.penaltyScore       = parseInt(document.querySelector('input[name="penalty"]:checked').value);
   state.currentTeamIdx     = 0;
   state.roundNumber        = 0;
   state.gamePhase          = 'playing';
@@ -852,6 +901,17 @@ function startRound() {
   document.getElementById('game-team-name').textContent = team.name;
   document.getElementById('game-score').textContent     = team.score;
 
+  // Update penalty label on wrong-answer button
+  const penLabel = document.getElementById('penalty-label');
+  const wrongBtn = document.getElementById('wrong-btn');
+  if (state.penaltyScore < 0) {
+    penLabel.textContent = '−1 poeng';
+    wrongBtn.setAttribute('aria-label', 'Hopp over eller feil svar, minus ett poeng');
+  } else {
+    penLabel.textContent = '0 poeng';
+    wrongBtn.setAttribute('aria-label', 'Hopp over eller feil svar, ingen poengendring');
+  }
+
   setHintVisible(false);
   loadNextWord();
   updateTimerDisplay();
@@ -922,10 +982,16 @@ function correctAnswer() {
 
 function wrongAnswer() {
   const team = state.teams[state.currentTeamIdx];
-  team.score = Math.max(0, team.score - 1); state.roundScore--;
+  if (state.penaltyScore < 0) {
+    team.score = Math.max(0, team.score + state.penaltyScore);
+    state.roundScore--;
+    flashPoint('−1', false);
+    announce(`Hopp over. ${team.name} har nå ${team.score} poeng.`);
+  } else {
+    flashPoint('0', false);
+    announce(`Hopp over. Ingen poengendring.`);
+  }
   document.getElementById('game-score').textContent = team.score;
-  flashPoint('−1', false);
-  announce(`Hopp over. ${team.name} har nå ${team.score} poeng.`);
   loadNextWord();
 }
 
@@ -1092,6 +1158,7 @@ function restartGame() {
   state.currentTeamIdx = 0; state.roundNumber = 0;
   state.gamePhase = 'playing'; state.usedWords = new Set();
   state.winnerTeamIdx = -1; state.equalizingUntilIdx = -1;
+  // penaltyScore is preserved from the previous game setup
   buildWordPool(); showDashboard();
 }
 
