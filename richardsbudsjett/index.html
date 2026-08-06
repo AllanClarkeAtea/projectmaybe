@@ -86,15 +86,15 @@
     background: var(--navy-panel); border: 1px solid var(--navy-line); border-radius: var(--radius);
     padding: 18px 16px 14px; margin-bottom: 12px;
   }
-  .weekday-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 8px; }
+  .weekday-row { display: grid; grid-template-columns: repeat(7, 34px); gap: 4px; margin-bottom: 6px; justify-content: center; }
   .weekday-row span {
-    text-align: center; font-size: 11px; color: var(--foam-dim); font-family: 'JetBrains Mono', monospace; letter-spacing: .5px;
+    text-align: center; font-size: 10px; color: var(--foam-dim); font-family: 'JetBrains Mono', monospace; letter-spacing: .5px;
   }
-  .day-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .day-grid { display: grid; grid-template-columns: repeat(7, 34px); gap: 4px; justify-content: center; }
   .day-cell {
-    aspect-ratio: 1; border-radius: 8px; border: 1px solid var(--navy-line); background: var(--navy-panel-2);
+    aspect-ratio: 1; border-radius: 6px; border: 1px solid var(--navy-line); background: var(--navy-panel-2);
     color: var(--foam); display: flex; align-items: center; justify-content: center;
-    font-family: 'JetBrains Mono', monospace; font-size: 13px; cursor: pointer; position: relative;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer; position: relative;
     transition: transform .1s, background .15s, border-color .15s; user-select: none;
   }
   .day-cell:hover { border-color: var(--teal); }
