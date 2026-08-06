@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Båtloggen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy-deep: #0b1a24;
+    --navy-panel: #12283a;
+    --navy-panel-2: #1a3248;
+    --navy-line: #26445c;
+    --brass: #c9a15a;
+    --brass-bright: #e6c079;
+    --foam: #edf2f2;
+    --foam-dim: #93a9b3;
+    --teal: #4f8f96;
+    --coral: #e27a63;
+    --green-ok: #82b98d;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: radial-gradient(1200px 800px at 15% -10%, #163449 0%, var(--navy-deep) 55%);
+    color: var(--foam);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding: 32px 16px 64px;
+  }
+
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  header.masthead { display: flex; align-items: baseline; gap: 14px; margin-bottom: 6px; }
+  .mark { font-size: 26px; color: var(--brass); transform: translateY(1px); }
+  h1 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 26px; letter-spacing: 0.2px; margin: 0; }
+  .subhead { color: var(--foam-dim); font-size: 13.5px; margin: 0 0 26px 0; line-height: 1.5; }
+
+  .year-row { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+  .year-nav {
+    background: none; border: 1px solid var(--navy-line); color: var(--foam-dim);
+    width: 30px; height: 30px; border-radius: 8px; cursor: pointer; font-size: 14px; flex: none;
+  }
+  .year-nav:hover { color: var(--brass-bright); border-color: var(--brass); }
+
+  .year-strip { display: grid; grid-template-columns: repeat(12, 1fr); gap: 5px; flex: 1; }
+  .year-tab {
+    background: var(--navy-panel); border: 1px solid var(--navy-line); border-radius: 8px;
+    padding: 7px 2px 6px; text-align: center; cursor: pointer; font-family: 'JetBrains Mono', monospace;
+    color: var(--foam-dim); position: relative; transition: border-color .15s, background .15s;
+  }
+  .year-tab:hover { border-color: var(--teal); }
+  .year-tab.active { background: var(--navy-panel-2); border-color: var(--brass); color: var(--foam); }
+  .year-tab .m-label { display: block; font-size: 10.5px; letter-spacing: 0.5px; text-transform: uppercase; }
+  .year-tab .m-count { display: block; font-size: 13px; font-weight: 700; margin-top: 2px; color: var(--foam); }
+  .year-tab .dot {
+    position: absolute; top: 4px; right: 5px; width: 6px; height: 6px; border-radius: 50%; background: var(--navy-line);
+  }
+  .year-tab .dot.ok { background: var(--green-ok); }
+  .year-tab .dot.no { background: var(--coral); }
+  .year-tab .dot.warn { background: var(--brass); }
+
+  .month-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .month-nav button {
+    background: var(--navy-panel); border: 1px solid var(--navy-line); color: var(--foam);
+    padding: 7px 13px; border-radius: 8px; cursor: pointer; font-size: 13px;
+    transition: border-color .15s, color .15s;
+  }
+  .month-nav button:hover { border-color: var(--brass); color: var(--brass-bright); }
+  .month-nav h2 { font-family: 'Space Grotesk', sans-serif; font-size: 19px; font-weight: 600; margin: 0; letter-spacing: .3px; }
+  .today-btn {
+    font-size: 12px !important; color: var(--foam-dim) !important; text-decoration: underline;
+    text-underline-offset: 3px; border: none !important; background: none !important; padding: 4px !important;
+  }
+
+  .logbook {
+    background: var(--navy-panel); border: 1px solid var(--navy-line); border-radius: var(--radius);
+    padding: 18px 16px 14px; margin-bottom: 20px;
+  }
+  .weekday-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 8px; }
+  .weekday-row span {
+    text-align: center; font-size: 11px; color: var(--foam-dim); font-family: 'JetBrains Mono', monospace; letter-spacing: .5px;
+  }
+  .day-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .day-cell {
+    aspect-ratio: 1; border-radius: 8px; border: 1px solid var(--navy-line); background: var(--navy-panel-2);
+    color: var(--foam); display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; cursor: pointer; position: relative;
+    transition: transform .1s, background .15s, border-color .15s;
+  }
+  .day-cell:hover { border-color: var(--teal); }
+  .day-cell:active { transform: scale(0.94); }
+  .day-cell.empty { visibility: hidden; cursor: default; }
+  .day-cell.weekend { color: var(--foam-dim); }
+  .day-cell.today { box-shadow: inset 0 0 0 1.5px var(--teal); }
+  .day-cell.future { opacity: .6; }
+  .day-cell.used { background: var(--brass); border-color: var(--brass-bright); color: #241a08; font-weight: 700; }
+  .day-cell.used::after { content: '⚓'; position: absolute; bottom: 1px; right: 3px; font-size: 8px; opacity: .55; }
+
+  .panel { background: var(--navy-panel); border: 1px solid var(--navy-line); border-radius: var(--radius); padding: 18px 18px 6px; margin-bottom: 18px; }
+  .panel-title { font-family: 'Space Grotesk', sans-serif; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--foam-dim); margin: 0 0 14px 0; }
+  .gauges { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
+  .gauge { background: var(--navy-panel-2); border: 1px solid var(--navy-line); border-radius: 8px; padding: 12px 10px; }
+  .gauge .g-label { font-size: 11px; color: var(--foam-dim); margin-bottom: 4px; }
+  .gauge .g-value { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 700; color: var(--brass-bright); }
+  .gauge .g-value small { font-size: 11px; color: var(--foam-dim); font-weight: 400; }
+
+  .pace-wrap { margin-bottom: 16px; }
+  .pace-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--foam-dim); margin-bottom: 5px; }
+  .pace-track { background: var(--navy-panel-2); border: 1px solid var(--navy-line); border-radius: 6px; height: 8px; overflow: hidden; position: relative; }
+  .pace-fill { height: 100%; border-radius: 6px 0 0 6px; transition: width .3s; }
+  .pace-fill.ok { background: var(--green-ok); }
+  .pace-fill.warn { background: var(--brass); }
+  .pace-fill.no { background: var(--coral); }
+  .pace-marker { position: absolute; top: -2px; width: 2px; height: 12px; background: var(--foam-dim); }
+
+  .trip-toggle { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--foam-dim); margin-bottom: 16px; }
+  .seg { display: flex; border: 1px solid var(--navy-line); border-radius: 7px; overflow: hidden; }
+  .seg button { background: var(--navy-panel-2); border: none; color: var(--foam-dim); font-size: 12px; padding: 5px 10px; cursor: pointer; }
+  .seg button.active { background: var(--teal); color: #06181c; font-weight: 600; }
+
+  .verdict { border-radius: 8px; padding: 13px 14px; margin-bottom: 16px; font-size: 13.5px; line-height: 1.55; border: 1px solid var(--navy-line); }
+  .verdict.ok { background: rgba(130,185,141,.08); border-color: var(--green-ok); }
+  .verdict.no { background: rgba(226,122,99,.08); border-color: var(--coral); }
+  .verdict.warn { background: rgba(201,161,90,.10); border-color: var(--brass); }
+  .verdict.neutral { background: var(--navy-panel-2); color: var(--foam-dim); }
+  .verdict b { color: var(--foam); }
+
+  .compare-row { display: flex; justify-content: space-between; font-size: 12.5px; padding: 8px 0; border-top: 1px solid var(--navy-line); color: var(--foam-dim); }
+  .compare-row span.val { font-family: 'JetBrains Mono', monospace; color: var(--foam); }
+  .note { font-size: 11.5px; color: var(--foam-dim); padding: 10px 0 14px; line-height: 1.5; }
+
+  details.settings { background: var(--navy-panel); border: 1px solid var(--navy-line); border-radius: var(--radius); padding: 14px 18px; }
+  details.settings summary { cursor: pointer; font-size: 12.5px; color: var(--foam-dim); letter-spacing: .3px; outline: none; }
+  details.settings summary:hover { color: var(--brass-bright); }
+  .settings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; }
+  .settings-grid label { display: block; font-size: 11px; color: var(--foam-dim); margin-bottom: 5px; }
+  .settings-grid input {
+    width: 100%; background: var(--navy-panel-2); border: 1px solid var(--navy-line); color: var(--foam);
+    border-radius: 6px; padding: 7px 8px; font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  }
+  .settings-grid input:focus { outline: 1.5px solid var(--teal); border-color: var(--teal); }
+
+  footer { text-align: center; color: var(--foam-dim); font-size: 11.5px; margin-top: 28px; }
+  a, button { font-family: inherit; }
+  :focus-visible { outline: 2px solid var(--brass-bright); outline-offset: 2px; }
+
+  @media (max-width: 480px) {
+    .gauges { grid-template-columns: 1fr; }
+    .year-tab .m-label { font-size: 9px; }
+    h1 { font-size: 21px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <span class="mark">⚓</span>
+    <h1>Båtloggen</h1>
+  </header>
+  <p class="subhead">Du har kjøpt 30-dagerskort. Kryss av dagene du tar båten, så holder loggen regnskap med om det var lurt — med et stikk eller to hvis det begynner å skure.</p>
+
+  <div class="year-row">
+    <button class="year-nav" id="yearPrev" aria-label="Forrige år">‹</button>
+    <div class="year-strip" id="yearStrip"></div>
+    <button class="year-nav" id="yearNext" aria-label="Neste år">›</button>
+  </div>
+
+  <div class="month-nav">
+    <button id="prevMonth">‹ Forrige</button>
+    <div style="text-align:center;">
+      <h2 id="monthTitle">—</h2>
+      <button class="today-btn" id="gotoToday">i dag</button>
+    </div>
+    <button id="nextMonth">Neste ›</button>
+  </div>
+
+  <div class="logbook">
+    <div class="weekday-row">
+      <span>ma</span><span>ti</span><span>on</span><span>to</span><span>fr</span><span>lø</span><span>sø</span>
+    </div>
+    <div class="day-grid" id="dayGrid"></div>
+  </div>
+
+  <div class="panel">
+    <p class="panel-title" id="panelTitle">Så langt denne måneden</p>
+    <div class="gauges">
+      <div class="gauge">
+        <div class="g-label">Dager brukt</div>
+        <div class="g-value" id="statDays">0</div>
+      </div>
+      <div class="gauge">
+        <div class="g-label">Reiser totalt</div>
+        <div class="g-value" id="statTrips">0</div>
+      </div>
+      <div class="gauge">
+        <div class="g-label">Kr / brukt dag</div>
+        <div class="g-value" id="statPerDay">–</div>
+      </div>
+    </div>
+
+    <div class="pace-wrap" id="paceWrap">
+      <div class="pace-label"><span>Tempo mot lønnsomhet</span><span id="paceText">–</span></div>
+      <div class="pace-track"><div class="pace-fill" id="paceFill" style="width:0%"></div></div>
+    </div>
+
+    <div class="trip-toggle">
+      Reiser per dag:
+      <div class="seg">
+        <button id="trip1" data-v="1">1 vei</button>
+        <button id="trip2" data-v="2">Tur-retur</button>
+      </div>
+    </div>
+
+    <div class="verdict neutral" id="verdictBox">Kryss av noen dager for å se en anbefaling.</div>
+
+    <div class="compare-row">
+      <span>Ville kostet med enkeltbilletter (<span id="cmpTrips">0</span> reiser à <span id="cmpSingle">51</span> kr)</span>
+      <span class="val" id="cmpSingleTotal">0 kr</span>
+    </div>
+    <div class="compare-row">
+      <span>Det du betalte for 30-dagerskortet</span>
+      <span class="val" id="cmpMonthly">700 kr</span>
+    </div>
+    <div class="compare-row">
+      <span>Differanse (enkelt − kort)</span>
+      <span class="val" id="cmpDiff">0 kr</span>
+    </div>
+    <p class="note">Til sammenligning: en 7-dagersbillett koster 315 kr og lønner seg fremfor enkeltbilletter dersom du reiser mer enn <span id="breakeven7">–</span> ganger i løpet av en sammenhengende uke.</p>
+  </div>
+
+  <details class="settings">
+    <summary>Billettpriser og innstillinger</summary>
+    <div class="settings-grid">
+      <div>
+        <label for="pSingle">Enkeltbillett (kr)</label>
+        <input type="number" id="pSingle" min="0" step="1">
+      </div>
+      <div>
+        <label for="pWeekly">7-dagerskort (kr)</label>
+        <input type="number" id="pWeekly" min="0" step="1">
+      </div>
+      <div>
+        <label for="pMonthly">30-dagerskort (kr)</label>
+        <input type="number" id="pMonthly" min="0" step="1">
+      </div>
+    </div>
+  </details>
+
+  <footer>Data lagres kun lokalt i denne nettleseren.</footer>
+</div>
+
+<script>
+(function () {
+  const DATA_KEY = 'baatlogg-data-v1';
+  const SETTINGS_KEY = 'baatlogg-settings-v1';
+
+  const monthNames = ['januar','februar','mars','april','mai','juni','juli','august','september','oktober','november','desember'];
+  const monthShort = ['jan','feb','mar','apr','mai','jun','jul','aug','sep','okt','nov','des'];
+
+  const today = new Date();
+  // Åpner alltid på inneværende måned - historikk/data huskes, men startpunktet er alltid "i dag".
+  let view = { y: today.getFullYear(), m: today.getMonth() };
+  let data = loadData();
+  let settings = loadSettings();
+
+  function loadData() {
+    try { return JSON.parse(localStorage.getItem(DATA_KEY)) || {}; }
+    catch (e) { return {}; }
+  }
+  function saveData() { localStorage.setItem(DATA_KEY, JSON.stringify(data)); }
+
+  function loadSettings() {
+    const defaults = { single: 51, weekly: 315, monthly: 700, tripsPerDay: 2 };
+    try {
+      const s = JSON.parse(localStorage.getItem(SETTINGS_KEY));
+      return s ? Object.assign(defaults, s) : defaults;
+    } catch (e) { return defaults; }
+  }
+  function saveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }
+
+  function key(y, m) { return y + '-' + String(m + 1).padStart(2, '0'); }
+  function daysInMonth(y, m) { return new Date(y, m + 1, 0).getDate(); }
+  function mondayIndex(y, m) { return (new Date(y, m, 1).getDay() + 6) % 7; }
+
+  function usedDays(y, m) { return (data[key(y, m)] || []).slice().sort((a,b)=>a-b); }
+
+  function toggleDay(y, m, d) {
+    const k = key(y, m);
+    const set = new Set(data[k] || []);
+    if (set.has(d)) set.delete(d); else set.add(d);
+    data[k] = Array.from(set);
+    if (data[k].length === 0) delete data[k];
+    saveData();
+    renderCalendar();
+    renderStats();
+    renderYearStrip();
+  }
+
+  function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function fmtKr(n) { return Math.round(n).toLocaleString('nb-NO') + ' kr'; }
+
+  function monthState(y, m) {
+    const isCurrent = y === today.getFullYear() && m === today.getMonth();
+    const total = daysInMonth(y, m);
+    let elapsed;
+    if (isCurrent) elapsed = today.getDate();
+    else if (new Date(y, m, 1) < new Date(today.getFullYear(), today.getMonth(), 1)) elapsed = total; // fortid
+    else elapsed = 0; // fremtid
+    return { isCurrent, total, elapsed, isPast: elapsed === total && !isCurrent, isFuture: elapsed === 0 && !isCurrent };
+  }
+
+  function stats(y, m) {
+    const days = usedDays(y, m).length;
+    const trips = days * settings.tripsPerDay;
+    const singleTotal = trips * settings.single;
+    const monthlyTotal = settings.monthly;
+    const diff = singleTotal - monthlyTotal;
+    return { days, trips, singleTotal, monthlyTotal, diff };
+  }
+
+  /* ---------- Spydige kommentarer ---------- */
+
+  const lines = {
+    early: [
+      'Tidlig i måneden ennå — for tidlig for både ros og kritikk.',
+      'Gi det noen dager til før dommen felles.'
+    ],
+    future: [
+      'Fremtiden er ikke skrevet ennå. Kryss av det du planlegger, så regner vi på det når det skjer.'
+    ],
+    flying: [
+      'Du ligger foran skjema. Kortet ler hele veien til banken.',
+      'Imponerende tempo — til og med kortet er overrasket.',
+      'Du reiser som om båten er gratis. Fortsett sånn.'
+    ],
+    onTrack: [
+      'Helt etter planen. Ingenting å si her — denne gangen.',
+      'Du følger kurven pent. Kortet trives.',
+      'Stø kurs. Kortet betaler for seg som det skal.'
+    ],
+    mild: [
+      'Du henger litt etter. Kortet begynner å lure på hvor du blir av.',
+      'Litt slapt tempo denne måneden. Ta deg sammen, eller ta båten oftere.',
+      'Du er bak skjema. Ikke krise ennå, men kortet legger merke til det.'
+    ],
+    medium: [
+      'Dette begynner å ligne bortkastede penger. Kortet føler seg oversett.',
+      'Du er godt bak skjema. Enkeltbilletter ler av deg akkurat nå.',
+      'Kortet ligger an til å tape mot enkeltbilletter — med god margin.'
+    ],
+    harsh: [
+      'Til dette tempoet kunne kortet like gjerne vært en donasjon.',
+      'Du bruker båten sjeldnere enn du bruker unnskyldninger. Kortet gråter.',
+      'Dette er ikke lenger et månedskort — det er en dyr prinsipp-sak.'
+    ],
+    pastWin: [
+      'Kortet reddet deg pent denne måneden. Bra jobbet.',
+      'Du slo enkeltbillettene med god margin. Kortet er fornøyd.',
+      'Regnestykket går opp. Du kan unne deg å være litt stolt.'
+    ],
+    pastEven: [
+      'Enkeltbilletter og kortet endte helt likt. Sjeldent å se, faktisk.'
+    ],
+    pastMild: [
+      'Du var nære, men kortet tapte med noen kroner.',
+      'Så vidt i minus. Neste måned kan du snu det.'
+    ],
+    pastMedium: [
+      'Kortet tapte klart mot enkeltbilletter denne måneden.',
+      'Regnestykket gikk ikke din vei denne gangen.'
+    ],
+    pastHarsh: [
+      'Kortet tapte stort. Enkeltbilletter hadde vært en mye bedre idé.',
+      'Dette var et dyrt måned å eie kort på.'
+    ],
+    pastZero: [
+      'Du brukte båten null ganger. Det er ikke et månedskort, det er en pyntegjenstand.',
+      '700 kroner for å se på båten fra bryggen. Imponerende prioritering.',
+      'Null turer. Selv en rutebåt ville følt seg avvist.'
+    ]
+  };
+
+  function verdictFor(y, m) {
+    const ms = monthState(y, m);
+    const s = stats(y, m);
+    const breakEven = settings.single > 0 ? Math.ceil(settings.monthly / settings.single) : 0;
+
+    if (ms.isFuture) {
+      return { cls: 'neutral', text: pickRandom(lines.future), pace: null };
+    }
+
+    if (ms.isCurrent) {
+      if (ms.elapsed < 3) {
+        return { cls: 'neutral', text: pickRandom(lines.early), pace: null };
+      }
+      const expectedByNow = breakEven * (ms.elapsed / ms.total);
+      const ratio = expectedByNow > 0 ? (s.trips / expectedByNow) : (s.trips > 0 ? 2 : 1);
+      let cls, pool;
+      if (ratio >= 1.15) { cls = 'ok'; pool = lines.flying; }
+      else if (ratio >= 0.85) { cls = 'ok'; pool = lines.onTrack; }
+      else if (ratio >= 0.5) { cls = 'warn'; pool = lines.mild; }
+      else if (ratio >= 0.25) { cls = 'no'; pool = lines.medium; }
+      else { cls = 'no'; pool = lines.harsh; }
+      return { cls, text: pickRandom(pool), pace: { ratio, expectedByNow, trips: s.trips, breakEven } };
+    }
+
+    // Fortid - fasit
+    if (s.days === 0) return { cls: 'no', text: pickRandom(lines.pastZero), pace: { ratio: 0, expectedByNow: breakEven, trips: 0, breakEven } };
+    if (s.diff === 0) return { cls: 'neutral', text: pickRandom(lines.pastEven), pace: { ratio: 1, expectedByNow: breakEven, trips: s.trips, breakEven } };
+    if (s.diff > 0) return { cls: 'ok', text: pickRandom(lines.pastWin), pace: { ratio: s.trips / breakEven, expectedByNow: breakEven, trips: s.trips, breakEven } };
+    const lossPct = -s.diff / settings.monthly;
+    let cls2, pool2;
+    if (lossPct < 0.15) { cls2 = 'warn'; pool2 = lines.pastMild; }
+    else if (lossPct < 0.4) { cls2 = 'no'; pool2 = lines.pastMedium; }
+    else { cls2 = 'no'; pool2 = lines.pastHarsh; }
+    return { cls: cls2, text: pickRandom(pool2), pace: { ratio: s.trips / breakEven, expectedByNow: breakEven, trips: s.trips, breakEven } };
+  }
+
+  /* ---------- Rendering ---------- */
+
+  function renderMonthNav() {
+    document.getElementById('monthTitle').textContent =
+      monthNames[view.m].charAt(0).toUpperCase() + monthNames[view.m].slice(1) + ' ' + view.y;
+  }
+
+  function renderCalendar() {
+    const grid = document.getElementById('dayGrid');
+    grid.innerHTML = '';
+    const total = daysInMonth(view.y, view.m);
+    const offset = mondayIndex(view.y, view.m);
+    const used = new Set(usedDays(view.y, view.m));
+    const isCurrentMonth = view.y === today.getFullYear() && view.m === today.getMonth();
+
+    for (let i = 0; i < offset; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'day-cell empty';
+      grid.appendChild(cell);
+    }
+    for (let d = 1; d <= total; d++) {
+      const cell = document.createElement('div');
+      const weekday = (offset + d - 1) % 7;
+      const isFutureDay = isCurrentMonth ? d > today.getDate() : (new Date(view.y, view.m, d) > today);
+      cell.className = 'day-cell' + (weekday >= 5 ? ' weekend' : '') + (isFutureDay ? ' future' : '');
+      if (isCurrentMonth && d === today.getDate()) cell.classList.add('today');
+      if (used.has(d)) cell.classList.add('used');
+      cell.textContent = d;
+      cell.setAttribute('role', 'button');
+      cell.setAttribute('tabindex', '0');
+      cell.setAttribute('aria-pressed', used.has(d) ? 'true' : 'false');
+      cell.setAttribute('aria-label', d + '. ' + monthNames[view.m] + (used.has(d) ? ', båt brukt' : ', båt ikke brukt'));
+      cell.addEventListener('click', () => toggleDay(view.y, view.m, d));
+      cell.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleDay(view.y, view.m, d); }
+      });
+      grid.appendChild(cell);
+    }
+  }
+
+  function renderStats() {
+    const s = stats(view.y, view.m);
+    const ms = monthState(view.y, view.m);
+
+    document.getElementById('panelTitle').textContent =
+      ms.isFuture ? 'Planlagt' : ms.isCurrent ? 'Så langt denne måneden' : 'Måneden er over';
+
+    document.getElementById('statDays').textContent = s.days;
+    document.getElementById('statTrips').textContent = s.trips;
+    document.getElementById('statPerDay').textContent = s.days ? fmtKr(settings.monthly / s.days) : '–';
+
+    document.getElementById('cmpTrips').textContent = s.trips;
+    document.getElementById('cmpSingle').textContent = settings.single;
+    document.getElementById('cmpSingleTotal').textContent = fmtKr(s.singleTotal);
+    document.getElementById('cmpMonthly').textContent = fmtKr(s.monthlyTotal);
+    document.getElementById('cmpDiff').textContent = (s.diff >= 0 ? '+' : '') + fmtKr(s.diff);
+    document.getElementById('breakeven7').textContent = settings.single > 0 ? Math.ceil(settings.weekly / settings.single) : '–';
+
+    const v = verdictFor(view.y, view.m);
+    const box = document.getElementById('verdictBox');
+    box.className = 'verdict ' + v.cls;
+    box.innerHTML = v.text;
+
+    const paceWrap = document.getElementById('paceWrap');
+    const paceFill = document.getElementById('paceFill');
+    const paceText = document.getElementById('paceText');
+    if (v.pace) {
+      paceWrap.style.display = '';
+      const pct = Math.max(0, Math.min(100, v.pace.ratio * 100));
+      paceFill.style.width = pct + '%';
+      paceFill.className = 'pace-fill ' + (v.cls === 'ok' ? 'ok' : v.cls === 'warn' ? 'warn' : v.cls === 'no' ? 'no' : 'ok');
+      paceText.textContent = v.pace.trips + ' av ' + Math.round(v.pace.expectedByNow) + ' forventede reiser';
+    } else {
+      paceWrap.style.display = 'none';
+    }
+  }
+
+  function renderYearStrip() {
+    const strip = document.getElementById('yearStrip');
+    strip.innerHTML = '';
+    for (let m = 0; m < 12; m++) {
+      const s = stats(view.y, m);
+      const ms = monthState(view.y, m);
+      let dotCls = '';
+      if (!ms.isFuture) {
+        if (s.days === 0 && ms.elapsed > 2) dotCls = 'no';
+        else if (s.diff > 0) dotCls = 'ok';
+        else if (s.diff < 0) dotCls = ms.isPast ? 'no' : 'warn';
+      }
+      const tab = document.createElement('div');
+      tab.className = 'year-tab' + (m === view.m ? ' active' : '');
+      tab.innerHTML =
+        '<span class="m-label">' + monthShort[m] + '</span>' +
+        '<span class="m-count">' + s.days + '</span>' +
+        '<span class="dot' + (dotCls ? ' ' + dotCls : '') + '"></span>';
+      tab.addEventListener('click', () => { view.m = m; renderAll(); });
+      strip.appendChild(tab);
+    }
+  }
+
+  function renderTripToggle() {
+    document.getElementById('trip1').classList.toggle('active', settings.tripsPerDay === 1);
+    document.getElementById('trip2').classList.toggle('active', settings.tripsPerDay === 2);
+  }
+
+  function renderSettingsInputs() {
+    document.getElementById('pSingle').value = settings.single;
+    document.getElementById('pWeekly').value = settings.weekly;
+    document.getElementById('pMonthly').value = settings.monthly;
+  }
+
+  function renderAll() {
+    renderMonthNav();
+    renderCalendar();
+    renderStats();
+    renderYearStrip();
+    renderTripToggle();
+  }
+
+  document.getElementById('prevMonth').addEventListener('click', () => {
+    view.m--; if (view.m < 0) { view.m = 11; view.y--; }
+    renderAll();
+  });
+  document.getElementById('nextMonth').addEventListener('click', () => {
+    view.m++; if (view.m > 11) { view.m = 0; view.y++; }
+    renderAll();
+  });
+  document.getElementById('gotoToday').addEventListener('click', () => {
+    view = { y: today.getFullYear(), m: today.getMonth() };
+    renderAll();
+  });
+  document.getElementById('yearPrev').addEventListener('click', () => { view.y--; renderAll(); });
+  document.getElementById('yearNext').addEventListener('click', () => { view.y++; renderAll(); });
+
+  document.getElementById('trip1').addEventListener('click', () => {
+    settings.tripsPerDay = 1; saveSettings(); renderTripToggle(); renderStats(); renderYearStrip();
+  });
+  document.getElementById('trip2').addEventListener('click', () => {
+    settings.tripsPerDay = 2; saveSettings(); renderTripToggle(); renderStats(); renderYearStrip();
+  });
+
+  ['pSingle','pWeekly','pMonthly'].forEach(id => {
+    document.getElementById(id).addEventListener('input', (e) => {
+      const map = { pSingle: 'single', pWeekly: 'weekly', pMonthly: 'monthly' };
+      const v = parseFloat(e.target.value);
+      settings[map[id]] = isNaN(v) ? 0 : v;
+      saveSettings();
+      renderStats();
+      renderYearStrip();
+    });
+  });
+
+  renderSettingsInputs();
+  renderAll();
+})();
+</script>
+</body>
+</html>
