@@ -158,6 +158,20 @@ tr:hover td{background:#1A1A1A}
 .logg-detail{font-size:11px;color:#C0C0C0;margin-bottom:.6rem;line-height:1.6}
 .logg-stints{overflow-x:auto;margin-top:.5rem}
 
+/* Manual stint builder */
+.msrow{display:flex;align-items:center;gap:8px;background:#1E1E1E;border:1.5px solid #2A2A2A;border-radius:8px;padding:8px 10px;margin-bottom:6px;flex-wrap:wrap}
+.msrow.ms-warn{border-color:#E8002D}
+.ms-arrows{display:flex;flex-direction:column;gap:2px;flex-shrink:0}
+.ms-arrow{width:24px;height:20px;background:#2A2A2A;border:none;border-radius:4px;color:#C0C0C0;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center}
+.ms-arrow:hover{background:#3A3A3A}
+.ms-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.ms-select{flex:1;min-width:120px;height:33px;padding:0 8px;font-size:13px;border:1px solid #2A2A2A;border-radius:6px;background:#161616;color:#fff}
+.ms-dur{width:68px;height:33px;padding:0 6px;font-size:13px;letter-spacing:.03em;border:1px solid #2A2A2A;border-radius:6px;background:#161616;color:#fff;font-variant-numeric:tabular-nums;text-align:center;font-family:monospace}
+.ms-del{width:30px;height:30px;background:none;border:1px solid #2A2A2A;border-radius:6px;color:#555;cursor:pointer;font-size:14px;flex-shrink:0}
+.ms-del:hover{border-color:#E8002D;color:#E8002D}
+.ms-kart{font-size:10px;color:#555;min-width:32px;text-align:center;flex-shrink:0}
+.ms-warning-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#F5D98B;background:#1A1500;border:1px solid #C9A84C;border-radius:6px;padding:5px 9px;margin-bottom:5px}
+
 /* Live table scrollable */
 #liveTbl td { white-space:nowrap; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
@@ -208,7 +222,7 @@ tr:hover td{background:#1A1A1A}
   <div class="mbtns" role="group" aria-label="Løpsmodus">
     <button class="mb" data-m="speed4" aria-pressed="false">⚡ Standard<span class="s">Uten boost</span></button>
     <button class="mb" data-m="boost" aria-pressed="true">⚡🔥 Standard + Boost<span class="s">Konfigurerbar</span></button>
-    <button class="mb" data-m="speed5" aria-pressed="false">🚀 Nitro<span class="s">Uten boost</span></button>
+    <button class="mb" data-m="manual" aria-pressed="false">🛠 Manuell<span class="s">Fri konfigurasjon</span></button>
   </div>
   <div id="bbox" class="bbox">
     <p style="font-size:11px;font-weight:700;color:#C9A84C;margin-bottom:14px">⚡ Boost-innstillinger</p>
@@ -275,6 +289,22 @@ tr:hover td{background:#1A1A1A}
 </div>
 
 <button class="gbtn" onclick="generate()">🏁 Beregn strategi</button>
+
+<!-- Manuell stint builder -->
+<div id="manualBuilder" style="display:none;margin-top:1rem">
+  <div class="card">
+    <h2 class="sec">🛠 Manuell stintplan</h2>
+    <p style="font-size:12px;color:#C0C0C0;margin-bottom:1rem;line-height:1.6">
+      Startplanen er beregnet av strategimotoren. Juster rekkefølge, fører og kjøretid fritt.
+      Pit-varighet er alltid 50 sekunder. Advarsler vises ved regelbrudd – de blokkerer ikke.
+    </p>
+    <div id="manualWarnings"></div>
+    <div id="manualStintList"></div>
+    <button class="btn pr" style="margin-top:.75rem;width:100%" onclick="manualAddStint()">+ Legg til stint</button>
+    <button class="gbtn" style="margin-top:.75rem;background:#0A1A0A;color:#39D353;border:2px solid #39D353"
+      onclick="manualConfirm()">✓ Bekreft plan og gå til oversikt</button>
+  </div>
+</div>
 
 <div id="res" style="display:none;margin-top:.85rem">
   <div class="card">
@@ -555,7 +585,7 @@ function pL(v){if(!v||!v.trim())return NaN;const n=parseFloat(v.replace(',','.')
 function fm(s){s=Math.max(0,Math.round(s));return Math.floor(s/60)+':'+(s%60).toString().padStart(2,'0');}
 function fmS(s){const m=Math.floor(s/60),sec=Math.round(s%60);return sec===0?m+' min':m+'m '+sec+'s';}
 function fmL(s){return(Math.round(s*10)/10).toFixed(1).replace('.',',');}
-function mlbl(){return mode==='speed4'?'Standard':mode==='boost'?'Standard + Boost':'Nitro';}
+function mlbl(){return mode==='speed4'?'Standard':mode==='boost'?'Standard + Boost':mode==='manual'?'Manuell':'Nitro';}
 function bsum(){return mode==='boost'?('Boost hvert '+lastBI+' min \u00b7 '+lastBD+' sek'):'';}
 function kNr(sn){return sn%2===1?kA:kB;}
 function kB2(sn){const nr=kNr(sn),isA=sn%2===1;return '<span class="kb '+(isA?'ka':'kbg')+'" style="width:22px;height:22px;font-size:10px;border-radius:4px">'+(nr||'\u2013')+'</span>';}
@@ -821,7 +851,7 @@ function maxAllowedNow(di, accDT){
 // forbidFirst = driver-index som IKKE kan starte (pga. nettopp kjørt)
 function buildPlan(t0, pitsDone, accDT, snStart, forbidFirst){
   const n       = drivers.length;
-  const isNitro = (mode === 'speed5');
+  const isNitro = (mode === 'speed5'); // manual uses Standard engine for suggestion
 
   // Effective pits: at least minP, at least n-1 (every driver gets a stint)
   const effectiveMinPits = Math.max(minP - pitsDone, n - 1);
@@ -1142,9 +1172,16 @@ function generate(){
     }
     stints=result.stints;
     stints.forEach(x=>{x.rep=false;x.status='future';});
-    rndrSetup(stints);
-    document.getElementById('res').style.display='block';
-    ann('Strategi: '+stints.filter(x=>x.type==='pit').length+' pitstop.');
+
+    if(mode==='manual'){
+      // Show interactive manual builder seeded with the suggested plan
+      initManualPlan(stints);
+    } else {
+      rndrSetup(stints);
+      document.getElementById('res').style.display='block';
+      document.getElementById('manualBuilder').style.display='none';
+      ann('Strategi: '+stints.filter(x=>x.type==='pit').length+' pitstop.');
+    }
   } catch(err) {
     console.error('generate() feil:', err);
     alert('Feil ved beregning: '+err.message+'\n\nSjekk konsollen for detaljer.');
@@ -2183,6 +2220,239 @@ Kan ikke sette samme fører to ganger på rad.`);
   addLog(msg); ann(msg);
   updByttSelect(true);
   rndrAll();
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// MANUELL MODUS
+// ═══════════════════════════════════════════════════════════════
+// manualPlan: [{di, durSec}] – durSec is duration in seconds
+let manualPlan = [];
+
+// ── Format helpers for manual mode ───────────────────────────
+function fmMS(sec){
+  // Format seconds as M:SS (e.g. 843 → "14:03")
+  const s = Math.max(0, Math.round(sec));
+  return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
+}
+function parseMS(str){
+  // Parse "M:SS" or plain number (minutes) to seconds
+  str = String(str).trim().replace(',','.');
+  if(str.includes(':')){
+    const [m,s] = str.split(':');
+    return Math.round(+m*60 + (+s||0));
+  }
+  return Math.round(parseFloat(str)*60);
+}
+
+// ── Compute timeline from manualPlan ─────────────────────────
+function manualTimeline(){
+  // Returns array of {type,di,start,end,durSec,accumSec} for display
+  const rows = [];
+  let clk = 0;
+  manualPlan.forEach((p, idx) => {
+    const start  = clk;
+    const end    = clk + p.durSec;
+    rows.push({ type:'drive', di:p.di, idx, start, end, durSec:p.durSec });
+    clk = end;
+    if(idx < manualPlan.length - 1){
+      rows.push({ type:'pit', idx, start:clk, end:clk+pitSec, durSec:pitSec });
+      clk += pitSec;
+    }
+  });
+  return rows;
+}
+
+// ── Seed manualPlan from suggested Standard plan ──────────────
+function initManualPlan(suggestedStints){
+  manualPlan = suggestedStints
+    .filter(s => s.type === 'drive')
+    .map(s => ({
+      di:     s.di,
+      durSec: Math.round(s.end - s.start),
+    }));
+  document.getElementById('manualBuilder').style.display = 'block';
+  document.getElementById('res').style.display = 'none';
+  rndrManualBuilder();
+}
+
+// ── Render the manual builder ─────────────────────────────────
+function rndrManualBuilder(){
+  const list = document.getElementById('manualStintList');
+  if(!list) return;
+
+  const timeline = manualTimeline();
+  const driverTotals = drivers.map(() => 0);
+  manualPlan.forEach(p => { driverTotals[p.di] += p.durSec; });
+
+  let html = '';
+  let driveIdx = 0;
+
+  timeline.forEach(row => {
+    if(row.type === 'pit'){
+      // ── Pit row ──────────────────────────────────────────────
+      html += '<div style="display:flex;align-items:center;gap:8px;'
+        +'padding:4px 10px;margin:0 0 4px;border-left:3px solid #E8002D">'
+        +'<span style="font-size:10px;font-weight:700;color:#E8002D;width:52px">PIT</span>'
+        +'<span style="font-size:11px;color:#555">'+fm(row.start)+' → '+fm(row.end)+'</span>'
+        +'<span style="font-size:11px;color:#555;margin-left:auto">50 sek</span>'
+        +'<span style="font-size:11px;color:#555;width:72px;text-align:right">'
+          +'tot. '+fm(row.end)+'</span>'
+        +'</div>';
+      return;
+    }
+
+    // ── Drive row ─────────────────────────────────────────────
+    const idx       = row.idx;
+    const p         = manualPlan[idx];
+    const stintNum  = driveIdx + 1;
+    driveIdx++;
+    const kartPar   = stintNum % 2 === 1 ? 'A' : 'B';
+    const kartNum   = stintNum % 2 === 1 ? kA : kB;
+    const kartLabel = kartNum ? (kartPar+' ('+kartNum+')') : kartPar;
+    const col       = C[p.di % C.length];
+
+    const warns = [];
+    if(p.durSec > MAX_S)         warns.push('Over 20 min');
+    if(p.durSec < MIN_S)         warns.push('Under 7 min');
+    if(driverTotals[p.di]>MAX_TOT) warns.push('Over 50 min totalt');
+    if(idx>0 && manualPlan[idx-1].di === p.di) warns.push('Samme fører som forrige');
+
+    const driverOpts = drivers.map((d,i) =>
+      '<option value="'+i+'"'+(i===p.di?' selected':'')+'>'+
+      (d.name||'Fører '+(i+1))+'</option>'
+    ).join('');
+
+    html += '<div class="msrow'+(warns.length?' ms-warn':'')+'" data-idx="'+idx+'">'
+      // Move arrows
+      +'<div class="ms-arrows">'
+        +'<button class="ms-arrow" onclick="manualMove('+idx+',-1)" '+(idx===0?'disabled':'')+'>▲</button>'
+        +'<button class="ms-arrow" onclick="manualMove('+idx+',1)" '+(idx===manualPlan.length-1?'disabled':'')+'>▼</button>'
+      +'</div>'
+      // Stint number dot
+      +'<span class="ms-num" style="background:'+col+'">'+stintNum+'</span>'
+      // Kart badge
+      +'<span class="ms-kart" style="color:'+(stintNum%2===1?'#C9A84C':'#4FC3F7')+'">'+kartLabel+'</span>'
+      // Driver select
+      +'<select class="ms-select" onchange="manualSetDi('+idx+',+this.value)">'+driverOpts+'</select>'
+      // Time input MM:SS
+      +'<div style="display:flex;flex-direction:column;align-items:center;gap:1px">'
+        +'<input type="text" class="ms-dur" value="'+fmMS(p.durSec)+'"'
+          +' inputmode="numeric" placeholder="14:00"'
+          +' onchange="manualSetDur('+idx+',this.value)"'
+          +' aria-label="Kjøretid for stint '+stintNum+' (M:SS)">'
+        +'<span style="font-size:9px;color:#555">M:SS</span>'
+      +'</div>'
+      // Timeline info: start → slutt | varighet | tot
+      +'<div style="font-size:10px;color:#555;line-height:1.6;flex:1;min-width:80px">'
+        +'<div>'+fm(row.start)+' → '+fm(row.end)+'</div>'
+        +'<div style="color:#C0C0C0">'+fmMS(p.durSec)+' · tot. '+fm(row.end)+'</div>'
+      +'</div>'
+      // Warnings
+      +(warns.length ? '<span style="font-size:10px;color:#E8002D">⚠ '+warns.join(' · ')+'</span>' : '')
+      // Delete
+      +'<button class="ms-del" onclick="manualDelStint('+idx+')" '+(manualPlan.length<=1?'disabled':'')+'>✕</button>'
+    +'</div>';
+  });
+
+  list.innerHTML = html;
+  rndrManualWarnings(driverTotals);
+}
+
+function rndrManualWarnings(driverTotals){
+  const el = document.getElementById('manualWarnings');
+  if(!el) return;
+  const warns = [];
+
+  const pitCount = manualPlan.length - 1;
+  if(pitCount < minP)
+    warns.push('Kun '+pitCount+' pitstop – minimum er '+minP);
+
+  drivers.forEach((d,i) => {
+    if(driverTotals[i] > MAX_TOT)
+      warns.push((d.name||'Fører '+(i+1))+' har '+fmMS(driverTotals[i])+' – over 50 min maks');
+  });
+
+  const totalSec = manualPlan.reduce((a,p)=>a+p.durSec,0) + pitCount*pitSec;
+  if(Math.abs(totalSec - rSec) > 60)
+    warns.push('Planlagt total er '+fm(totalSec)+' – løpet er '+fm(rSec)
+      +' ('+( totalSec > rSec ? '+' : '')+fmMS(Math.abs(totalSec-rSec))+' avvik)');
+
+  el.innerHTML = warns.map(w =>
+    '<div class="ms-warning-item">⚠ '+w+'</div>'
+  ).join('');
+}
+
+// ── Mutations ─────────────────────────────────────────────────
+function manualMove(idx, dir){
+  const to = idx + dir;
+  if(to < 0 || to >= manualPlan.length) return;
+  [manualPlan[idx], manualPlan[to]] = [manualPlan[to], manualPlan[idx]];
+  rndrManualBuilder();
+}
+function manualSetDi(idx, di){
+  manualPlan[idx].di = di;
+  rndrManualBuilder();
+}
+function manualSetDur(idx, val){
+  const sec = parseMS(val);
+  if(!isNaN(sec) && sec > 0) manualPlan[idx].durSec = sec;
+  rndrManualBuilder();
+}
+function manualDelStint(idx){
+  if(manualPlan.length <= 1) return;
+  manualPlan.splice(idx, 1);
+  rndrManualBuilder();
+}
+function manualAddStint(){
+  const lastDi = manualPlan.length > 0 ? manualPlan[manualPlan.length-1].di : -1;
+  const nextDi = drivers.findIndex((_,i) => i !== lastDi);
+  const avgSec = manualPlan.length > 0
+    ? Math.round(manualPlan.reduce((a,p)=>a+p.durSec,0)/manualPlan.length)
+    : 900;
+  manualPlan.push({ di: nextDi >= 0 ? nextDi : 0, durSec: Math.min(MAX_S, Math.max(MIN_S, avgSec)) });
+  rndrManualBuilder();
+}
+
+// ── Confirm plan ──────────────────────────────────────────────
+function manualConfirm(){
+  if(manualPlan.length === 0){ alert('Legg til minst ett stint.'); return; }
+  stints = [];
+  let clk = 0, sn = 1;
+  manualPlan.forEach((p, idx) => {
+    const d   = drivers[p.di];
+    const lT  = d.lt || 40;
+    const end = Math.min(clk + p.durSec, rSec);
+    stints.push({
+      type:'drive', di:p.di,
+      name: d.name || ('Fører '+(p.di+1)),
+      start:clk, end, col:C[p.di%C.length], lT,
+      signAt:sgAt(end), status:'future', aStart:null, rep:false,
+      sn, bc:boostW.filter(([a])=>a>=clk&&a<end).length,
+      plannedRounds:Math.floor((end-clk)/lT),
+    });
+    clk = end; sn++;
+    if(idx < manualPlan.length - 1 && clk < rSec){
+      const pe = Math.min(clk + pitSec, rSec);
+      stints.push({ type:'pit', start:clk, end:pe, num:idx+1, status:'future', rep:false });
+      clk = pe;
+    }
+  });
+  // Extend last stint to rSec if needed
+  const ld = [...stints].reverse().find(s=>s.type==='drive');
+  if(ld && ld.end < rSec){
+    const newEnd = Math.min(ld.start+MAX_S, rSec);
+    if(newEnd > ld.end){
+      ld.end=newEnd; ld.signAt=sgAt(newEnd);
+      ld.plannedRounds=Math.floor((newEnd-ld.start)/(ld.lT||40));
+    }
+  }
+  stints.forEach(s=>{s.rep=false;s.status='future';});
+  rndrSetup(stints);
+  document.getElementById('res').style.display='block';
+  document.getElementById('manualBuilder').style.display='none';
+  ann('Manuell plan bekreftet: '+stints.filter(s=>s.type==='pit').length+' pitstop.');
+  document.querySelector('.tab[data-t="oversikt"]').click();
 }
 
 // ── Init ──────────────────────────────────────────────────────
