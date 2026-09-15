@@ -19,6 +19,7 @@
     --foam-dim: #93a9b3;
     --teal: #4f8f96;
     --coral: #e27a63;
+    --coral-bright: #ef9683;
     --green-ok: #82b98d;
     --volt: #5aa9e6;
     --volt-bright: #7ec1f2;
@@ -43,7 +44,7 @@
   header.masthead { display: flex; align-items: baseline; gap: 14px; margin-bottom: 6px; }
   .mark { font-size: 26px; color: var(--brass); transform: translateY(1px); }
   h1 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 26px; letter-spacing: 0.2px; margin: 0; }
-  .subhead { color: var(--foam-dim); font-size: 13.5px; margin: 0 0 26px 0; line-height: 1.5; }
+  .subhead { color: var(--foam-dim); font-size: 13.5px; margin: 0 0 22px 0; line-height: 1.5; }
 
   .year-row { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
   .year-nav {
@@ -82,14 +83,18 @@
     text-underline-offset: 3px; border: none !important; background: none !important; padding: 4px !important;
   }
 
+  .who-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 14px; font-size: 12.5px; color: var(--foam-dim); }
+  .seg { display: flex; border: 1px solid var(--navy-line); border-radius: 7px; overflow: hidden; }
+  .seg button { background: var(--navy-panel-2); border: none; color: var(--foam-dim); font-size: 12px; padding: 6px 12px; cursor: pointer; }
+  .seg button.active-me { background: var(--brass); color: #241a08; font-weight: 600; }
+  .seg button.active-col { background: var(--coral); color: #2a0f08; font-weight: 600; }
+
   .logbook {
     background: var(--navy-panel); border: 1px solid var(--navy-line); border-radius: var(--radius);
     padding: 18px 16px 14px; margin-bottom: 12px;
   }
   .weekday-row { display: grid; grid-template-columns: repeat(7, 34px); gap: 4px; margin-bottom: 6px; justify-content: center; }
-  .weekday-row span {
-    text-align: center; font-size: 10px; color: var(--foam-dim); font-family: 'JetBrains Mono', monospace; letter-spacing: .5px;
-  }
+  .weekday-row span { text-align: center; font-size: 10px; color: var(--foam-dim); font-family: 'JetBrains Mono', monospace; letter-spacing: .5px; }
   .day-grid { display: grid; grid-template-columns: repeat(7, 34px); gap: 4px; justify-content: center; }
   .day-cell {
     aspect-ratio: 1; border-radius: 6px; border: 1px solid var(--navy-line); background: var(--navy-panel-2);
@@ -98,25 +103,53 @@
     transition: transform .1s, background .15s, border-color .15s; user-select: none;
   }
   .day-cell:hover { border-color: var(--teal); }
-  .day-cell:active { transform: scale(0.94); }
+  .day-cell:active { transform: scale(0.9); }
   .day-cell.empty { visibility: hidden; cursor: default; }
   .day-cell.weekend { color: var(--foam-dim); }
   .day-cell.today { box-shadow: inset 0 0 0 1.5px var(--teal); }
   .day-cell.future { opacity: .6; }
   .day-cell.type-boat { background: var(--brass); border-color: var(--brass-bright); color: #241a08; font-weight: 700; }
-  .day-cell.type-boat::after { content: '⚓'; position: absolute; bottom: 1px; right: 3px; font-size: 8px; opacity: .55; }
+  .day-cell.type-boat::after { content: '⚓'; position: absolute; bottom: 0px; right: 2px; font-size: 7px; opacity: .55; }
   .day-cell.type-car { background: var(--volt); border-color: var(--volt-bright); color: #0a2436; font-weight: 700; }
-  .day-cell.type-car::after { content: '⚡'; position: absolute; bottom: 1px; right: 3px; font-size: 8px; opacity: .6; }
+  .day-cell.type-car::after { content: '⚡'; position: absolute; bottom: 0px; right: 2px; font-size: 7px; opacity: .6; }
   .day-cell.type-home { background: var(--slate); border-color: var(--slate-bright); color: #1c2129; font-weight: 700; }
-  .day-cell.type-home::after { content: '⌂'; position: absolute; bottom: 0px; right: 3px; font-size: 10px; opacity: .6; }
+  .day-cell.type-home::after { content: '⌂'; position: absolute; bottom: -1px; right: 2px; font-size: 9px; opacity: .6; }
+  .day-cell::before { content: ''; position: absolute; top: 2px; left: 2px; width: 6px; height: 6px; border-radius: 50%; background: transparent; }
+  .day-cell.other-boat::before { background: var(--brass); border: 1px solid var(--navy-deep); }
+  .day-cell.other-car::before { background: var(--volt); border: 1px solid var(--navy-deep); }
+  .day-cell.other-home::before { background: var(--slate); border: 1px solid var(--navy-deep); }
 
-  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 11px; color: var(--foam-dim); margin-bottom: 20px; padding: 0 2px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 10.5px; color: var(--foam-dim); margin-bottom: 20px; padding: 0 2px; }
   .legend span { display: inline-flex; align-items: center; gap: 5px; }
-  .legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+  .legend i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
   .legend i.boat { background: var(--brass); }
   .legend i.car { background: var(--volt); }
   .legend i.home { background: var(--slate); }
   .legend i.none { background: var(--navy-panel-2); border: 1px solid var(--navy-line); }
+  .legend i.dot { border-radius: 50%; background: var(--foam-dim); }
+
+  /* ---------- Duell-panel ---------- */
+  .duel-panel { background: var(--navy-panel); border: 1px solid var(--navy-line); border-radius: var(--radius); padding: 18px 18px 16px; margin-bottom: 18px; }
+  .duel-title { font-family: 'Space Grotesk', sans-serif; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--foam-dim); margin: 0 0 14px 0; }
+  .duel-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .duel-col { background: var(--navy-panel-2); border: 1px solid var(--navy-line); border-radius: 8px; padding: 10px 12px; }
+  .duel-col.me { border-left: 3px solid var(--brass); }
+  .duel-col.col { border-left: 3px solid var(--coral); }
+  .duel-col .who { font-family: 'Space Grotesk', sans-serif; font-size: 12.5px; font-weight: 600; margin-bottom: 8px; }
+  .duel-col .row { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--foam-dim); padding: 2px 0; }
+  .duel-col .row b { color: var(--foam); font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+
+  .tug-wrap { margin-bottom: 14px; }
+  .tug-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--foam-dim); margin-bottom: 5px; font-family: 'JetBrains Mono', monospace; }
+  .tug-track { display: flex; height: 10px; border-radius: 6px; overflow: hidden; border: 1px solid var(--navy-line); }
+  .tug-me { background: var(--brass); height: 100%; transition: width .3s; }
+  .tug-col { background: var(--coral); height: 100%; transition: width .3s; }
+
+  .banter { border-radius: 8px; padding: 13px 14px; font-size: 13.5px; line-height: 1.55; border: 1px solid var(--navy-line); }
+  .banter.ok { background: rgba(130,185,141,.08); border-color: var(--green-ok); }
+  .banter.no { background: rgba(226,122,99,.08); border-color: var(--coral); }
+  .banter.warn { background: rgba(201,161,90,.10); border-color: var(--brass); }
+  .banter.neutral { background: var(--navy-panel-2); color: var(--foam-dim); }
 
   .panel { background: var(--navy-panel); border: 1px solid var(--navy-line); border-radius: var(--radius); padding: 18px 18px 6px; margin-bottom: 18px; }
   .panel-title { font-family: 'Space Grotesk', sans-serif; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--foam-dim); margin: 0 0 14px 0; }
@@ -137,9 +170,7 @@
   .pace-fill.no { background: var(--coral); }
 
   .trip-toggle { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--foam-dim); margin-bottom: 16px; }
-  .seg { display: flex; border: 1px solid var(--navy-line); border-radius: 7px; overflow: hidden; }
-  .seg button { background: var(--navy-panel-2); border: none; color: var(--foam-dim); font-size: 12px; padding: 5px 10px; cursor: pointer; }
-  .seg button.active { background: var(--teal); color: #06181c; font-weight: 600; }
+  .trip-toggle .seg button.active { background: var(--teal); color: #06181c; font-weight: 600; }
 
   .verdict { border-radius: 8px; padding: 13px 14px; margin-bottom: 16px; font-size: 13.5px; line-height: 1.55; border: 1px solid var(--navy-line); }
   .verdict.ok { background: rgba(130,185,141,.08); border-color: var(--green-ok); }
@@ -165,6 +196,7 @@
     border-radius: 6px; padding: 7px 8px; font-family: 'JetBrains Mono', monospace; font-size: 13px;
   }
   .settings-grid input:focus { outline: 1.5px solid var(--teal); border-color: var(--teal); }
+  .settings-grid.single input { font-family: 'Inter', sans-serif; }
 
   footer { text-align: center; color: var(--foam-dim); font-size: 11.5px; margin-top: 28px; }
   a, button { font-family: inherit; }
@@ -173,6 +205,7 @@
   @media (max-width: 480px) {
     .gauges { grid-template-columns: 1fr 1fr; }
     .settings-grid { grid-template-columns: 1fr 1fr; }
+    .duel-cols { grid-template-columns: 1fr; }
     .year-tab .m-label { font-size: 9px; }
     h1 { font-size: 21px; }
   }
@@ -185,7 +218,7 @@
     <span class="mark">⚓</span>
     <h1>Båtloggen</h1>
   </header>
-  <p class="subhead">Du har kjøpt 30-dagerskort til båten. Registrer hvordan du faktisk kom deg til/fra jobb hver dag, så holder loggen deg ærlig — med et stikk eller to hvis kortet blir stående ubrukt.</p>
+  <p class="subhead">Allan og Richard har begge 30-dagerskort til båten. Registrer hvem som tar hva hver dag, og se hvem som faktisk lever opp til kortet — med litt sport i det.</p>
 
   <div class="year-row">
     <button class="year-nav" id="yearPrev" aria-label="Forrige år">‹</button>
@@ -202,6 +235,14 @@
     <button id="nextMonth">Neste ›</button>
   </div>
 
+  <div class="who-row">
+    Registrerer for:
+    <div class="seg">
+      <button id="whoMe" data-v="me">Allan</button>
+      <button id="whoCol" data-v="colleague">Richard</button>
+    </div>
+  </div>
+
   <div class="logbook">
     <div class="weekday-row">
       <span>ma</span><span>ti</span><span>on</span><span>to</span><span>fr</span><span>lø</span><span>sø</span>
@@ -213,11 +254,35 @@
     <span><i class="boat"></i> ⚓ Båt</span>
     <span><i class="car"></i> ⚡ Elbil</span>
     <span><i class="home"></i> ⌂ Hjemmekontor</span>
+    <span><i class="dot"></i> Prikk = den andres valg</span>
     <span style="margin-left:auto;">Klikk for å bla, høyreklikk for å gå tilbake</span>
   </div>
 
+  <div class="duel-panel">
+    <p class="duel-title">Duellen denne måneden</p>
+    <div class="duel-cols">
+      <div class="duel-col me">
+        <div class="who">Allan</div>
+        <div class="row"><span>Båt</span><b id="duelMeBoat">0</b></div>
+        <div class="row"><span>Elbil</span><b id="duelMeCar">0</b></div>
+        <div class="row"><span>Hjemmekontor</span><b id="duelMeHome">0</b></div>
+      </div>
+      <div class="duel-col col">
+        <div class="who">Richard</div>
+        <div class="row"><span>Båt</span><b id="duelColBoat">0</b></div>
+        <div class="row"><span>Elbil</span><b id="duelColCar">0</b></div>
+        <div class="row"><span>Hjemmekontor</span><b id="duelColHome">0</b></div>
+      </div>
+    </div>
+    <div class="tug-wrap">
+      <div class="tug-labels"><span id="tugMeLabel">Allan: 0</span><span id="tugColLabel">Richard: 0</span></div>
+      <div class="tug-track"><div class="tug-me" id="tugMe" style="width:50%"></div><div class="tug-col" id="tugCol" style="width:50%"></div></div>
+    </div>
+    <div class="banter neutral" id="banterBox">Registrer noen dager for begge, så starter duellen.</div>
+  </div>
+
   <div class="panel">
-    <p class="panel-title" id="panelTitle">Så langt denne måneden</p>
+    <p class="panel-title" id="panelTitle">Din statistikk denne måneden</p>
     <div class="gauges">
       <div class="gauge">
         <div class="g-label">Båt-dager</div>
@@ -264,7 +329,7 @@
       <span>Hjemmekontor — <span id="cmpHomeDays">0</span> dager</span>
       <span class="val">0 kr</span>
     </div>
-    <p class="compare-sub">Elbilkostnaden er en ekstrautgift oppå kortet du allerede har betalt for båten — den kommer uansett hvor mye eller lite kortet brukes. Hjemmekontor koster nesten ingenting i kroner, men gir ikke den fysiske tilstedeværelsen på kontoret som ofte teller ekstra i en lederrolle.</p>
+    <p class="compare-sub">Elbilkostnaden er en ekstrautgift oppå kortet du uansett har betalt for båten. Hjemmekontor koster nesten ingenting i kroner, men gir ikke den fysiske tilstedeværelsen på kontoret som ofte teller ekstra i en lederrolle.</p>
     <p class="note">Til sammenligning: en 7-dagersbillett til båten koster 315 kr og lønner seg fremfor enkeltbilletter dersom du reiser mer enn <span id="breakeven7">–</span> ganger i løpet av en sammenhengende uke. Ikke medregnet: slitasje/verditap på bilen, bomringer, parkering utover det du eventuelt legger inn under, og miljøavtrykket ved de ulike alternativene.</p>
   </div>
 
@@ -307,10 +372,12 @@
 
 <script>
 (function () {
-  const DATA_KEY = 'baatlogg-data-v2';
-  const OLD_DATA_KEY = 'baatlogg-data-v1';
-  const SETTINGS_KEY = 'baatlogg-settings-v2';
-  const OLD_SETTINGS_KEY = 'baatlogg-settings-v1';
+  const DATA_KEY = 'baatlogg-data-v3';
+  const OLD_DATA_KEY_V2 = 'baatlogg-data-v2';
+  const OLD_DATA_KEY_V1 = 'baatlogg-data-v1';
+  const SETTINGS_KEY = 'baatlogg-settings-v3';
+  const OLD_SETTINGS_KEY_V2 = 'baatlogg-settings-v2';
+  const OLD_SETTINGS_KEY_V1 = 'baatlogg-settings-v1';
 
   const monthNames = ['januar','februar','mars','april','mai','juni','juli','august','september','oktober','november','desember'];
   const monthShort = ['jan','feb','mar','apr','mai','jun','jul','aug','sep','okt','nov','des'];
@@ -318,31 +385,41 @@
   const STATE_LABEL = { boat: 'båt', car: 'elbil', home: 'hjemmekontor' };
 
   const today = new Date();
-  // Åpner alltid på inneværende måned - historikk/data huskes, men startpunktet er alltid "i dag".
   let view = { y: today.getFullYear(), m: today.getMonth() };
+  let activePerson = 'me';
   let data = loadData();
   let settings = loadSettings();
 
   function loadData() {
     try {
-      const v2 = JSON.parse(localStorage.getItem(DATA_KEY));
-      if (v2) return v2;
+      const v3 = JSON.parse(localStorage.getItem(DATA_KEY));
+      if (v3) return v3;
     } catch (e) {}
-    // Migrer fra gammelt format (array med båt-dager) om det finnes
+    // Migrer fra v2 (én person, uten duell)
     try {
-      const v1 = JSON.parse(localStorage.getItem(OLD_DATA_KEY));
-      if (v1) {
-        const migrated = {};
-        Object.keys(v1).forEach(k => {
-          const obj = {};
-          (v1[k] || []).forEach(d => { obj[d] = 'boat'; });
-          migrated[k] = obj;
-        });
+      const v2 = JSON.parse(localStorage.getItem(OLD_DATA_KEY_V2));
+      if (v2) {
+        const migrated = { me: v2, colleague: {} };
         localStorage.setItem(DATA_KEY, JSON.stringify(migrated));
         return migrated;
       }
     } catch (e) {}
-    return {};
+    // Migrer fra v1 (bare båt-dager som array)
+    try {
+      const v1 = JSON.parse(localStorage.getItem(OLD_DATA_KEY_V1));
+      if (v1) {
+        const meData = {};
+        Object.keys(v1).forEach(k => {
+          const obj = {};
+          (v1[k] || []).forEach(d => { obj[d] = 'boat'; });
+          meData[k] = obj;
+        });
+        const migrated = { me: meData, colleague: {} };
+        localStorage.setItem(DATA_KEY, JSON.stringify(migrated));
+        return migrated;
+      }
+    } catch (e) {}
+    return { me: {}, colleague: {} };
   }
   function saveData() { localStorage.setItem(DATA_KEY, JSON.stringify(data)); }
 
@@ -353,8 +430,12 @@
       if (s) return Object.assign(defaults, s);
     } catch (e) {}
     try {
-      const old = JSON.parse(localStorage.getItem(OLD_SETTINGS_KEY));
-      if (old) return Object.assign(defaults, old);
+      const old2 = JSON.parse(localStorage.getItem(OLD_SETTINGS_KEY_V2));
+      if (old2) return Object.assign(defaults, old2);
+    } catch (e) {}
+    try {
+      const old1 = JSON.parse(localStorage.getItem(OLD_SETTINGS_KEY_V1));
+      if (old1) return Object.assign(defaults, old1);
     } catch (e) {}
     return defaults;
   }
@@ -363,19 +444,23 @@
   function key(y, m) { return y + '-' + String(m + 1).padStart(2, '0'); }
   function daysInMonth(y, m) { return new Date(y, m + 1, 0).getDate(); }
   function mondayIndex(y, m) { return (new Date(y, m, 1).getDay() + 6) % 7; }
+  function otherOf(p) { return p === 'me' ? 'colleague' : 'me'; }
+  function rivalName() { return 'Richard'; }
 
-  function monthData(y, m) { return data[key(y, m)] || {}; }
+  function monthData(person, y, m) { return (data[person] && data[person][key(y, m)]) || {}; }
 
-  function setDay(y, m, d, state) {
+  function setDay(person, y, m, d, state) {
+    if (!data[person]) data[person] = {};
     const k = key(y, m);
-    if (!data[k]) data[k] = {};
-    if (state === 'none') delete data[k][d];
-    else data[k][d] = state;
-    if (Object.keys(data[k]).length === 0) delete data[k];
+    if (!data[person][k]) data[person][k] = {};
+    if (state === 'none') delete data[person][k][d];
+    else data[person][k][d] = state;
+    if (Object.keys(data[person][k]).length === 0) delete data[person][k];
     saveData();
     renderCalendar();
     renderStats();
     renderYearStrip();
+    renderDuel();
   }
 
   function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
@@ -392,8 +477,8 @@
     return { isCurrent, total, elapsed, isPast: elapsed === total && !isCurrent, isFuture: elapsed === 0 && !isCurrent };
   }
 
-  function stats(y, m) {
-    const md = monthData(y, m);
+  function stats(person, y, m) {
+    const md = monthData(person, y, m);
     let boatDays = 0, carDays = 0, homeDays = 0;
     Object.values(md).forEach(t => {
       if (t === 'boat') boatDays++;
@@ -410,7 +495,7 @@
     return { boatDays, carDays, homeDays, loggedDays, trips, singleTotal, monthlyTotal, diff, evExtra, boatShare };
   }
 
-  /* ---------- Spydige kommentarer ---------- */
+  /* ---------- Spydige kommentarer (egen statistikk) ---------- */
 
   const lines = {
     early: ['Tidlig i måneden ennå — for tidlig for både ros og kritikk.', 'Gi det noen dager til før dommen felles.'],
@@ -451,9 +536,9 @@
   function worseTier(a, b) { return TIER_RANK[a] >= TIER_RANK[b] ? a : b; }
   function tierToCls(t) { return (t === 'flying' || t === 'onTrack') ? 'ok' : (t === 'mild' ? 'warn' : 'no'); }
 
-  function verdictFor(y, m) {
+  function verdictFor(person, y, m) {
     const ms = monthState(y, m);
-    const s = stats(y, m);
+    const s = stats(person, y, m);
     const breakEven = settings.single > 0 ? Math.ceil(settings.monthly / settings.single) : 0;
 
     if (ms.isFuture) return { cls: 'neutral', text: pickRandom(lines.future), pace: null };
@@ -475,7 +560,6 @@
       return { cls: tierToCls(tier), text, pace: { ratio: paceRatio, expectedByNow, trips: s.trips } };
     }
 
-    // Fortid - fasit, basert på båtandel og faktisk kroneresultat
     let pool, cls;
     if (s.diff === 0) { pool = lines.pastEven; cls = 'neutral'; }
     else if (s.diff > 0) { pool = lines.pastWin; cls = 'ok'; }
@@ -490,6 +574,57 @@
     return { cls, text, pace: { ratio: shareRatio, expectedByNow: breakEven, trips: s.trips } };
   }
 
+  /* ---------- Duell / banter ---------- */
+
+  const duelLines = {
+    none: ['Ingen har registrert noe ennå denne måneden. Duellen venter.'],
+    meAhead: (d, name) => pickRandom([
+      'Du leder med ' + d + ' båtdag(er) mot ' + name + '. Hold trykket oppe.',
+      'Foran ' + name + ' med ' + d + '. Ikke la det gå deg til hodet.',
+      name + ' henger ' + d + ' båtdag(er) bak deg. Fint utgangspunkt til å riste dem av seg helt.'
+    ]),
+    colAhead: (d, name) => pickRandom([
+      name + ' leder med ' + d + ' båtdag(er). Tid for comeback.',
+      'Du ligger ' + d + ' bak ' + name + '. Ta båten i morgen, ikke bilen.',
+      name + ' er foran med ' + d + ' — ikke la det stå sånn ut måneden.'
+    ]),
+    tie: (name) => pickRandom([
+      'Dødt løp mot ' + name + ' — like mange båtdager. Neste tur avgjør.',
+      'Helt jevnt mot ' + name + ' denne måneden. Spennende innspurt.'
+    ])
+  };
+
+  function meCarClauseDuel(me) {
+    if (me.carDays <= 0) return '';
+    return ' Du har forresten kjørt elbil ' + me.carDays + ' gang(er) selv (' + fmtKr(me.evExtra) + ') — ikke helt plettfritt du heller.';
+  }
+  function colCarClauseDuel(col, name) {
+    if (col.carDays <= 0) return '';
+    return ' ' + name + ' har kjørt elbil ' + col.carDays + ' gang(er) (' + fmtKr(col.evExtra) + ') — fin sjanse til å ta igjen der.';
+  }
+  function homeClauseDuel(me, col, name) {
+    if (me.homeDays === 0 && col.homeDays === 0) return '';
+    if (me.homeDays > col.homeDays) return ' Du har også vært mer på hjemmekontor enn ' + name + ' — kontoret savner deg kanskje mer enn du tror.';
+    if (col.homeDays > me.homeDays) return ' ' + name + ' har vært mer på hjemmekontor enn deg — du tar i hvert fall hjem oppmøtepoengene.';
+    return '';
+  }
+
+  function buildDuel(y, m) {
+    const me = stats('me', y, m);
+    const col = stats('colleague', y, m);
+    const name = rivalName();
+    if (me.loggedDays === 0 && col.loggedDays === 0) {
+      return { cls: 'neutral', text: pickRandom(duelLines.none), me, col };
+    }
+    const diff = me.boatDays - col.boatDays;
+    let base, cls;
+    if (diff > 0) { base = duelLines.meAhead(diff, name); cls = 'ok'; }
+    else if (diff < 0) { base = duelLines.colAhead(-diff, name); cls = 'no'; }
+    else { base = duelLines.tie(name); cls = 'warn'; }
+    const text = base + meCarClauseDuel(me) + colCarClauseDuel(col, name) + homeClauseDuel(me, col, name);
+    return { cls, text, me, col };
+  }
+
   /* ---------- Rendering ---------- */
 
   function renderMonthNav() {
@@ -497,12 +632,18 @@
       monthNames[view.m].charAt(0).toUpperCase() + monthNames[view.m].slice(1) + ' ' + view.y;
   }
 
+  function renderWhoToggle() {
+    document.getElementById('whoMe').classList.toggle('active-me', activePerson === 'me');
+    document.getElementById('whoCol').classList.toggle('active-col', activePerson === 'colleague');
+  }
+
   function renderCalendar() {
     const grid = document.getElementById('dayGrid');
     grid.innerHTML = '';
     const total = daysInMonth(view.y, view.m);
     const offset = mondayIndex(view.y, view.m);
-    const md = monthData(view.y, view.m);
+    const mdActive = monthData(activePerson, view.y, view.m);
+    const mdOther = monthData(otherOf(activePerson), view.y, view.m);
     const isCurrentMonth = view.y === today.getFullYear() && view.m === today.getMonth();
 
     for (let i = 0; i < offset; i++) {
@@ -514,30 +655,32 @@
       const cell = document.createElement('div');
       const weekday = (offset + d - 1) % 7;
       const isFutureDay = isCurrentMonth ? d > today.getDate() : (new Date(view.y, view.m, d) > today);
-      const state = md[d] || 'none';
-      cell.className = 'day-cell' + (weekday >= 5 ? ' weekend' : '') + (isFutureDay ? ' future' : '') + (state !== 'none' ? ' type-' + state : '');
+      const state = mdActive[d] || 'none';
+      const otherState = mdOther[d] || 'none';
+      cell.className = 'day-cell' + (weekday >= 5 ? ' weekend' : '') + (isFutureDay ? ' future' : '') +
+        (state !== 'none' ? ' type-' + state : '') + (otherState !== 'none' ? ' other-' + otherState : '');
       if (isCurrentMonth && d === today.getDate()) cell.classList.add('today');
       cell.textContent = d;
       cell.setAttribute('role', 'button');
       cell.setAttribute('tabindex', '0');
       cell.setAttribute('aria-label', d + '. ' + monthNames[view.m] + ', ' + (state === 'none' ? 'ikke registrert' : STATE_LABEL[state]));
       cell.addEventListener('click', () => {
-        const cur = (monthData(view.y, view.m)[d]) || 'none';
+        const cur = monthData(activePerson, view.y, view.m)[d] || 'none';
         const next = STATE_ORDER[(STATE_ORDER.indexOf(cur) + 1) % STATE_ORDER.length];
-        setDay(view.y, view.m, d, next);
+        setDay(activePerson, view.y, view.m, d, next);
       });
       cell.addEventListener('contextmenu', (e) => {
         e.preventDefault();
-        const cur = (monthData(view.y, view.m)[d]) || 'none';
+        const cur = monthData(activePerson, view.y, view.m)[d] || 'none';
         const idx = (STATE_ORDER.indexOf(cur) - 1 + STATE_ORDER.length) % STATE_ORDER.length;
-        setDay(view.y, view.m, d, STATE_ORDER[idx]);
+        setDay(activePerson, view.y, view.m, d, STATE_ORDER[idx]);
       });
       cell.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          const cur = (monthData(view.y, view.m)[d]) || 'none';
+          const cur = monthData(activePerson, view.y, view.m)[d] || 'none';
           const next = STATE_ORDER[(STATE_ORDER.indexOf(cur) + 1) % STATE_ORDER.length];
-          setDay(view.y, view.m, d, next);
+          setDay(activePerson, view.y, view.m, d, next);
         }
       });
       grid.appendChild(cell);
@@ -545,11 +688,12 @@
   }
 
   function renderStats() {
-    const s = stats(view.y, view.m);
+    const s = stats(activePerson, view.y, view.m);
     const ms = monthState(view.y, view.m);
+    const who = activePerson === 'me' ? 'Allans' : 'Richards';
 
     document.getElementById('panelTitle').textContent =
-      ms.isFuture ? 'Planlagt' : ms.isCurrent ? 'Så langt denne måneden' : 'Måneden er over';
+      (ms.isFuture ? who + ' plan' : ms.isCurrent ? who + ' statistikk så langt' : who + ' statistikk — måneden er over');
 
     document.getElementById('statBoat').textContent = s.boatDays;
     document.getElementById('statCar').textContent = s.carDays;
@@ -565,7 +709,7 @@
     document.getElementById('cmpHomeDays').textContent = s.homeDays;
     document.getElementById('breakeven7').textContent = settings.single > 0 ? Math.ceil(settings.weekly / settings.single) : '–';
 
-    const v = verdictFor(view.y, view.m);
+    const v = verdictFor(activePerson, view.y, view.m);
     const box = document.getElementById('verdictBox');
     box.className = 'verdict ' + v.cls;
     box.innerHTML = v.text;
@@ -584,11 +728,32 @@
     }
   }
 
+  function renderDuel() {
+    const d = buildDuel(view.y, view.m);
+    document.getElementById('duelMeBoat').textContent = d.me.boatDays;
+    document.getElementById('duelMeCar').textContent = d.me.carDays;
+    document.getElementById('duelMeHome').textContent = d.me.homeDays;
+    document.getElementById('duelColBoat').textContent = d.col.boatDays;
+    document.getElementById('duelColCar').textContent = d.col.carDays;
+    document.getElementById('duelColHome').textContent = d.col.homeDays;
+
+    const totalBoat = d.me.boatDays + d.col.boatDays;
+    const mePct = totalBoat > 0 ? (d.me.boatDays / totalBoat * 100) : 50;
+    document.getElementById('tugMe').style.width = mePct + '%';
+    document.getElementById('tugCol').style.width = (100 - mePct) + '%';
+    document.getElementById('tugMeLabel').textContent = 'Allan: ' + d.me.boatDays;
+    document.getElementById('tugColLabel').textContent = rivalName() + ': ' + d.col.boatDays;
+
+    const box = document.getElementById('banterBox');
+    box.className = 'banter ' + d.cls;
+    box.innerHTML = d.text;
+  }
+
   function renderYearStrip() {
     const strip = document.getElementById('yearStrip');
     strip.innerHTML = '';
     for (let m = 0; m < 12; m++) {
-      const s = stats(view.y, m);
+      const s = stats(activePerson, view.y, m);
       const ms = monthState(view.y, m);
       let dotCls = '';
       if (!ms.isFuture) {
@@ -623,10 +788,12 @@
 
   function renderAll() {
     renderMonthNav();
+    renderWhoToggle();
     renderCalendar();
     renderStats();
     renderYearStrip();
     renderTripToggle();
+    renderDuel();
   }
 
   document.getElementById('prevMonth').addEventListener('click', () => {
@@ -644,6 +811,15 @@
   document.getElementById('yearPrev').addEventListener('click', () => { view.y--; renderAll(); });
   document.getElementById('yearNext').addEventListener('click', () => { view.y++; renderAll(); });
 
+  document.getElementById('whoMe').addEventListener('click', () => {
+    activePerson = 'me';
+    renderWhoToggle(); renderCalendar(); renderStats(); renderYearStrip();
+  });
+  document.getElementById('whoCol').addEventListener('click', () => {
+    activePerson = 'colleague';
+    renderWhoToggle(); renderCalendar(); renderStats(); renderYearStrip();
+  });
+
   document.getElementById('trip1').addEventListener('click', () => {
     settings.tripsPerDay = 1; saveSettings(); renderTripToggle(); renderStats(); renderYearStrip();
   });
@@ -659,9 +835,9 @@
       saveSettings();
       renderStats();
       renderYearStrip();
+      renderDuel();
     });
   });
-
   renderSettingsInputs();
   renderAll();
 })();
