@@ -498,31 +498,33 @@
   /* ---------- Spydige kommentarer (egen statistikk) ---------- */
 
   const lines = {
-    early: ['Tidlig i måneden ennå — for tidlig for både ros og kritikk.', 'Gi det noen dager til før dommen felles.'],
-    future: ['Fremtiden er ikke skrevet ennå. Registrer det du planlegger, så regner vi på det når det skjer.'],
-    noneYet: ['Ingenting registrert ennå denne måneden.'],
-    flying: ['Du ligger foran skjema. Kortet ler hele veien til banken.', 'Imponerende tempo — til og med kortet er overrasket.', 'Du reiser som om båten er gratis. Fortsett sånn.'],
-    onTrack: ['Helt etter planen. Kortet trives med deg som eier.', 'Du følger kurven pent — slik skal et månedskort brukes.', 'Stø kurs. Kortet betaler for seg som det skal.'],
-    mild: ['Du henger litt etter med båten. Kortet begynner å lure på hvor du blir av.', 'Litt slapt båt-tempo denne måneden.', 'Du er bak skjema på båtsiden. Ikke krise ennå.'],
-    medium: ['Dette begynner å ligne bortkastede penger på båtkortet.', 'Du er godt bak skjema. Enkeltbilletter ler av deg akkurat nå.', 'Kortet ligger an til å tape mot enkeltbilletter — med god margin.'],
-    harsh: ['Til dette båt-tempoet kunne kortet like gjerne vært en donasjon.', 'Dette er ikke lenger et månedskort — det er en dyr prinsipp-sak.', 'Kortet samler mest støv denne måneden.'],
-    pastWin: ['Kortet reddet deg pent denne måneden. Bra jobbet.', 'Du slo enkeltbillettene med god margin. Kortet er fornøyd.', 'Regnestykket går opp. Du kan unne deg å være litt stolt.'],
-    pastEven: ['Enkeltbilletter og kortet endte helt likt. Sjeldent å se, faktisk.'],
-    pastMild: ['Du var nære, men kortet tapte med noen kroner på båtsiden.', 'Så vidt i minus på båten. Neste måned kan du snu det.'],
-    pastMedium: ['Kortet tapte klart mot enkeltbilletter denne måneden.', 'Regnestykket gikk ikke din vei på båtsiden denne gangen.'],
-    pastHarsh: ['Kortet tapte stort mot enkeltbilletter. Dyr måned å eie kort på.', 'Dette var ikke måneden kortet skinte.'],
-    pastZero: ['Du brukte båten null ganger. Det er ikke et månedskort, det er en pyntegjenstand.', '700 kroner for å se på båten fra bryggen. Imponerende prioritering.', 'Null turer. Selv en rutebåt ville følt seg avvist.']
+    early: ['Tidlig i måneden ennå for {name} — for tidlig for både ros og kritikk.', 'Gi {name} noen dager til før dommen felles.'],
+    future: ['Fremtiden er ikke skrevet ennå for {name}. Registrer det som er planlagt, så regner vi på det når det skjer.'],
+    noneYet: ['Ingenting registrert ennå for {name} denne måneden.'],
+    flying: ['{name} ligger foran skjema. Kortet ler hele veien til banken.', 'Imponerende tempo fra {name} — til og med kortet er overrasket.', '{name} reiser som om båten er gratis. Fortsett sånn.'],
+    onTrack: ['{name} følger planen pent. Kortet trives.', '{name} holder kurven — slik skal et månedskort brukes.', 'Stø kurs fra {name}. Kortet betaler for seg som det skal.'],
+    mild: ['{name} henger litt etter med båten. Kortet begynner å lure på hvor {name} blir av.', 'Litt slapt båt-tempo fra {name} denne måneden.', '{name} er bak skjema på båtsiden. Ikke krise ennå.'],
+    medium: ['Dette begynner å ligne bortkastede penger på {name}s båtkort.', '{name} er godt bak skjema. Enkeltbilletter ler av {name} akkurat nå.', '{name}s kort ligger an til å tape mot enkeltbilletter — med god margin.'],
+    harsh: ['Til dette båt-tempoet kunne {name}s kort like gjerne vært en donasjon.', 'Dette er ikke lenger et månedskort for {name} — det er en dyr prinsipp-sak.', '{name}s kort samler mest støv denne måneden.'],
+    pastWin: ['Kortet reddet {name} pent denne måneden. Bra jobbet.', '{name} slo enkeltbillettene med god margin. Kortet er fornøyd.', 'Regnestykket går opp for {name}, som kan unne seg å være litt stolt.'],
+    pastEven: ['Enkeltbilletter og kortet endte helt likt for {name}. Sjeldent å se, faktisk.'],
+    pastMild: ['{name} var nære, men kortet tapte med noen kroner.', 'Så vidt i minus for {name}. Neste måned kan snus.'],
+    pastMedium: ['Kortet tapte klart mot enkeltbilletter for {name} denne måneden.', 'Regnestykket gikk ikke {name}s vei denne gangen.'],
+    pastHarsh: ['Kortet tapte stort mot enkeltbilletter for {name}. Dyr måned å eie kort på.', 'Dette var ikke måneden {name}s kort skinte.'],
+    pastZero: ['{name} brukte båten null ganger. Det er ikke et månedskort, det er en pyntegjenstand.', '700 kroner for at {name} skal se på båten fra bryggen. Imponerende prioritering.', 'Null turer for {name}. Selv en rutebåt ville følt seg avvist.']
   };
 
-  function carClause(s) {
+  function fillName(str, name) { return str.split('{name}').join(name); }
+
+  function carClause(s, name) {
     if (s.carDays <= 0) return '';
     const dagOrd = s.carDays === 1 ? 'dag' : 'dager';
-    return ' I tillegg har du kjørt elbil ' + s.carDays + ' ' + dagOrd + ' — det er ' + fmtKr(s.evExtra) + ' rett ut av lomma, oppå kortet du uansett har betalt for båten.';
+    return ' I tillegg har ' + name + ' kjørt elbil ' + s.carDays + ' ' + dagOrd + ' — det er ' + fmtKr(s.evExtra) + ' rett ut av lomma, oppå kortet ' + name + ' uansett har betalt for båten.';
   }
-  function homeClause(s) {
+  function homeClause(s, name) {
     if (s.homeDays <= 0) return '';
     const dagOrd = s.homeDays === 1 ? 'dag' : 'dager';
-    return ' Pluss ' + s.homeDays + ' ' + dagOrd + ' hjemmekontor — billig for lommeboka, men husk at det er nettopp den fysiske tilstedeværelsen som ofte veier tyngst i en lederrolle.';
+    return ' Pluss ' + s.homeDays + ' ' + dagOrd + ' hjemmekontor for ' + name + ' — billig for lommeboka, men husk at det er nettopp den fysiske tilstedeværelsen som ofte veier tyngst i en lederrolle.';
   }
 
   function classifyRatio(r) {
@@ -536,17 +538,20 @@
   function worseTier(a, b) { return TIER_RANK[a] >= TIER_RANK[b] ? a : b; }
   function tierToCls(t) { return (t === 'flying' || t === 'onTrack') ? 'ok' : (t === 'mild' ? 'warn' : 'no'); }
 
+  function personName(person) { return person === 'me' ? 'Allan' : 'Richard'; }
+
   function verdictFor(person, y, m) {
     const ms = monthState(y, m);
     const s = stats(person, y, m);
+    const name = personName(person);
     const breakEven = settings.single > 0 ? Math.ceil(settings.monthly / settings.single) : 0;
 
-    if (ms.isFuture) return { cls: 'neutral', text: pickRandom(lines.future), pace: null };
-    if (ms.isCurrent && ms.elapsed < 3) return { cls: 'neutral', text: pickRandom(lines.early), pace: null };
+    if (ms.isFuture) return { cls: 'neutral', text: fillName(pickRandom(lines.future), name), pace: null };
+    if (ms.isCurrent && ms.elapsed < 3) return { cls: 'neutral', text: fillName(pickRandom(lines.early), name), pace: null };
 
     if (s.loggedDays === 0) {
-      if (ms.isCurrent) return { cls: 'neutral', text: pickRandom(lines.noneYet), pace: null };
-      return { cls: 'no', text: pickRandom(lines.pastZero), pace: { ratio: 0, expectedByNow: breakEven, trips: 0 } };
+      if (ms.isCurrent) return { cls: 'neutral', text: fillName(pickRandom(lines.noneYet), name), pace: null };
+      return { cls: 'no', text: fillName(pickRandom(lines.pastZero), name), pace: { ratio: 0, expectedByNow: breakEven, trips: 0 } };
     }
 
     const shareRatio = s.boatShare === null ? 1 : s.boatShare;
@@ -555,8 +560,8 @@
       const expectedByNow = breakEven * (ms.elapsed / ms.total);
       const paceRatio = expectedByNow > 0 ? (s.trips / expectedByNow) : (s.trips > 0 ? 2 : 1);
       const tier = worseTier(classifyRatio(paceRatio), classifyRatio(shareRatio));
-      const base = pickRandom(lines[tier]);
-      const text = base + carClause(s) + homeClause(s);
+      const base = fillName(pickRandom(lines[tier]), name);
+      const text = base + carClause(s, name) + homeClause(s, name);
       return { cls: tierToCls(tier), text, pace: { ratio: paceRatio, expectedByNow, trips: s.trips } };
     }
 
@@ -569,59 +574,56 @@
       else if (tier === 'medium') { pool = lines.pastMedium; cls = 'no'; }
       else { pool = lines.pastHarsh; cls = 'no'; }
     }
-    const base = pickRandom(pool);
-    const text = base + carClause(s) + homeClause(s);
+    const base = fillName(pickRandom(pool), name);
+    const text = base + carClause(s, name) + homeClause(s, name);
     return { cls, text, pace: { ratio: shareRatio, expectedByNow: breakEven, trips: s.trips } };
   }
 
   /* ---------- Duell / banter ---------- */
 
   const duelLines = {
-    none: ['Ingen har registrert noe ennå denne måneden. Duellen venter.'],
-    meAhead: (d, name) => pickRandom([
-      'Du leder med ' + d + ' båtdag(er) mot ' + name + '. Hold trykket oppe.',
-      'Foran ' + name + ' med ' + d + '. Ikke la det gå deg til hodet.',
-      name + ' henger ' + d + ' båtdag(er) bak deg. Fint utgangspunkt til å riste dem av seg helt.'
+    none: ['Verken Allan eller Richard har registrert noe ennå denne måneden. Duellen venter.'],
+    ahead: (leader, lagger, d) => pickRandom([
+      leader + ' leder med ' + d + ' båtdag(er) foran ' + lagger + ' — ' + lagger + ' får ta seg sammen.',
+      leader + ' ligger ' + d + ' båtdag(er) foran ' + lagger + '. ' + lagger + ' bør ta båten snarest.',
+      'Solid måned for ' + leader + ', ' + d + ' båtdag(er) foran ' + lagger + '. ' + lagger + ' henger tydelig etter.',
+      leader + ' topper listen med ' + d + ' flere båtdager enn ' + lagger + '. ' + lagger + ' har noe å bevise.',
+      'Ingen tvil om hvem som vinner båtkortet i år — ' + leader + ' foran ' + lagger + ' med ' + d + '. ' + lagger + ' må skjerpe seg.',
+      leader + ' seiler forbi ' + lagger + ' med ' + d + ' båtdager. ' + lagger + ' sitter igjen med baksetet.',
+      leader + ' har tatt et klart grep med ' + d + ' flere båtdager. ' + lagger + ' blir stående på brygga og se på.'
     ]),
-    colAhead: (d, name) => pickRandom([
-      name + ' leder med ' + d + ' båtdag(er). Tid for comeback.',
-      'Du ligger ' + d + ' bak ' + name + '. Ta båten i morgen, ikke bilen.',
-      name + ' er foran med ' + d + ' — ikke la det stå sånn ut måneden.'
-    ]),
-    tie: (name) => pickRandom([
-      'Dødt løp mot ' + name + ' — like mange båtdager. Neste tur avgjør.',
-      'Helt jevnt mot ' + name + ' denne måneden. Spennende innspurt.'
+    tie: (a, b) => pickRandom([
+      'Dødt løp mellom ' + a + ' og ' + b + ' — like mange båtdager. Begge kan gjøre det bedre.',
+      a + ' og ' + b + ' ligger helt likt denne måneden. Spennende innspurt for begge.',
+      'Ingen leder ennå mellom ' + a + ' og ' + b + '. Neste tur avgjør hvem som tar ledelsen.',
+      a + ' og ' + b + ' matcher hverandre perfekt så langt. Ingen av dem imponerer, men ingen skuffer heller.'
     ])
   };
 
-  function meCarClauseDuel(me) {
-    if (me.carDays <= 0) return '';
-    return ' Du har forresten kjørt elbil ' + me.carDays + ' gang(er) selv (' + fmtKr(me.evExtra) + ') — ikke helt plettfritt du heller.';
+  function carClauseDuel(name, carDays, evExtra) {
+    if (carDays <= 0) return '';
+    const dagOrd = carDays === 1 ? 'gang' : 'ganger';
+    return ' ' + name + ' har forresten kjørt elbil ' + carDays + ' ' + dagOrd + ' (' + fmtKr(evExtra) + ') — ikke helt plettfritt.';
   }
-  function colCarClauseDuel(col, name) {
-    if (col.carDays <= 0) return '';
-    return ' ' + name + ' har kjørt elbil ' + col.carDays + ' gang(er) (' + fmtKr(col.evExtra) + ') — fin sjanse til å ta igjen der.';
-  }
-  function homeClauseDuel(me, col, name) {
-    if (me.homeDays === 0 && col.homeDays === 0) return '';
-    if (me.homeDays > col.homeDays) return ' Du har også vært mer på hjemmekontor enn ' + name + ' — kontoret savner deg kanskje mer enn du tror.';
-    if (col.homeDays > me.homeDays) return ' ' + name + ' har vært mer på hjemmekontor enn deg — du tar i hvert fall hjem oppmøtepoengene.';
+  function homeClauseDuel(meHome, colHome) {
+    if (meHome === 0 && colHome === 0) return '';
+    if (meHome > colHome) return ' Allan har også vært mer på hjemmekontor enn Richard — kontoret savner nok Allan mer enn han tror.';
+    if (colHome > meHome) return ' Richard har vært mer på hjemmekontor enn Allan — Allan tar i hvert fall hjem oppmøtepoengene.';
     return '';
   }
 
   function buildDuel(y, m) {
     const me = stats('me', y, m);
     const col = stats('colleague', y, m);
-    const name = rivalName();
     if (me.loggedDays === 0 && col.loggedDays === 0) {
       return { cls: 'neutral', text: pickRandom(duelLines.none), me, col };
     }
     const diff = me.boatDays - col.boatDays;
     let base, cls;
-    if (diff > 0) { base = duelLines.meAhead(diff, name); cls = 'ok'; }
-    else if (diff < 0) { base = duelLines.colAhead(-diff, name); cls = 'no'; }
-    else { base = duelLines.tie(name); cls = 'warn'; }
-    const text = base + meCarClauseDuel(me) + colCarClauseDuel(col, name) + homeClauseDuel(me, col, name);
+    if (diff > 0) { base = duelLines.ahead('Allan', 'Richard', diff); cls = 'ok'; }
+    else if (diff < 0) { base = duelLines.ahead('Richard', 'Allan', -diff); cls = 'no'; }
+    else { base = duelLines.tie('Allan', 'Richard'); cls = 'warn'; }
+    const text = base + carClauseDuel('Allan', me.carDays, me.evExtra) + carClauseDuel('Richard', col.carDays, col.evExtra) + homeClauseDuel(me.homeDays, col.homeDays);
     return { cls, text, me, col };
   }
 
