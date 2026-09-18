@@ -690,7 +690,7 @@
         var improved = mostImprovedDriver();
         if(improved && improved.delta>0.01){
           tiles.push({
-            label:'Most improved', info:'Compares each driver\\'s average lap time in their first race to their most recent race, and shows whoever cut the most time off their average. Needs at least two races with that driver in them.',
+            label:'Most improved', info:'Compares each driver\'s average lap time in their first race to their most recent race, and shows whoever cut the most time off their average. Needs at least two races with that driver in them.',
             value: improved.driver,
             sub: '−'+improved.delta.toFixed(3)+'s average from first to latest race'
           });
@@ -706,11 +706,11 @@
 
   var COL_INFO = {
     fastest: 'The quickest single lap this driver recorded in this view.',
-    gap: 'How much slower this driver\\'s fastest lap was than the overall fastest lap. "Leader" means they set it.',
-    avg: 'The mean of all of this driver\\'s lap times — pulled around by one-off slow laps (traffic, a spin) more than the median is.',
-    median: 'The middle value of this driver\\'s lap times when sorted — a steadier read on "typical pace" than the average, since it ignores outlier laps.',
-    consistency: 'Standard deviation of this driver\\'s lap times: how far a typical lap strays from their own average. A smaller number means more even pace lap to lap.',
-    spread: 'A visual range from this driver\\'s fastest lap (left edge) to their slowest (right edge), with a short vertical mark at their average. Compare bar widths to see who was most erratic.'
+    gap: 'How much slower this driver\'s fastest lap was than the overall fastest lap. "Leader" means they set it.',
+    avg: 'The mean of all of this driver\'s lap times — pulled around by one-off slow laps (traffic, a spin) more than the median is.',
+    median: 'The middle value of this driver\'s lap times when sorted — a steadier read on "typical pace" than the average, since it ignores outlier laps.',
+    consistency: 'Standard deviation of this driver\'s lap times: how far a typical lap strays from their own average. A smaller number means more even pace lap to lap.',
+    spread: 'A visual range from this driver\'s fastest lap (left edge) to their slowest (right edge), with a short vertical mark at their average. Compare bar widths to see who was most erratic.'
   };
 
   function renderLeaderboard(dstats){
@@ -787,11 +787,11 @@
     var visible = dstats.filter(function(d){ return !hiddenDrivers[d.driver]; });
 
     if(view.mode==='race'){
-      titleEl.innerHTML = 'Lap time by lap'+info('Each line follows one driver\\'s lap times through this race, in order. A rising line means they slowed down (tyre wear, traffic); a falling line means they found pace as the run went on.');
+      titleEl.innerHTML = 'Lap time by lap'+info('Each line follows one driver\'s lap times through this race, in order. A rising line means they slowed down (tyre wear, traffic); a falling line means they found pace as the run went on.');
       subEl.textContent = view.race.name + ' · choose who to show in the chart.';
       holder.innerHTML = buildLapChart(visible);
     } else {
-      titleEl.innerHTML = 'Average time by race'+info('Each driver\\'s average lap time in each race, connected across the season. A downward trend means that driver has been getting faster race over race.');
+      titleEl.innerHTML = 'Average time by race'+info('Each driver\'s average lap time in each race, connected across the season. A downward trend means that driver has been getting faster race over race.');
       subEl.textContent = 'Progress across the season · choose who to show in the chart.';
       holder.innerHTML = buildSeasonChart(visible);
     }
