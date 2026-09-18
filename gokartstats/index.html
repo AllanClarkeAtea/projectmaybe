@@ -231,7 +231,7 @@
     <span class="badge" id="draft-badge">Draft v1</span>
   </div>
 </div>
-<p class="subtitle">Upload lap-time files from the go-kart races — see fastest time, average, median and trends per driver and kart.</p>
+<p class="subtitle">Upload lap-time files from the go-kart races  -  see fastest time, average, median and trends per driver and kart.</p>
 
 <div class="upload-zone" id="upload-zone">
   <div class="upload-icon">
@@ -280,15 +280,15 @@
   <div class="section-head">
     <div>
       <h2>Kart times</h2>
-      <p>Average lap time per kart, regardless of driver — can reveal slow or fast karts.</p>
+      <p>Average lap time per kart, regardless of driver  -  can reveal slow or fast karts.</p>
     </div>
   </div>
   <div class="kart-grid" id="kart-grid"></div>
 </div>
 
 <footer>
-  <span>Bedriftsserien · lap times are calculated locally in your browser, nothing is uploaded to a server.</span>
-  <span>Draft — let us know what should change, be added, or be removed.</span>
+  <span>Bedriftsserien - lap times are calculated locally in your browser, nothing is uploaded to a server.</span>
+  <span>Draft  -  let us know what should change, be added, or be removed.</span>
 </footer>
 
 <div class="info-popover" id="info-popover" hidden></div>
@@ -361,7 +361,7 @@
 
   // ---------- time helpers ----------
   function fmtTime(sec){
-    if(sec==null || isNaN(sec)) return '–';
+    if(sec==null || isNaN(sec)) return '-';
     var m = Math.floor(sec/60);
     var s = sec - m*60;
     var sStr = s.toFixed(3);
@@ -369,7 +369,7 @@
     return m+':'+sStr;
   }
   function fmtDelta(sec){
-    if(sec==null || isNaN(sec)) return '–';
+    if(sec==null || isNaN(sec)) return '-';
     var sign = sec > 0.0005 ? '+' : '';
     return sign + sec.toFixed(3)+'s';
   }
@@ -451,7 +451,7 @@
       {name:'Jonas', base:25.6, noise:0.5, improve:0.03}
     ];
     var karts = ['3','7','12','14'];
-    var raceNames = ['Race 1 – Sept', 'Race 2 – Oct'];
+    var raceNames = ['Race 1 - Sept', 'Race 2 - Oct'];
     return raceNames.map(function(rname, ri){
       var laps = [];
       driverProfiles.forEach(function(dp, di){
@@ -553,7 +553,7 @@
       var warnEl = document.getElementById('upload-warnings');
       if(warnings.length){
         warnEl.hidden = false;
-        warnEl.innerHTML = warnings.map(function(w){return '⚠ '+escapeHtml(w);}).join('<br>');
+        warnEl.innerHTML = warnings.map(function(w){return 'Warning: '+escapeHtml(w);}).join('<br>');
       } else {
         warnEl.hidden = true;
       }
@@ -657,16 +657,16 @@
       tiles.push({
         label:'Fastest lap', info:'The single quickest lap recorded in this view, across all drivers and karts.',
         value: fmtTime(fastestLapVal),
-        sub: fastestLapDriver + ' · kart '+fastestLapKart + (view.mode==='all' && fastestLapRace ? ' · '+fastestLapRace : '')
+        sub: fastestLapDriver + ' - kart '+fastestLapKart + (view.mode==='all' && fastestLapRace ? ' - '+fastestLapRace : '')
       });
 
       var eligible = dstats.filter(function(d){return d.count>=3;});
       if(eligible.length){
         var mostConsistent = eligible.slice().sort(function(a,b){return a.std-b.std;})[0];
         tiles.push({
-          label:'Most consistent', info:'The driver whose lap times vary the least (lowest standard deviation), among drivers with at least 3 laps. Low variation means every lap was close to their own average — not necessarily the fastest driver.',
+          label:'Most consistent', info:'The driver whose lap times vary the least (lowest standard deviation), among drivers with at least 3 laps. Low variation means every lap was close to their own average  -  not necessarily the fastest driver.',
           value: mostConsistent.driver,
-          sub: '± '+mostConsistent.std.toFixed(3)+'s around their average'
+          sub: '+/- '+mostConsistent.std.toFixed(3)+'s around their average'
         });
       }
 
@@ -675,13 +675,13 @@
         tiles.push({
           label:'Fastest kart', info:'The kart number with the lowest average lap time, combining every driver who used it. A kart that is consistently quick or slow can point to differences in the karts themselves, not just the drivers.',
           value:'Kart '+fastestKart.kart,
-          sub: fmtTime(fastestKart.avg)+' average · '+fastestKart.count+' laps'
+          sub: fmtTime(fastestKart.avg)+' average - '+fastestKart.count+' laps'
         });
       }
 
       var mostLaps = dstats.slice().sort(function(a,b){return b.count-a.count;})[0];
       tiles.push({
-        label:'Most laps driven', info:'The driver with the most recorded laps in this view — just a fun tally, not a ranking of skill.',
+        label:'Most laps driven', info:'The driver with the most recorded laps in this view  -  just a fun tally, not a ranking of skill.',
         value: mostLaps.driver,
         sub: mostLaps.count+' laps recorded'
       });
@@ -692,7 +692,7 @@
           tiles.push({
             label:'Most improved', info:'Compares each driver\'s average lap time in their first race to their most recent race, and shows whoever cut the most time off their average. Needs at least two races with that driver in them.',
             value: improved.driver,
-            sub: '−'+improved.delta.toFixed(3)+'s average from first to latest race'
+            sub: '-'+improved.delta.toFixed(3)+'s average from first to latest race'
           });
         }
       }
@@ -707,8 +707,8 @@
   var COL_INFO = {
     fastest: 'The quickest single lap this driver recorded in this view.',
     gap: 'How much slower this driver\'s fastest lap was than the overall fastest lap. "Leader" means they set it.',
-    avg: 'The mean of all of this driver\'s lap times — pulled around by one-off slow laps (traffic, a spin) more than the median is.',
-    median: 'The middle value of this driver\'s lap times when sorted — a steadier read on "typical pace" than the average, since it ignores outlier laps.',
+    avg: 'The mean of all of this driver\'s lap times  -  pulled around by one-off slow laps (traffic, a spin) more than the median is.',
+    median: 'The middle value of this driver\'s lap times when sorted  -  a steadier read on "typical pace" than the average, since it ignores outlier laps.',
     consistency: 'Standard deviation of this driver\'s lap times: how far a typical lap strays from their own average. A smaller number means more even pace lap to lap.',
     spread: 'A visual range from this driver\'s fastest lap (left edge) to their slowest (right edge), with a short vertical mark at their average. Compare bar widths to see who was most erratic.'
   };
@@ -738,7 +738,7 @@
         '<td class="num mono gap-leader '+gapClass+'">'+(i===0?'leader':fmtDelta(gap))+'</td>'+
         '<td class="num mono">'+fmtTime(d.avg)+'</td>'+
         '<td class="num mono">'+fmtTime(d.median)+'</td>'+
-        '<td class="num mono">± '+d.std.toFixed(3)+'</td>'+
+        '<td class="num mono">+/- '+d.std.toFixed(3)+'</td>'+
         '<td><div class="rangebar"><div class="rangebar-fill" style="left:'+left+'%;width:'+width+'%"></div><div class="rangebar-avg" style="left:'+avgPos+'%"></div></div></td>'+
         '<td class="num mono">'+d.count+'</td>'+
       '</tr>';
@@ -766,7 +766,7 @@
     wrap.innerHTML = kstats.map(function(k){
       return '<div class="kart-tile"><div class="kn">Kart '+escapeHtml(k.kart)+'</div>'+
         '<div class="kv mono">'+fmtTime(k.avg)+'</div>'+
-        '<div class="kc">'+k.count+' laps · fastest '+fmtTime(k.fastest)+'</div></div>';
+        '<div class="kc">'+k.count+' laps - fastest '+fmtTime(k.fastest)+'</div></div>';
     }).join('');
   }
 
@@ -788,11 +788,11 @@
 
     if(view.mode==='race'){
       titleEl.innerHTML = 'Lap time by lap'+info('Each line follows one driver\'s lap times through this race, in order. A rising line means they slowed down (tyre wear, traffic); a falling line means they found pace as the run went on.');
-      subEl.textContent = view.race.name + ' · choose who to show in the chart.';
+      subEl.textContent = view.race.name + ' - choose who to show in the chart.';
       holder.innerHTML = buildLapChart(visible);
     } else {
       titleEl.innerHTML = 'Average time by race'+info('Each driver\'s average lap time in each race, connected across the season. A downward trend means that driver has been getting faster race over race.');
-      subEl.textContent = 'Progress across the season · choose who to show in the chart.';
+      subEl.textContent = 'Progress across the season - choose who to show in the chart.';
       holder.innerHTML = buildSeasonChart(visible);
     }
 
