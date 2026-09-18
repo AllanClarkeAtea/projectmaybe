@@ -1,4 +1,4 @@
-<title>Bedriftsserien Rundetider</title>
+<title>Bedriftsserien Lap Times</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -81,6 +81,23 @@
   }
   .subtitle{color:var(--text-muted);font-size:14px;margin-top:2px;}
 
+  /* info tooltip */
+  .info-btn{
+    display:inline-flex;align-items:center;justify-content:center;flex:none;
+    width:15px;height:15px;border-radius:50%;
+    background:var(--surface-2);border:1px solid var(--border);color:var(--text-muted);
+    font-family:Georgia,'Times New Roman',serif;font-style:italic;font-weight:700;font-size:10px;line-height:1;
+    cursor:pointer;padding:0;margin-left:5px;vertical-align:middle;
+  }
+  .info-btn:hover, .info-btn[aria-expanded="true"]{border-color:var(--accent);color:var(--accent-strong);}
+  .info-popover{
+    position:absolute;z-index:80;max-width:240px;
+    background:var(--surface);border:1px solid var(--border);border-radius:8px;
+    padding:10px 12px;font-size:12.5px;line-height:1.45;color:var(--text);
+    box-shadow:var(--shadow);
+  }
+  .info-popover[hidden]{display:none;}
+
   /* upload */
   .upload-zone{
     margin-top:18px;border:1.5px dashed var(--border);border-radius:var(--radius-lg);
@@ -126,14 +143,14 @@
     background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
     padding:16px;box-shadow:var(--shadow);
   }
-  .tile-label{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);}
+  .tile-label{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);display:flex;align-items:center;}
   .tile-value{font-family:var(--font-mono);font-size:24px;font-weight:600;margin-top:6px;font-variant-numeric:tabular-nums;}
   .tile-sub{font-size:12.5px;color:var(--text-muted);margin-top:3px;}
 
   /* section */
   .section{margin-top:32px;}
   .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
-  .section-head h2{font-size:19px;}
+  .section-head h2{font-size:19px;display:flex;align-items:center;}
   .section-head p{color:var(--text-muted);font-size:13px;margin:2px 0 0;}
 
   /* tables */
@@ -142,12 +159,14 @@
     overflow:hidden;box-shadow:var(--shadow);
   }
   .table-scroll{overflow-x:auto;}
-  table{width:100%;border-collapse:collapse;min-width:560px;}
+  table{width:100%;border-collapse:collapse;min-width:600px;}
   thead th{
     text-align:left;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
     color:var(--text-muted);background:var(--surface-2);padding:10px 14px;border-bottom:1px solid var(--border);
     white-space:nowrap;
   }
+  thead th .th-inner{display:inline-flex;align-items:center;}
+  thead th.num .th-inner{justify-content:flex-end;}
   tbody td{padding:11px 14px;border-bottom:1px solid var(--border);font-size:14px;vertical-align:middle;}
   tbody tr:last-child td{border-bottom:none;}
   tbody tr:hover{background:var(--surface-2);}
@@ -202,33 +221,33 @@
 
   @media (max-width:520px){
     .topbar{padding-block:18px 4px;}
-    table{min-width:520px;}
+    table{min-width:560px;}
   }
 </style>
 
 <div class="topbar">
   <div class="topbar-title">
-    <h1>Bedriftsserien Rundetider</h1>
-    <span class="badge" id="draft-badge">Utkast v1</span>
+    <h1>Bedriftsserien Lap Times</h1>
+    <span class="badge" id="draft-badge">Draft v1</span>
   </div>
 </div>
-<p class="subtitle">Last opp rundetid-filer fra gokartløpene – se raskeste tid, snitt, median og utvikling per fører og kart.</p>
+<p class="subtitle">Upload lap-time files from the go-kart races — see fastest time, average, median and trends per driver and kart.</p>
 
 <div class="upload-zone" id="upload-zone">
   <div class="upload-icon">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 21h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2h-3.5"/><path d="M5.5 12H5a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2"/></svg>
   </div>
   <div class="upload-text">
-    <strong>Dra Excel-filer hit, eller velg fra maskinen</strong>
-    <span>Hver fil er ett løp. Kolonner: Lap, Kart, Driver, Time (.xlsx / .xls)</span>
+    <strong>Drag Excel files here, or choose from your computer</strong>
+    <span>Each file is one race. Columns: Lap, Kart, Driver, Time (.xlsx / .xls)</span>
   </div>
-  <button class="btn btn-primary" id="upload-btn" type="button">Velg filer</button>
+  <button class="btn btn-primary" id="upload-btn" type="button">Choose files</button>
   <input type="file" id="file-input" accept=".xlsx,.xls" multiple>
 </div>
 <div class="upload-warnings" id="upload-warnings" hidden></div>
 <div class="sample-note" id="sample-note">
-  <span>Dette er eksempeldata, generert for å vise hvordan dashbordet fungerer.</span>
-  <button class="btn-ghost" id="reset-btn" type="button">Last inn eksempeldata på nytt</button>
+  <span>This is sample data, generated to show how the dashboard works.</span>
+  <button class="btn-ghost" id="reset-btn" type="button">Reload sample data</button>
 </div>
 
 <div class="tabs" id="tabs"></div>
@@ -237,8 +256,8 @@
 <div class="section">
   <div class="section-head">
     <div>
-      <h2>Resultatliste</h2>
-      <p>Rangert etter raskeste runde. Feltet viser spredningen mellom raskeste og saktest runde, med snitt markert.</p>
+      <h2>Leaderboard</h2>
+      <p>Ranked by fastest lap. The spread bar shows the gap between the fastest and slowest lap, with the average marked.</p>
     </div>
   </div>
   <div class="table-card"><div class="table-scroll" id="leaderboard"></div></div>
@@ -247,8 +266,8 @@
 <div class="section">
   <div class="section-head">
     <div>
-      <h2 id="chart-title">Rundetid per runde</h2>
-      <p id="chart-sub">Velg hvem som skal vises i grafen.</p>
+      <h2 id="chart-title">Lap time by lap</h2>
+      <p id="chart-sub">Choose who to show in the chart.</p>
     </div>
   </div>
   <div class="chart-card">
@@ -260,17 +279,19 @@
 <div class="section">
   <div class="section-head">
     <div>
-      <h2>Karttider</h2>
-      <p>Gjennomsnittlig rundetid per kart, uansett fører – kan avsløre trege eller raske karter.</p>
+      <h2>Kart times</h2>
+      <p>Average lap time per kart, regardless of driver — can reveal slow or fast karts.</p>
     </div>
   </div>
   <div class="kart-grid" id="kart-grid"></div>
 </div>
 
 <footer>
-  <span>Bedriftsserien · rundetidene beregnes lokalt i nettleseren din, ingenting lastes opp til en server.</span>
-  <span>Utkast – si ifra om noe bør endres, legges til eller fjernes.</span>
+  <span>Bedriftsserien · lap times are calculated locally in your browser, nothing is uploaded to a server.</span>
+  <span>Draft — let us know what should change, be added, or be removed.</span>
 </footer>
+
+<div class="info-popover" id="info-popover" hidden></div>
 
 <script>
 (function(){
@@ -288,6 +309,48 @@
   function driverColor(i){
     var pal = isDark() ? DRIVER_COLORS_DARK : DRIVER_COLORS;
     return pal[i % pal.length];
+  }
+
+  // ---------- info tooltip helper ----------
+  function info(text){
+    return '<button type="button" class="info-btn" data-tip="'+escapeAttr(text)+'" aria-label="More info" aria-expanded="false">i</button>';
+  }
+  function escapeAttr(s){
+    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function setupInfoPopover(){
+    var pop = document.getElementById('info-popover');
+    var openBtn = null;
+    function closePopover(){
+      pop.hidden = true;
+      if(openBtn) openBtn.setAttribute('aria-expanded','false');
+      openBtn = null;
+    }
+    document.addEventListener('click', function(e){
+      var btn = e.target.closest('.info-btn');
+      if(btn){
+        e.stopPropagation();
+        if(openBtn === btn){ closePopover(); return; }
+        var tip = btn.getAttribute('data-tip');
+        pop.textContent = tip;
+        pop.hidden = false;
+        if(openBtn) openBtn.setAttribute('aria-expanded','false');
+        openBtn = btn;
+        btn.setAttribute('aria-expanded','true');
+        var rect = btn.getBoundingClientRect();
+        var popWidth = 240;
+        var left = rect.left + window.scrollX;
+        var maxLeft = window.scrollX + document.documentElement.clientWidth - popWidth - 12;
+        left = Math.min(left, Math.max(maxLeft, 12));
+        var top = rect.bottom + window.scrollY + 6;
+        pop.style.left = left+'px';
+        pop.style.top = top+'px';
+        return;
+      }
+      if(!e.target.closest('#info-popover')) closePopover();
+    });
+    window.addEventListener('scroll', closePopover, true);
+    window.addEventListener('resize', closePopover);
   }
 
   // ---------- state ----------
@@ -388,7 +451,7 @@
       {name:'Jonas', base:25.6, noise:0.5, improve:0.03}
     ];
     var karts = ['3','7','12','14'];
-    var raceNames = ['Løp 1 – Sept', 'Løp 2 – Okt'];
+    var raceNames = ['Race 1 – Sept', 'Race 2 – Oct'];
     return raceNames.map(function(rname, ri){
       var laps = [];
       driverProfiles.forEach(function(dp, di){
@@ -425,10 +488,10 @@
     var rows = XLSX.utils.sheet_to_json(sheet, {defval:null});
     var laps = [];
     rows.forEach(function(r){
-      var lapNum = fieldLookup(r, ['Lap','Runde']);
+      var lapNum = fieldLookup(r, ['Lap']);
       var kart = fieldLookup(r, ['Kart']);
-      var driver = fieldLookup(r, ['Driver','Fører','Forer']);
-      var timeRaw = fieldLookup(r, ['Time','Tid']);
+      var driver = fieldLookup(r, ['Driver']);
+      var timeRaw = fieldLookup(r, ['Time']);
       var time = parseTime(timeRaw);
       if(driver===null || time===null) return;
       laps.push({
@@ -462,16 +525,16 @@
               laps: laps
             });
           } else {
-            warnings.push(file.name + ': fant ingen gyldige rader (sjekk kolonnene Lap, Kart, Driver, Time).');
+            warnings.push(file.name + ': no valid rows found (check the columns Lap, Kart, Driver, Time).');
           }
         } catch(err){
-          warnings.push(file.name + ': kunne ikke leses som Excel-fil.');
+          warnings.push(file.name + ': could not be read as an Excel file.');
         }
         pending--;
         if(pending===0) finish();
       };
       reader.onerror = function(){
-        warnings.push(file.name + ': kunne ikke leses.');
+        warnings.push(file.name + ': could not be read.');
         pending--;
         if(pending===0) finish();
       };
@@ -547,7 +610,7 @@
     }).join('');
     if(races.length>1){
       var activeAll = activeTab==='all' ? ' active' : '';
-      html += '<button class="tab'+activeAll+'" data-tab="all">Alle løp</button>';
+      html += '<button class="tab'+activeAll+'" data-tab="all">All races</button>';
     }
     wrap.innerHTML = html;
     wrap.querySelectorAll('.tab').forEach(function(btn){
@@ -584,7 +647,6 @@
   function renderTiles(view, dstats, kstats){
     var tiles = [];
     if(dstats.length){
-      var overallFastest = dstats.slice().sort(function(a,b){return a.fastest-b.fastest;})[0];
       var fastestLapDriver = null, fastestLapVal = Infinity, fastestLapKart = null, fastestLapRace = null;
       view.laps.forEach(function(l){
         if(l.time<fastestLapVal){
@@ -593,7 +655,8 @@
         }
       });
       tiles.push({
-        label:'Raskeste runde', value: fmtTime(fastestLapVal),
+        label:'Fastest lap', info:'The single quickest lap recorded in this view, across all drivers and karts.',
+        value: fmtTime(fastestLapVal),
         sub: fastestLapDriver + ' · kart '+fastestLapKart + (view.mode==='all' && fastestLapRace ? ' · '+fastestLapRace : '')
       });
 
@@ -601,46 +664,59 @@
       if(eligible.length){
         var mostConsistent = eligible.slice().sort(function(a,b){return a.std-b.std;})[0];
         tiles.push({
-          label:'Mest konsistent', value: mostConsistent.driver,
-          sub: '± '+mostConsistent.std.toFixed(3)+'s rundt snittet'
+          label:'Most consistent', info:'The driver whose lap times vary the least (lowest standard deviation), among drivers with at least 3 laps. Low variation means every lap was close to their own average — not necessarily the fastest driver.',
+          value: mostConsistent.driver,
+          sub: '± '+mostConsistent.std.toFixed(3)+'s around their average'
         });
       }
 
       if(kstats.length){
         var fastestKart = kstats[0];
         tiles.push({
-          label:'Kjappeste kart', value:'Kart '+fastestKart.kart,
-          sub: fmtTime(fastestKart.avg)+' i snitt · '+fastestKart.count+' runder'
+          label:'Fastest kart', info:'The kart number with the lowest average lap time, combining every driver who used it. A kart that is consistently quick or slow can point to differences in the karts themselves, not just the drivers.',
+          value:'Kart '+fastestKart.kart,
+          sub: fmtTime(fastestKart.avg)+' average · '+fastestKart.count+' laps'
         });
       }
 
       var mostLaps = dstats.slice().sort(function(a,b){return b.count-a.count;})[0];
       tiles.push({
-        label:'Flest runder kjørt', value: mostLaps.driver,
-        sub: mostLaps.count+' runder registrert'
+        label:'Most laps driven', info:'The driver with the most recorded laps in this view — just a fun tally, not a ranking of skill.',
+        value: mostLaps.driver,
+        sub: mostLaps.count+' laps recorded'
       });
 
       if(view.mode==='all'){
         var improved = mostImprovedDriver();
         if(improved && improved.delta>0.01){
           tiles.push({
-            label:'Mest forbedret', value: improved.driver,
-            sub: '−'+improved.delta.toFixed(3)+'s snitt fra første til siste løp'
+            label:'Most improved', info:'Compares each driver\\'s average lap time in their first race to their most recent race, and shows whoever cut the most time off their average. Needs at least two races with that driver in them.',
+            value: improved.driver,
+            sub: '−'+improved.delta.toFixed(3)+'s average from first to latest race'
           });
         }
       }
     }
     document.getElementById('tiles').innerHTML = tiles.map(function(t){
-      return '<div class="tile"><div class="tile-label">'+escapeHtml(t.label)+'</div>'+
+      return '<div class="tile"><div class="tile-label">'+escapeHtml(t.label)+info(t.info)+'</div>'+
         '<div class="tile-value mono">'+escapeHtml(t.value)+'</div>'+
         '<div class="tile-sub">'+escapeHtml(t.sub)+'</div></div>';
     }).join('');
   }
 
+  var COL_INFO = {
+    fastest: 'The quickest single lap this driver recorded in this view.',
+    gap: 'How much slower this driver\\'s fastest lap was than the overall fastest lap. "Leader" means they set it.',
+    avg: 'The mean of all of this driver\\'s lap times — pulled around by one-off slow laps (traffic, a spin) more than the median is.',
+    median: 'The middle value of this driver\\'s lap times when sorted — a steadier read on "typical pace" than the average, since it ignores outlier laps.',
+    consistency: 'Standard deviation of this driver\\'s lap times: how far a typical lap strays from their own average. A smaller number means more even pace lap to lap.',
+    spread: 'A visual range from this driver\\'s fastest lap (left edge) to their slowest (right edge), with a short vertical mark at their average. Compare bar widths to see who was most erratic.'
+  };
+
   function renderLeaderboard(dstats){
     var holder = document.getElementById('leaderboard');
     if(!dstats.length){
-      holder.innerHTML = '<p style="padding:20px;color:var(--text-muted);">Ingen data å vise.</p>';
+      holder.innerHTML = '<p style="padding:20px;color:var(--text-muted);">No data to show.</p>';
       return;
     }
     var leaderFastest = dstats[0].fastest;
@@ -659,7 +735,7 @@
         '<td><span class="rank '+rankClass+'">'+(i+1)+'</span></td>'+
         '<td class="driver-name">'+escapeHtml(d.driver)+'</td>'+
         '<td class="num mono">'+fmtTime(d.fastest)+'</td>'+
-        '<td class="num mono gap-leader '+gapClass+'">'+(i===0?'leder':fmtDelta(gap))+'</td>'+
+        '<td class="num mono gap-leader '+gapClass+'">'+(i===0?'leader':fmtDelta(gap))+'</td>'+
         '<td class="num mono">'+fmtTime(d.avg)+'</td>'+
         '<td class="num mono">'+fmtTime(d.median)+'</td>'+
         '<td class="num mono">± '+d.std.toFixed(3)+'</td>'+
@@ -670,22 +746,27 @@
 
     holder.innerHTML =
       '<table><thead><tr>'+
-        '<th></th><th>Fører</th><th class="num">Raskeste</th><th class="num">Diff. leder</th>'+
-        '<th class="num">Snitt</th><th class="num">Median</th><th class="num">Konsistens</th>'+
-        '<th>Spredning</th><th class="num">Runder</th>'+
+        '<th></th><th>Driver</th>'+
+        '<th class="num"><span class="th-inner">Fastest'+info(COL_INFO.fastest)+'</span></th>'+
+        '<th class="num"><span class="th-inner">Gap to leader'+info(COL_INFO.gap)+'</span></th>'+
+        '<th class="num"><span class="th-inner">Average'+info(COL_INFO.avg)+'</span></th>'+
+        '<th class="num"><span class="th-inner">Median'+info(COL_INFO.median)+'</span></th>'+
+        '<th class="num"><span class="th-inner">Consistency'+info(COL_INFO.consistency)+'</span></th>'+
+        '<th><span class="th-inner">Spread'+info(COL_INFO.spread)+'</span></th>'+
+        '<th class="num">Laps</th>'+
       '</tr></thead><tbody>'+rows+'</tbody></table>';
   }
 
   function renderKartGrid(kstats){
     var wrap = document.getElementById('kart-grid');
     if(!kstats.length){
-      wrap.innerHTML = '<p style="color:var(--text-muted);">Ingen data å vise.</p>';
+      wrap.innerHTML = '<p style="color:var(--text-muted);">No data to show.</p>';
       return;
     }
     wrap.innerHTML = kstats.map(function(k){
       return '<div class="kart-tile"><div class="kn">Kart '+escapeHtml(k.kart)+'</div>'+
         '<div class="kv mono">'+fmtTime(k.avg)+'</div>'+
-        '<div class="kc">'+k.count+' runder · raskest '+fmtTime(k.fastest)+'</div></div>';
+        '<div class="kc">'+k.count+' laps · fastest '+fmtTime(k.fastest)+'</div></div>';
     }).join('');
   }
 
@@ -696,8 +777,8 @@
     var legend = document.getElementById('legend');
 
     if(!dstats.length){
-      titleEl.textContent = 'Rundetid per runde';
-      subEl.textContent = 'Ingen data å vise.';
+      titleEl.innerHTML = 'Lap time by lap';
+      subEl.textContent = 'No data to show.';
       holder.innerHTML = '';
       legend.innerHTML = '';
       return;
@@ -706,12 +787,12 @@
     var visible = dstats.filter(function(d){ return !hiddenDrivers[d.driver]; });
 
     if(view.mode==='race'){
-      titleEl.textContent = 'Rundetid per runde';
-      subEl.textContent = view.race.name + ' · velg hvem som skal vises i grafen.';
+      titleEl.innerHTML = 'Lap time by lap'+info('Each line follows one driver\\'s lap times through this race, in order. A rising line means they slowed down (tyre wear, traffic); a falling line means they found pace as the run went on.');
+      subEl.textContent = view.race.name + ' · choose who to show in the chart.';
       holder.innerHTML = buildLapChart(visible);
     } else {
-      titleEl.textContent = 'Snittid per løp';
-      subEl.textContent = 'Utvikling over sesongen · velg hvem som skal vises i grafen.';
+      titleEl.innerHTML = 'Average time by race'+info('Each driver\\'s average lap time in each race, connected across the season. A downward trend means that driver has been getting faster race over race.');
+      subEl.textContent = 'Progress across the season · choose who to show in the chart.';
       holder.innerHTML = buildSeasonChart(visible);
     }
 
@@ -735,7 +816,7 @@
   function buildLapChart(dstats){
     var allLaps = [];
     dstats.forEach(function(d){ d.laps.forEach(function(l){ allLaps.push(l); }); });
-    if(!allLaps.length) return '<p style="color:var(--text-muted);">Velg minst en fører.</p>';
+    if(!allLaps.length) return '<p style="color:var(--text-muted);">Select at least one driver.</p>';
 
     var W=760, H=320, padL=54, padR=16, padT=16, padB=34;
     var lapNums = allLaps.map(function(l){return l.lap;});
@@ -763,8 +844,6 @@
     }
 
     var paths = '';
-    var allDstatsIndex = {};
-    dstats.forEach(function(d,i){ allDstatsIndex[d.driver]=i; });
     dstats.forEach(function(d){
       var color = driverColor(driverIndex(d.driver));
       var pts = d.laps.map(function(l){ return x(l.lap)+','+y(l.time); }).join(' ');
@@ -774,14 +853,14 @@
       });
     });
 
-    return '<svg viewBox="0 0 '+W+' '+H+'" class="chart-svg" role="img" aria-label="Rundetid per runde">'+
+    return '<svg viewBox="0 0 '+W+' '+H+'" class="chart-svg" role="img" aria-label="Lap time by lap">'+
       gridlines + xlabels + paths +
-      '<text x="'+(W/2)+'" y="'+(H-2)+'" class="chart-axis-title" text-anchor="middle">Runde</text>'+
+      '<text x="'+(W/2)+'" y="'+(H-2)+'" class="chart-axis-title" text-anchor="middle">Lap</text>'+
       '</svg>';
   }
 
   function buildSeasonChart(dstats){
-    if(!races.length || races.length<2) return '<p style="color:var(--text-muted);">Trenger minst to løp for sesongutvikling.</p>';
+    if(!races.length || races.length<2) return '<p style="color:var(--text-muted);">Needs at least two races for a season trend.</p>';
     var perDriverAvg = {};
     races.forEach(function(r, idx){
       driverStats(r.laps).forEach(function(d){
@@ -794,7 +873,7 @@
     visibleDrivers.forEach(function(driver){
       (perDriverAvg[driver]||[]).forEach(function(v){ if(v!=null) allVals.push(v); });
     });
-    if(!allVals.length) return '<p style="color:var(--text-muted);">Velg minst en fører.</p>';
+    if(!allVals.length) return '<p style="color:var(--text-muted);">Select at least one driver.</p>';
 
     var W=760, H=320, padL=54, padR=16, padT=16, padB=40;
     var n = races.length;
@@ -814,7 +893,7 @@
     }
     var xlabels = '';
     races.forEach(function(r, idx){
-      xlabels += '<text x="'+x(idx)+'" y="'+(H-padB+18)+'" class="chart-axis-label" text-anchor="middle">'+escapeHtml(r.name.length>14 ? ('Løp '+(idx+1)) : r.name)+'</text>';
+      xlabels += '<text x="'+x(idx)+'" y="'+(H-padB+18)+'" class="chart-axis-label" text-anchor="middle">'+escapeHtml(r.name.length>14 ? ('Race '+(idx+1)) : r.name)+'</text>';
     });
 
     var paths = '';
@@ -831,9 +910,9 @@
       }
     });
 
-    return '<svg viewBox="0 0 '+W+' '+H+'" class="chart-svg" role="img" aria-label="Snittid per løp">'+
+    return '<svg viewBox="0 0 '+W+' '+H+'" class="chart-svg" role="img" aria-label="Average time by race">'+
       gridlines + xlabels + paths +
-      '<text x="'+(W/2)+'" y="'+(H-2)+'" class="chart-axis-title" text-anchor="middle">Løp</text>'+
+      '<text x="'+(W/2)+'" y="'+(H-2)+'" class="chart-axis-title" text-anchor="middle">Race</text>'+
       '</svg>';
   }
 
@@ -845,6 +924,8 @@
   }
 
   // ---------- wiring ----------
+  setupInfoPopover();
+
   var uploadZone = document.getElementById('upload-zone');
   var fileInput = document.getElementById('file-input');
   document.getElementById('upload-btn').addEventListener('click', function(){ fileInput.click(); });
