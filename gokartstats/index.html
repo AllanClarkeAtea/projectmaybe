@@ -1,1 +1,877 @@
+<title>Bedriftsserien Rundetider</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --bg:#F2EFE8;
+    --surface:#FFFFFF;
+    --surface-2:#EAE6DC;
+    --border:#DBD5C7;
+    --text:#1C1B18;
+    --text-muted:#726E62;
+    --accent:#C97A00;
+    --accent-strong:#A6650A;
+    --accent-ink:#1C1B18;
+    --good:#227A55;
+    --bad:#B93A3A;
+    --shadow: 0 1px 2px rgba(28,27,24,.06), 0 8px 24px -12px rgba(28,27,24,.18);
+    --radius-lg:14px;
+    --radius-md:10px;
+    --radius-sm:6px;
+    --font-display:'Rajdhani','Arial Narrow',sans-serif;
+    --font-body:'Inter',system-ui,-apple-system,sans-serif;
+    --font-mono:'IBM Plex Mono','SFMono-Regular',Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#14161A;
+      --surface:#1C1F24;
+      --surface-2:#23262C;
+      --border:#31353C;
+      --text:#EDEAE1;
+      --text-muted:#9B9C97;
+      --accent:#F2B705;
+      --accent-strong:#F6C737;
+      --accent-ink:#1A1400;
+      --good:#3FC088;
+      --bad:#E5636B;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -14px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#14161A;
+    --surface:#1C1F24;
+    --surface-2:#23262C;
+    --border:#31353C;
+    --text:#EDEAE1;
+    --text-muted:#9B9C97;
+    --accent:#F2B705;
+    --accent-strong:#F6C737;
+    --accent-ink:#1A1400;
+    --good:#3FC088;
+    --bad:#E5636B;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -14px rgba(0,0,0,.6);
+  }
 
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    padding-inline:20px;
+    padding-block:0 32px;
+    max-width:1080px;
+    margin-inline:auto;
+  }
+  h1,h2,h3{font-family:var(--font-display);font-weight:700;letter-spacing:.01em;text-wrap:balance;margin:0;}
+  .mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums;}
+  a{color:var(--accent-strong);}
+
+  /* topbar */
+  .topbar{
+    display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding-block:24px 6px;
+  }
+  .topbar-title{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  .topbar-title h1{font-size:clamp(24px,4vw,32px);}
+  .badge{
+    font-family:var(--font-body);font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+    background:var(--surface-2);color:var(--text-muted);border:1px solid var(--border);
+    padding:3px 8px;border-radius:100px;white-space:nowrap;
+  }
+  .subtitle{color:var(--text-muted);font-size:14px;margin-top:2px;}
+
+  /* upload */
+  .upload-zone{
+    margin-top:18px;border:1.5px dashed var(--border);border-radius:var(--radius-lg);
+    background:var(--surface);padding:22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .upload-zone.dragover{border-color:var(--accent);background:var(--surface-2);}
+  .upload-icon{
+    width:40px;height:40px;flex:none;border-radius:var(--radius-sm);background:var(--surface-2);
+    display:flex;align-items:center;justify-content:center;color:var(--accent-strong);
+  }
+  .upload-text{flex:1;min-width:200px;}
+  .upload-text strong{font-size:14px;}
+  .upload-text span{display:block;color:var(--text-muted);font-size:12.5px;margin-top:2px;}
+  .btn{
+    font-family:var(--font-body);font-weight:600;font-size:13.5px;border-radius:var(--radius-sm);
+    border:1px solid var(--border);background:var(--surface-2);color:var(--text);
+    padding:9px 14px;cursor:pointer;white-space:nowrap;
+  }
+  .btn:hover{border-color:var(--accent);}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+  .btn-ghost{background:transparent;border-color:transparent;color:var(--text-muted);text-decoration:underline;padding:9px 4px;}
+  #file-input{display:none;}
+  .upload-warnings{margin-top:10px;font-size:12.5px;color:var(--bad);}
+  .sample-note{
+    margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+    background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-md);
+    padding:9px 14px;font-size:13px;color:var(--text-muted);
+  }
+
+  /* tabs */
+  .tabs{display:flex;gap:6px;margin-top:26px;overflow-x:auto;padding-bottom:2px;}
+  .tab{
+    font-family:var(--font-display);font-weight:600;font-size:15px;letter-spacing:.01em;
+    border:1px solid var(--border);background:var(--surface);color:var(--text-muted);
+    padding:8px 16px;border-radius:100px;cursor:pointer;white-space:nowrap;flex:none;
+  }
+  .tab.active{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+
+  /* tiles */
+  .tile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:18px;}
+  .tile{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+    padding:16px;box-shadow:var(--shadow);
+  }
+  .tile-label{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);}
+  .tile-value{font-family:var(--font-mono);font-size:24px;font-weight:600;margin-top:6px;font-variant-numeric:tabular-nums;}
+  .tile-sub{font-size:12.5px;color:var(--text-muted);margin-top:3px;}
+
+  /* section */
+  .section{margin-top:32px;}
+  .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+  .section-head h2{font-size:19px;}
+  .section-head p{color:var(--text-muted);font-size:13px;margin:2px 0 0;}
+
+  /* tables */
+  .table-card{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+    overflow:hidden;box-shadow:var(--shadow);
+  }
+  .table-scroll{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;min-width:560px;}
+  thead th{
+    text-align:left;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--text-muted);background:var(--surface-2);padding:10px 14px;border-bottom:1px solid var(--border);
+    white-space:nowrap;
+  }
+  tbody td{padding:11px 14px;border-bottom:1px solid var(--border);font-size:14px;vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:var(--surface-2);}
+  td.num,th.num{text-align:right;}
+  .rank{
+    display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;
+    font-family:var(--font-display);font-weight:700;font-size:12px;background:var(--surface-2);color:var(--text-muted);
+  }
+  .rank.r1{background:var(--accent);color:var(--accent-ink);}
+  .rank.r2{background:#C7C2B3;color:#1C1B18;}
+  .rank.r3{background:#C48A4E;color:#1C1B18;}
+  :root[data-theme="dark"] .rank.r2, @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .rank.r2{background:#8B8D92;color:#101114;}}
+  .driver-name{font-weight:600;}
+  .rangebar{position:relative;height:6px;background:var(--border);border-radius:3px;width:90px;min-width:70px;}
+  .rangebar-fill{position:absolute;top:0;bottom:0;background:var(--accent);border-radius:3px;opacity:.55;}
+  .rangebar-avg{position:absolute;top:-2px;width:2px;height:10px;background:var(--text);border-radius:1px;}
+  .gap-leader{color:var(--text-muted);}
+  .gap-leader.zero{color:var(--good);font-weight:600;}
+
+  /* chart */
+  .chart-card{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+    padding:18px;box-shadow:var(--shadow);
+  }
+  .chart-svg{width:100%;height:auto;display:block;}
+  .chart-grid{stroke:var(--border);stroke-width:1;}
+  .chart-axis-label{fill:var(--text-muted);font-family:var(--font-mono);font-size:10px;}
+  .chart-axis-title{fill:var(--text-muted);font-family:var(--font-body);font-size:11px;font-weight:600;}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:14px;}
+  .legend label{
+    display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:var(--text-muted);
+    user-select:none;
+  }
+  .legend label.off{opacity:.4;}
+  .legend .dot{width:10px;height:10px;border-radius:50%;flex:none;}
+  .legend input{accent-color:var(--accent);}
+
+  /* kart grid */
+  .kart-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:14px;}
+  .kart-tile{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);
+    padding:12px 14px;
+  }
+  .kart-tile .kn{font-family:var(--font-display);font-weight:700;font-size:16px;}
+  .kart-tile .kv{font-family:var(--font-mono);font-size:15px;margin-top:4px;font-variant-numeric:tabular-nums;}
+  .kart-tile .kc{font-size:11.5px;color:var(--text-muted);margin-top:2px;}
+
+  footer{
+    margin-top:40px;padding-top:16px;border-top:1px solid var(--border);
+    color:var(--text-muted);font-size:12.5px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  }
+
+  @media (max-width:520px){
+    .topbar{padding-block:18px 4px;}
+    table{min-width:520px;}
+  }
+</style>
+
+<div class="topbar">
+  <div class="topbar-title">
+    <h1>Bedriftsserien Rundetider</h1>
+    <span class="badge" id="draft-badge">Utkast v1</span>
+  </div>
+</div>
+<p class="subtitle">Last opp rundetid-filer fra gokartløpene – se raskeste tid, snitt, median og utvikling per fører og kart.</p>
+
+<div class="upload-zone" id="upload-zone">
+  <div class="upload-icon">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 21h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2h-3.5"/><path d="M5.5 12H5a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2"/></svg>
+  </div>
+  <div class="upload-text">
+    <strong>Dra Excel-filer hit, eller velg fra maskinen</strong>
+    <span>Hver fil er ett løp. Kolonner: Lap, Kart, Driver, Time (.xlsx / .xls)</span>
+  </div>
+  <button class="btn btn-primary" id="upload-btn" type="button">Velg filer</button>
+  <input type="file" id="file-input" accept=".xlsx,.xls" multiple>
+</div>
+<div class="upload-warnings" id="upload-warnings" hidden></div>
+<div class="sample-note" id="sample-note">
+  <span>Dette er eksempeldata, generert for å vise hvordan dashbordet fungerer.</span>
+  <button class="btn-ghost" id="reset-btn" type="button">Last inn eksempeldata på nytt</button>
+</div>
+
+<div class="tabs" id="tabs"></div>
+<div class="tile-grid" id="tiles"></div>
+
+<div class="section">
+  <div class="section-head">
+    <div>
+      <h2>Resultatliste</h2>
+      <p>Rangert etter raskeste runde. Feltet viser spredningen mellom raskeste og saktest runde, med snitt markert.</p>
+    </div>
+  </div>
+  <div class="table-card"><div class="table-scroll" id="leaderboard"></div></div>
+</div>
+
+<div class="section">
+  <div class="section-head">
+    <div>
+      <h2 id="chart-title">Rundetid per runde</h2>
+      <p id="chart-sub">Velg hvem som skal vises i grafen.</p>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div id="chart-holder"></div>
+    <div class="legend" id="legend"></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-head">
+    <div>
+      <h2>Karttider</h2>
+      <p>Gjennomsnittlig rundetid per kart, uansett fører – kan avsløre trege eller raske karter.</p>
+    </div>
+  </div>
+  <div class="kart-grid" id="kart-grid"></div>
+</div>
+
+<footer>
+  <span>Bedriftsserien · rundetidene beregnes lokalt i nettleseren din, ingenting lastes opp til en server.</span>
+  <span>Utkast – si ifra om noe bør endres, legges til eller fjernes.</span>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  var DRIVER_COLORS = ['#C97A00','#3F7FBF','#B93A3A','#227A55','#8B5FBF','#C4802A','#3E9E9A','#B14E86'];
+  var DRIVER_COLORS_DARK = ['#F2B705','#5B9EE8','#E5636B','#3FC088','#B08CF0','#E08F3F','#5FBDB6','#E07CB2'];
+
+  function isDark(){
+    var root = document.documentElement;
+    if(root.getAttribute('data-theme')==='dark') return true;
+    if(root.getAttribute('data-theme')==='light') return false;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function driverColor(i){
+    var pal = isDark() ? DRIVER_COLORS_DARK : DRIVER_COLORS;
+    return pal[i % pal.length];
+  }
+
+  // ---------- state ----------
+  var races = [];        // {id, name, laps:[{lap,kart,driver,time}]}
+  var usingSample = true;
+  var activeTab = null;  // race id or 'all'
+  var hiddenDrivers = {}; // driver -> true if hidden in chart
+
+  // ---------- time helpers ----------
+  function fmtTime(sec){
+    if(sec==null || isNaN(sec)) return '–';
+    var m = Math.floor(sec/60);
+    var s = sec - m*60;
+    var sStr = s.toFixed(3);
+    if(s < 10) sStr = '0'+sStr;
+    return m+':'+sStr;
+  }
+  function fmtDelta(sec){
+    if(sec==null || isNaN(sec)) return '–';
+    var sign = sec > 0.0005 ? '+' : '';
+    return sign + sec.toFixed(3)+'s';
+  }
+  function parseTime(raw){
+    if(raw===null || raw===undefined || raw==='') return null;
+    if(typeof raw === 'number'){
+      if(raw>0 && raw<1) return raw*86400;
+      if(raw>=1 && raw<600) return raw;
+      return null;
+    }
+    var str = String(raw).trim().replace(',', '.');
+    if(str==='') return null;
+    var m = str.match(/^(\d+):(\d{1,2}(?:\.\d+)?)$/);
+    if(m) return parseInt(m[1],10)*60 + parseFloat(m[2]);
+    m = str.match(/^(\d+(?:\.\d+)?)$/);
+    if(m) return parseFloat(m[1]);
+    return null;
+  }
+
+  // ---------- stats helpers ----------
+  function mean(a){ return a.reduce(function(x,y){return x+y;},0)/a.length; }
+  function median(a){
+    var s = a.slice().sort(function(x,y){return x-y;});
+    var n = s.length, mid = Math.floor(n/2);
+    return n%2 ? s[mid] : (s[mid-1]+s[mid])/2;
+  }
+  function stddev(a){
+    var m = mean(a);
+    return Math.sqrt(mean(a.map(function(x){return (x-m)*(x-m);})));
+  }
+
+  function driverStats(laps){
+    var byDriver = {};
+    laps.forEach(function(l){
+      (byDriver[l.driver] = byDriver[l.driver] || []).push(l);
+    });
+    var out = Object.keys(byDriver).map(function(driver){
+      var ls = byDriver[driver].slice().sort(function(a,b){return a.lap-b.lap;});
+      var times = ls.map(function(l){return l.time;});
+      return {
+        driver: driver,
+        count: times.length,
+        fastest: Math.min.apply(null, times),
+        slowest: Math.max.apply(null, times),
+        avg: mean(times),
+        median: median(times),
+        std: stddev(times),
+        laps: ls
+      };
+    });
+    out.sort(function(a,b){return a.fastest-b.fastest;});
+    return out;
+  }
+
+  function kartStats(laps){
+    var byKart = {};
+    laps.forEach(function(l){
+      (byKart[l.kart] = byKart[l.kart] || []).push(l.time);
+    });
+    var out = Object.keys(byKart).map(function(kart){
+      var times = byKart[kart];
+      return { kart: kart, count: times.length, avg: mean(times), fastest: Math.min.apply(null, times) };
+    });
+    out.sort(function(a,b){return a.avg-b.avg;});
+    return out;
+  }
+
+  // ---------- sample data ----------
+  function seeded(seed){
+    var s = seed;
+    return function(){ s = (s*1103515245+12345) & 0x7fffffff; return (s/0x7fffffff); };
+  }
+  function sampleRaces(){
+    var rnd = seeded(42);
+    var driverProfiles = [
+      {name:'Allan', base:24.6, noise:0.22, improve:0.02},
+      {name:'Richard', base:24.9, noise:0.35, improve:0.01},
+      {name:'Kine', base:24.4, noise:0.15, improve:0.015},
+      {name:'Jonas', base:25.6, noise:0.5, improve:0.03}
+    ];
+    var karts = ['3','7','12','14'];
+    var raceNames = ['Løp 1 – Sept', 'Løp 2 – Okt'];
+    return raceNames.map(function(rname, ri){
+      var laps = [];
+      driverProfiles.forEach(function(dp, di){
+        var kart = karts[(di+ri) % karts.length];
+        var nLaps = 10 + (di%2);
+        for(var l=1; l<=nLaps; l++){
+          var t = dp.base - dp.improve*l + (rnd()-0.5)*dp.noise*2;
+          if(l===3 && di===1) t += 1.4; // traffic/mistake lap
+          if(l===7 && di===3) t += 2.1;
+          laps.push({lap:l, kart:kart, driver:dp.name, time: Math.max(18, t)});
+        }
+      });
+      return { id:'sample-'+ri, name: rname, laps: laps };
+    });
+  }
+
+  // ---------- file parsing ----------
+  function fieldLookup(row, names){
+    var keys = Object.keys(row);
+    for(var i=0;i<names.length;i++){
+      var want = names[i].toLowerCase();
+      for(var j=0;j<keys.length;j++){
+        if(keys[j].trim().toLowerCase()===want){
+          var v = row[keys[j]];
+          if(v!==null && v!==undefined && v!=='') return v;
+        }
+      }
+    }
+    return null;
+  }
+
+  function parseWorkbookToLaps(wb){
+    var sheet = wb.Sheets[wb.SheetNames[0]];
+    var rows = XLSX.utils.sheet_to_json(sheet, {defval:null});
+    var laps = [];
+    rows.forEach(function(r){
+      var lapNum = fieldLookup(r, ['Lap','Runde']);
+      var kart = fieldLookup(r, ['Kart']);
+      var driver = fieldLookup(r, ['Driver','Fører','Forer']);
+      var timeRaw = fieldLookup(r, ['Time','Tid']);
+      var time = parseTime(timeRaw);
+      if(driver===null || time===null) return;
+      laps.push({
+        lap: Number(lapNum) || (laps.length+1),
+        kart: kart!==null ? String(kart) : '?',
+        driver: String(driver).trim(),
+        time: time
+      });
+    });
+    return laps;
+  }
+
+  function handleFiles(fileList){
+    var files = Array.prototype.slice.call(fileList);
+    if(!files.length) return;
+    var warnings = [];
+    var pending = files.length;
+    var newRaces = [];
+
+    files.forEach(function(file){
+      var reader = new FileReader();
+      reader.onload = function(e){
+        try{
+          var data = new Uint8Array(e.target.result);
+          var wb = XLSX.read(data, {type:'array'});
+          var laps = parseWorkbookToLaps(wb);
+          if(laps.length){
+            newRaces.push({
+              id: 'r'+Date.now()+Math.random().toString(16).slice(2),
+              name: file.name.replace(/\.[^.]+$/,''),
+              laps: laps
+            });
+          } else {
+            warnings.push(file.name + ': fant ingen gyldige rader (sjekk kolonnene Lap, Kart, Driver, Time).');
+          }
+        } catch(err){
+          warnings.push(file.name + ': kunne ikke leses som Excel-fil.');
+        }
+        pending--;
+        if(pending===0) finish();
+      };
+      reader.onerror = function(){
+        warnings.push(file.name + ': kunne ikke leses.');
+        pending--;
+        if(pending===0) finish();
+      };
+      reader.readAsArrayBuffer(file);
+    });
+
+    function finish(){
+      if(usingSample && newRaces.length){
+        races = [];
+        usingSample = false;
+      }
+      races = races.concat(newRaces);
+      if(newRaces.length){
+        activeTab = newRaces[newRaces.length-1].id;
+      }
+      var warnEl = document.getElementById('upload-warnings');
+      if(warnings.length){
+        warnEl.hidden = false;
+        warnEl.innerHTML = warnings.map(function(w){return '⚠ '+escapeHtml(w);}).join('<br>');
+      } else {
+        warnEl.hidden = true;
+      }
+      render();
+    }
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+    });
+  }
+
+  // ---------- current view ----------
+  function getView(){
+    if(activeTab==='all'){
+      var combined = [];
+      races.forEach(function(r){
+        r.laps.forEach(function(l){ combined.push(l); });
+      });
+      return { mode:'all', laps: combined };
+    }
+    var race = races.filter(function(r){return r.id===activeTab;})[0] || races[0];
+    return { mode:'race', race: race, laps: race ? race.laps : [] };
+  }
+
+  // ---------- rendering ----------
+  function render(){
+    if(!races.length) races = sampleRaces();
+    if(!activeTab || !races.some(function(r){return r.id===activeTab;}) && activeTab!=='all'){
+      activeTab = races[0].id;
+    }
+
+    document.getElementById('sample-note').hidden = !usingSample;
+    document.getElementById('draft-badge').hidden = false;
+
+    renderTabs();
+    var view = getView();
+    var laps = view.laps;
+    var dstats = driverStats(laps);
+    var kstats = kartStats(laps);
+
+    renderTiles(view, dstats, kstats);
+    renderLeaderboard(dstats);
+    renderKartGrid(kstats);
+    renderChart(view, dstats);
+  }
+
+  function renderTabs(){
+    var wrap = document.getElementById('tabs');
+    var html = races.map(function(r){
+      var active = r.id===activeTab ? ' active' : '';
+      return '<button class="tab'+active+'" data-tab="'+r.id+'">'+escapeHtml(r.name)+'</button>';
+    }).join('');
+    if(races.length>1){
+      var activeAll = activeTab==='all' ? ' active' : '';
+      html += '<button class="tab'+activeAll+'" data-tab="all">Alle løp</button>';
+    }
+    wrap.innerHTML = html;
+    wrap.querySelectorAll('.tab').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        activeTab = btn.getAttribute('data-tab');
+        hiddenDrivers = {};
+        render();
+      });
+    });
+  }
+
+  function mostImprovedDriver(){
+    if(races.length<2) return null;
+    var perDriver = {};
+    races.forEach(function(r, idx){
+      driverStats(r.laps).forEach(function(d){
+        perDriver[d.driver] = perDriver[d.driver] || [];
+        perDriver[d.driver][idx] = d.avg;
+      });
+    });
+    var best = null;
+    Object.keys(perDriver).forEach(function(driver){
+      var arr = perDriver[driver];
+      var present = [];
+      arr.forEach(function(v,i){ if(v!=null) present.push({v:v,i:i}); });
+      if(present.length<2) return;
+      var first = present[0], last = present[present.length-1];
+      var delta = first.v - last.v;
+      if(!best || delta>best.delta) best = {driver:driver, delta:delta};
+    });
+    return best;
+  }
+
+  function renderTiles(view, dstats, kstats){
+    var tiles = [];
+    if(dstats.length){
+      var overallFastest = dstats.slice().sort(function(a,b){return a.fastest-b.fastest;})[0];
+      var fastestLapDriver = null, fastestLapVal = Infinity, fastestLapKart = null, fastestLapRace = null;
+      view.laps.forEach(function(l){
+        if(l.time<fastestLapVal){
+          fastestLapVal = l.time; fastestLapDriver = l.driver; fastestLapKart = l.kart;
+          fastestLapRace = l.raceName || (view.race ? view.race.name : null);
+        }
+      });
+      tiles.push({
+        label:'Raskeste runde', value: fmtTime(fastestLapVal),
+        sub: fastestLapDriver + ' · kart '+fastestLapKart + (view.mode==='all' && fastestLapRace ? ' · '+fastestLapRace : '')
+      });
+
+      var eligible = dstats.filter(function(d){return d.count>=3;});
+      if(eligible.length){
+        var mostConsistent = eligible.slice().sort(function(a,b){return a.std-b.std;})[0];
+        tiles.push({
+          label:'Mest konsistent', value: mostConsistent.driver,
+          sub: '± '+mostConsistent.std.toFixed(3)+'s rundt snittet'
+        });
+      }
+
+      if(kstats.length){
+        var fastestKart = kstats[0];
+        tiles.push({
+          label:'Kjappeste kart', value:'Kart '+fastestKart.kart,
+          sub: fmtTime(fastestKart.avg)+' i snitt · '+fastestKart.count+' runder'
+        });
+      }
+
+      var mostLaps = dstats.slice().sort(function(a,b){return b.count-a.count;})[0];
+      tiles.push({
+        label:'Flest runder kjørt', value: mostLaps.driver,
+        sub: mostLaps.count+' runder registrert'
+      });
+
+      if(view.mode==='all'){
+        var improved = mostImprovedDriver();
+        if(improved && improved.delta>0.01){
+          tiles.push({
+            label:'Mest forbedret', value: improved.driver,
+            sub: '−'+improved.delta.toFixed(3)+'s snitt fra første til siste løp'
+          });
+        }
+      }
+    }
+    document.getElementById('tiles').innerHTML = tiles.map(function(t){
+      return '<div class="tile"><div class="tile-label">'+escapeHtml(t.label)+'</div>'+
+        '<div class="tile-value mono">'+escapeHtml(t.value)+'</div>'+
+        '<div class="tile-sub">'+escapeHtml(t.sub)+'</div></div>';
+    }).join('');
+  }
+
+  function renderLeaderboard(dstats){
+    var holder = document.getElementById('leaderboard');
+    if(!dstats.length){
+      holder.innerHTML = '<p style="padding:20px;color:var(--text-muted);">Ingen data å vise.</p>';
+      return;
+    }
+    var leaderFastest = dstats[0].fastest;
+    var domainMin = Math.min.apply(null, dstats.map(function(d){return d.fastest;}));
+    var domainMax = Math.max.apply(null, dstats.map(function(d){return d.slowest;}));
+
+    var rows = dstats.map(function(d, i){
+      var rankClass = i===0?'r1':i===1?'r2':i===2?'r3':'';
+      var gap = d.fastest - leaderFastest;
+      var gapClass = gap<0.0005 ? 'zero' : '';
+      var span = (domainMax-domainMin) || 1;
+      var left = ((d.fastest-domainMin)/span)*100;
+      var width = Math.max(((d.slowest-d.fastest)/span)*100, 2);
+      var avgPos = ((d.avg-domainMin)/span)*100;
+      return '<tr>'+
+        '<td><span class="rank '+rankClass+'">'+(i+1)+'</span></td>'+
+        '<td class="driver-name">'+escapeHtml(d.driver)+'</td>'+
+        '<td class="num mono">'+fmtTime(d.fastest)+'</td>'+
+        '<td class="num mono gap-leader '+gapClass+'">'+(i===0?'leder':fmtDelta(gap))+'</td>'+
+        '<td class="num mono">'+fmtTime(d.avg)+'</td>'+
+        '<td class="num mono">'+fmtTime(d.median)+'</td>'+
+        '<td class="num mono">± '+d.std.toFixed(3)+'</td>'+
+        '<td><div class="rangebar"><div class="rangebar-fill" style="left:'+left+'%;width:'+width+'%"></div><div class="rangebar-avg" style="left:'+avgPos+'%"></div></div></td>'+
+        '<td class="num mono">'+d.count+'</td>'+
+      '</tr>';
+    }).join('');
+
+    holder.innerHTML =
+      '<table><thead><tr>'+
+        '<th></th><th>Fører</th><th class="num">Raskeste</th><th class="num">Diff. leder</th>'+
+        '<th class="num">Snitt</th><th class="num">Median</th><th class="num">Konsistens</th>'+
+        '<th>Spredning</th><th class="num">Runder</th>'+
+      '</tr></thead><tbody>'+rows+'</tbody></table>';
+  }
+
+  function renderKartGrid(kstats){
+    var wrap = document.getElementById('kart-grid');
+    if(!kstats.length){
+      wrap.innerHTML = '<p style="color:var(--text-muted);">Ingen data å vise.</p>';
+      return;
+    }
+    wrap.innerHTML = kstats.map(function(k){
+      return '<div class="kart-tile"><div class="kn">Kart '+escapeHtml(k.kart)+'</div>'+
+        '<div class="kv mono">'+fmtTime(k.avg)+'</div>'+
+        '<div class="kc">'+k.count+' runder · raskest '+fmtTime(k.fastest)+'</div></div>';
+    }).join('');
+  }
+
+  function renderChart(view, dstats){
+    var titleEl = document.getElementById('chart-title');
+    var subEl = document.getElementById('chart-sub');
+    var holder = document.getElementById('chart-holder');
+    var legend = document.getElementById('legend');
+
+    if(!dstats.length){
+      titleEl.textContent = 'Rundetid per runde';
+      subEl.textContent = 'Ingen data å vise.';
+      holder.innerHTML = '';
+      legend.innerHTML = '';
+      return;
+    }
+
+    var visible = dstats.filter(function(d){ return !hiddenDrivers[d.driver]; });
+
+    if(view.mode==='race'){
+      titleEl.textContent = 'Rundetid per runde';
+      subEl.textContent = view.race.name + ' · velg hvem som skal vises i grafen.';
+      holder.innerHTML = buildLapChart(visible);
+    } else {
+      titleEl.textContent = 'Snittid per løp';
+      subEl.textContent = 'Utvikling over sesongen · velg hvem som skal vises i grafen.';
+      holder.innerHTML = buildSeasonChart(visible);
+    }
+
+    legend.innerHTML = dstats.map(function(d, i){
+      var off = hiddenDrivers[d.driver] ? ' off' : '';
+      var color = driverColor(i);
+      return '<label class="'+off.trim()+'" data-driver="'+escapeHtml(d.driver)+'">'+
+        '<input type="checkbox" '+(hiddenDrivers[d.driver]?'':'checked')+'>'+
+        '<span class="dot" style="background:'+color+'"></span>'+escapeHtml(d.driver)+'</label>';
+    }).join('');
+    legend.querySelectorAll('label').forEach(function(lbl){
+      lbl.querySelector('input').addEventListener('change', function(e){
+        var driver = lbl.getAttribute('data-driver');
+        if(e.target.checked) delete hiddenDrivers[driver];
+        else hiddenDrivers[driver] = true;
+        renderChart(view, dstats);
+      });
+    });
+  }
+
+  function buildLapChart(dstats){
+    var allLaps = [];
+    dstats.forEach(function(d){ d.laps.forEach(function(l){ allLaps.push(l); }); });
+    if(!allLaps.length) return '<p style="color:var(--text-muted);">Velg minst en fører.</p>';
+
+    var W=760, H=320, padL=54, padR=16, padT=16, padB=34;
+    var lapNums = allLaps.map(function(l){return l.lap;});
+    var minLap = Math.min.apply(null, lapNums), maxLap = Math.max.apply(null, lapNums);
+    var times = allLaps.map(function(l){return l.time;});
+    var tMin = Math.min.apply(null, times), tMax = Math.max.apply(null, times);
+    var pad = (tMax-tMin)*0.12 || 1;
+    tMin -= pad; tMax += pad;
+
+    function x(lap){ return padL + ((lap-minLap)/((maxLap-minLap)||1))*(W-padL-padR); }
+    function y(t){ return H-padB - ((t-tMin)/((tMax-tMin)||1))*(H-padT-padB); }
+
+    var gridlines = '';
+    var steps = 4;
+    for(var i=0;i<=steps;i++){
+      var t = tMin + (tMax-tMin)*i/steps;
+      var yy = y(t);
+      gridlines += '<line x1="'+padL+'" y1="'+yy+'" x2="'+(W-padR)+'" y2="'+yy+'" class="chart-grid"/>';
+      gridlines += '<text x="'+(padL-8)+'" y="'+(yy+4)+'" class="chart-axis-label" text-anchor="end">'+fmtTime(t)+'</text>';
+    }
+    var xlabels = '';
+    var lapStep = Math.ceil((maxLap-minLap)/8) || 1;
+    for(var l=minLap; l<=maxLap; l+=lapStep){
+      xlabels += '<text x="'+x(l)+'" y="'+(H-padB+18)+'" class="chart-axis-label" text-anchor="middle">'+l+'</text>';
+    }
+
+    var paths = '';
+    var allDstatsIndex = {};
+    dstats.forEach(function(d,i){ allDstatsIndex[d.driver]=i; });
+    dstats.forEach(function(d){
+      var color = driverColor(driverIndex(d.driver));
+      var pts = d.laps.map(function(l){ return x(l.lap)+','+y(l.time); }).join(' ');
+      paths += '<polyline points="'+pts+'" fill="none" stroke="'+color+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
+      d.laps.forEach(function(l){
+        paths += '<circle cx="'+x(l.lap)+'" cy="'+y(l.time)+'" r="3" fill="'+color+'"/>';
+      });
+    });
+
+    return '<svg viewBox="0 0 '+W+' '+H+'" class="chart-svg" role="img" aria-label="Rundetid per runde">'+
+      gridlines + xlabels + paths +
+      '<text x="'+(W/2)+'" y="'+(H-2)+'" class="chart-axis-title" text-anchor="middle">Runde</text>'+
+      '</svg>';
+  }
+
+  function buildSeasonChart(dstats){
+    if(!races.length || races.length<2) return '<p style="color:var(--text-muted);">Trenger minst to løp for sesongutvikling.</p>';
+    var perDriverAvg = {};
+    races.forEach(function(r, idx){
+      driverStats(r.laps).forEach(function(d){
+        perDriverAvg[d.driver] = perDriverAvg[d.driver] || [];
+        perDriverAvg[d.driver][idx] = d.avg;
+      });
+    });
+    var visibleDrivers = dstats.map(function(d){return d.driver;});
+    var allVals = [];
+    visibleDrivers.forEach(function(driver){
+      (perDriverAvg[driver]||[]).forEach(function(v){ if(v!=null) allVals.push(v); });
+    });
+    if(!allVals.length) return '<p style="color:var(--text-muted);">Velg minst en fører.</p>';
+
+    var W=760, H=320, padL=54, padR=16, padT=16, padB=40;
+    var n = races.length;
+    var tMin = Math.min.apply(null, allVals), tMax = Math.max.apply(null, allVals);
+    var pad = (tMax-tMin)*0.15 || 1;
+    tMin -= pad; tMax += pad;
+
+    function x(idx){ return padL + (n<=1 ? 0 : (idx/(n-1))*(W-padL-padR)); }
+    function y(t){ return H-padB - ((t-tMin)/((tMax-tMin)||1))*(H-padT-padB); }
+
+    var gridlines = '';
+    for(var i=0;i<=4;i++){
+      var t = tMin + (tMax-tMin)*i/4;
+      var yy = y(t);
+      gridlines += '<line x1="'+padL+'" y1="'+yy+'" x2="'+(W-padR)+'" y2="'+yy+'" class="chart-grid"/>';
+      gridlines += '<text x="'+(padL-8)+'" y="'+(yy+4)+'" class="chart-axis-label" text-anchor="end">'+fmtTime(t)+'</text>';
+    }
+    var xlabels = '';
+    races.forEach(function(r, idx){
+      xlabels += '<text x="'+x(idx)+'" y="'+(H-padB+18)+'" class="chart-axis-label" text-anchor="middle">'+escapeHtml(r.name.length>14 ? ('Løp '+(idx+1)) : r.name)+'</text>';
+    });
+
+    var paths = '';
+    visibleDrivers.forEach(function(driver){
+      var color = driverColor(driverIndex(driver));
+      var series = perDriverAvg[driver] || [];
+      var pts = [];
+      for(var i2=0;i2<n;i2++){
+        if(series[i2]!=null) pts.push({x:x(i2), y:y(series[i2])});
+      }
+      if(pts.length){
+        paths += '<polyline points="'+pts.map(function(p){return p.x+','+p.y;}).join(' ')+'" fill="none" stroke="'+color+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
+        pts.forEach(function(p){ paths += '<circle cx="'+p.x+'" cy="'+p.y+'" r="3.5" fill="'+color+'"/>'; });
+      }
+    });
+
+    return '<svg viewBox="0 0 '+W+' '+H+'" class="chart-svg" role="img" aria-label="Snittid per løp">'+
+      gridlines + xlabels + paths +
+      '<text x="'+(W/2)+'" y="'+(H-2)+'" class="chart-axis-title" text-anchor="middle">Løp</text>'+
+      '</svg>';
+  }
+
+  var driverOrder = [];
+  function driverIndex(driver){
+    var idx = driverOrder.indexOf(driver);
+    if(idx===-1){ driverOrder.push(driver); idx = driverOrder.length-1; }
+    return idx;
+  }
+
+  // ---------- wiring ----------
+  var uploadZone = document.getElementById('upload-zone');
+  var fileInput = document.getElementById('file-input');
+  document.getElementById('upload-btn').addEventListener('click', function(){ fileInput.click(); });
+  fileInput.addEventListener('change', function(){ handleFiles(fileInput.files); fileInput.value=''; });
+  ['dragenter','dragover'].forEach(function(evt){
+    uploadZone.addEventListener(evt, function(e){ e.preventDefault(); uploadZone.classList.add('dragover'); });
+  });
+  ['dragleave','drop'].forEach(function(evt){
+    uploadZone.addEventListener(evt, function(e){ e.preventDefault(); uploadZone.classList.remove('dragover'); });
+  });
+  uploadZone.addEventListener('drop', function(e){
+    if(e.dataTransfer && e.dataTransfer.files) handleFiles(e.dataTransfer.files);
+  });
+  document.getElementById('reset-btn').addEventListener('click', function(){
+    races = sampleRaces();
+    usingSample = true;
+    activeTab = races[0].id;
+    hiddenDrivers = {};
+    driverOrder = [];
+    document.getElementById('upload-warnings').hidden = true;
+    render();
+  });
+
+  if(window.matchMedia){
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(){ render(); });
+  }
+
+  render();
+})();
+</script>
